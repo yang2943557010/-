@@ -8,7 +8,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #e8f4fc 0%, #d6eaf8 100%);
+      background: #f3f6fb;
       min-height: 100vh;
       padding: 40px 20px;
     }
@@ -16,56 +16,83 @@
       max-width: 600px;
       margin: 0 auto;
       background: #fff;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border-radius: 18px;
+      padding: 36px;
+      box-shadow: 0 40px 80px rgba(2, 6, 23, 0.06);
     }
-    h1 { font-size: 24px; color: #333; margin-bottom: 24px; text-align: center; }
+    h1 { font-size: 24px; color: #0b1220; margin-bottom: 28px; text-align: center; }
     .form-group { margin-bottom: 20px; }
-    label { display: block; font-size: 14px; color: #666; margin-bottom: 8px; }
-    input, textarea {
+    label { display: block; font-size: 14px; color: #374151; margin-bottom: 8px; }
+    input {
       width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
+      padding: 14px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
       font-size: 14px;
+      transition: border-color 0.2s;
     }
-    input:focus, textarea:focus { outline: none; border-color: #1890ff; }
+    input:focus { outline: none; border-color: #3b82f6; }
     button {
       width: 100%;
-      padding: 14px;
-      background: #1890ff;
+      padding: 16px;
+      background: #1e3a5f;
       color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 16px;
       cursor: pointer;
       transition: background 0.2s;
+      margin-top: 8px;
     }
-    button:hover { background: #40a9ff; }
+    button:hover { background: #2d4a6f; }
     .result {
       margin-top: 24px;
-      padding: 16px;
-      background: #f5f5f5;
-      border-radius: 8px;
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+    }
+    .result-label { font-size: 13px; color: #6b7280; margin-bottom: 10px; }
+    .result-link { 
+      font-size: 14px; 
+      color: #3b82f6; 
       word-break: break-all;
+      line-height: 1.6;
     }
-    .result-label { font-size: 12px; color: #999; margin-bottom: 8px; }
-    .result-link { font-size: 14px; color: #1890ff; }
     .copy-btn {
-      margin-top: 12px;
-      background: #52c41a;
+      margin-top: 16px;
+      background: #22c55e;
     }
-    .copy-btn:hover { background: #73d13d; }
+    .copy-btn:hover { background: #16a34a; }
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: #0b1220;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
+  <div class="toast" id="toast">链接已复制到剪贴板</div>
+  
   <div class="container">
     <h1>🔗 分享链接生成器</h1>
     
     <div class="form-group">
       <label>目标URL（必填）</label>
-      <input type="url" id="targetUrl" placeholder="https://example.com/resource">
+      <input type="url" id="targetUrl" placeholder="https://pan.quark.cn/s/xxx?pwd=1234" oninput="autoExtractCode()">
     </div>
     
     <div class="form-group">
@@ -74,8 +101,8 @@
     </div>
     
     <div class="form-group">
-      <label>提取码（可选）</label>
-      <input type="text" id="extractCode" placeholder="1234">
+      <label>提取码（可选，会自动从URL提取）</label>
+      <input type="text" id="extractCode" placeholder="自动提取或手动输入">
     </div>
     
     <button onclick="generateLink()">生成分享链接</button>
@@ -88,7 +115,7 @@
   </div>
 
   <script>
-    // Base64编码函数（与app.js保持一致）
+    // Base64编码函数
     function encodeUrl(url) {
       try {
         const encoded = btoa(encodeURIComponent(url));
@@ -98,19 +125,44 @@
       }
     }
 
+    // 自动从URL提取提取码
+    function autoExtractCode() {
+      const targetUrl = document.getElementById('targetUrl').value.trim();
+      const codeInput = document.getElementById('extractCode');
+      
+      if (!targetUrl) return;
+      
+      try {
+        const url = new URL(targetUrl);
+        // 尝试从pwd参数提取
+        const pwd = url.searchParams.get('pwd') || url.searchParams.get('password') || url.searchParams.get('code');
+        if (pwd && !codeInput.value) {
+          codeInput.value = pwd;
+        }
+      } catch (e) {
+        // URL解析失败，尝试正则匹配
+        const pwdMatch = targetUrl.match(/[?&]pwd=([^&]+)/i) || 
+                         targetUrl.match(/[?&]password=([^&]+)/i) ||
+                         targetUrl.match(/[?&]code=([^&]+)/i);
+        if (pwdMatch && !codeInput.value) {
+          codeInput.value = pwdMatch[1];
+        }
+      }
+    }
+
     function generateLink() {
       const targetUrl = document.getElementById('targetUrl').value.trim();
       const name = document.getElementById('resourceName').value.trim();
       const code = document.getElementById('extractCode').value.trim();
 
       if (!targetUrl) {
-        alert('请输入目标URL');
+        showToast('请输入目标URL');
         return;
       }
 
       const encodedUrl = encodeUrl(targetUrl);
       if (!encodedUrl) {
-        alert('URL编码失败');
+        showToast('URL编码失败');
         return;
       }
 
@@ -128,8 +180,26 @@
     function copyLink() {
       const link = document.getElementById('generatedLink').textContent;
       navigator.clipboard.writeText(link).then(() => {
-        alert('链接已复制到剪贴板');
+        showToast('链接已复制到剪贴板');
+      }).catch(() => {
+        // 降级方案
+        const textarea = document.createElement('textarea');
+        textarea.value = link;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('链接已复制到剪贴板');
       });
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
     }
   </script>
 </body>
