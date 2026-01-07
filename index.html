@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>资源分享</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: #f3f6fb;
+      color: #0b1220;
+      padding: 40px 80px;
+      min-height: 100vh;
+    }
+
+    /* 顶部 logo 区 */
+    .topbar {
+      position: absolute;
+      left: 220px;
+      top: 28px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      color: #0f172a;
+      font-weight: 600;
+    }
+
+    .site-logo {
+      height: 36px;
+      width: auto;
+      display: inline-block;
+      object-fit: contain;
+      vertical-align: middle;
+    }
+
+    .site-name {
+      font-size: 16px;
+    }
+
+    /* 主舞台 */
+    .stage {
+      max-width: 1200px;
+      margin: 40px auto 0;
+      display: flex;
+      gap: 80px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 卡片 */
+    .card {
+      width: 460px;
+      background: #fff;
+      border-radius: 18px;
+      padding: 36px;
+      box-shadow: 0 40px 80px rgba(2, 6, 23, 0.06);
+      transform: translateX(12px);
+    }
+
+    .card h2 {
+      font-size: 20px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .extract-code {
+      margin-bottom: 10px;
+      color: #374151;
+      font-size: 14px;
+    }
+
+    .extract-code strong {
+      font-weight: 700;
+      color: #0b1220;
+    }
+
+    .card .sub {
+      color: #6b7280;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+
+    .app-name {
+      color: #0b1220;
+      font-weight: 700;
+    }
+
+    /* 二维码 */
+    .qr {
+      width: 176px;
+      height: 176px;
+      margin: 18px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+      border: 1px solid #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qr canvas,
+    .qr img {
+      width: 160px !important;
+      height: 160px !important;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .hint {
+      text-align: center;
+      margin-top: 20px;
+      font-weight: 700;
+      color: #111827;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .hint small {
+      font-weight: 400;
+      color: #6b7280;
+    }
+
+    .hint .highlight {
+      color: #3b82f6;
+    }
+
+    /* 引导图区域 */
+    .guide-right {
+      flex: 0 0 600px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 40px 0 0;
+      transform: translateX(-12px);
+    }
+
+    .guide-img {
+      max-width: 560px;
+      width: auto;
+      max-height: 760px;
+      height: auto;
+      object-fit: contain;
+      background: transparent;
+      box-shadow: none;
+      border-radius: 0;
+      display: block;
+    }
+
+    /* 错误页面 */
+    .error-container {
+      width: 460px;
+      background: #fff;
+      border-radius: 18px;
+      padding: 60px 36px;
+      box-shadow: 0 40px 80px rgba(2, 6, 23, 0.06);
+      text-align: center;
+    }
+
+    .error-container h2 {
+      font-size: 20px;
+      color: #ef4444;
+      margin-bottom: 12px;
+    }
+
+    .error-container p {
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    /* 响应式 */
+    @media (max-width: 1000px) {
+      body {
+        padding: 20px;
+      }
+
+      .topbar {
+        position: relative;
+        left: 0;
+        top: 0;
+        margin-bottom: 20px;
+      }
+
+      .stage {
+        flex-direction: column;
+        gap: 30px;
+        margin-top: 20px;
+      }
+
+      .guide-right {
+        order: 1;
+        flex: none;
+        padding: 0;
+        transform: none;
+        justify-content: center;
+      }
+
+      .card {
+        order: 2;
+        width: 100%;
+        max-width: 460px;
+        transform: none;
+      }
+
+      .guide-img {
+        max-width: 100%;
+        max-height: 400px;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <!-- 顶部Logo -->
+  <div class="topbar" id="topbar">
+    <img src="" alt="logo" class="site-logo" id="siteLogo" style="display: none;">
+    <span class="site-name" id="siteName">资源分享</span>
+  </div>
+
+  <!-- 主内容 -->
+  <div class="stage" id="stage">
+    <!-- 二维码卡片 -->
+    <div class="card" id="qrCard" role="region" aria-label="资源卡片">
+      <h2 id="resourceName">资源名称：加载中...</h2>
+      <div class="extract-code">提取码：<strong id="extractCode">--</strong></div>
+      <div class="sub" id="scanTip">打开 <span class="app-name">手机浏览器</span> - 点击搜索框相机 - 扫码</div>
+      <div class="qr" id="qrContainer"></div>
+      <div class="hint">
+        由于资源仅允许手机端访问<br>
+        <small>请使用 <span class="highlight" id="bottomAppName">手机浏览器</span> 或浏览器扫码打开</small>
+      </div>
+    </div>
+
+    <!-- 引导图 -->
+    <div class="guide-right" id="guideRight" aria-hidden="true"></div>
+
+    <!-- 错误页面 -->
+    <div class="error-container" id="errorContainer" style="display: none;">
+      <h2>链接无效</h2>
+      <p>请检查链接是否完整或联系分享者重新获取</p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

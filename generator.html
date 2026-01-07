@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>链接生成器</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #e8f4fc 0%, #d6eaf8 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    h1 { font-size: 24px; color: #333; margin-bottom: 24px; text-align: center; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-size: 14px; color: #666; margin-bottom: 8px; }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    input:focus, textarea:focus { outline: none; border-color: #1890ff; }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #1890ff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #40a9ff; }
+    .result {
+      margin-top: 24px;
+      padding: 16px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      word-break: break-all;
+    }
+    .result-label { font-size: 12px; color: #999; margin-bottom: 8px; }
+    .result-link { font-size: 14px; color: #1890ff; }
+    .copy-btn {
+      margin-top: 12px;
+      background: #52c41a;
+    }
+    .copy-btn:hover { background: #73d13d; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔗 分享链接生成器</h1>
+    
+    <div class="form-group">
+      <label>目标URL（必填）</label>
+      <input type="url" id="targetUrl" placeholder="https://example.com/resource">
+    </div>
+    
+    <div class="form-group">
+      <label>资源名称（可选）</label>
+      <input type="text" id="resourceName" placeholder="我的资源">
+    </div>
+    
+    <div class="form-group">
+      <label>提取码（可选）</label>
+      <input type="text" id="extractCode" placeholder="1234">
+    </div>
+    
+    <button onclick="generateLink()">生成分享链接</button>
+    
+    <div class="result" id="result" style="display: none;">
+      <div class="result-label">生成的分享链接：</div>
+      <div class="result-link" id="generatedLink"></div>
+      <button class="copy-btn" onclick="copyLink()">复制链接</button>
+    </div>
+  </div>
+
+  <script>
+    // Base64编码函数（与app.js保持一致）
+    function encodeUrl(url) {
+      try {
+        const encoded = btoa(encodeURIComponent(url));
+        return encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function generateLink() {
+      const targetUrl = document.getElementById('targetUrl').value.trim();
+      const name = document.getElementById('resourceName').value.trim();
+      const code = document.getElementById('extractCode').value.trim();
+
+      if (!targetUrl) {
+        alert('请输入目标URL');
+        return;
+      }
+
+      const encodedUrl = encodeUrl(targetUrl);
+      if (!encodedUrl) {
+        alert('URL编码失败');
+        return;
+      }
+
+      // 构建分享链接
+      const baseUrl = window.location.origin + window.location.pathname.replace('generator.html', 'index.html');
+      let shareUrl = `${baseUrl}?u=${encodedUrl}`;
+      
+      if (name) shareUrl += `&n=${encodeURIComponent(name)}`;
+      if (code) shareUrl += `&c=${encodeURIComponent(code)}`;
+
+      document.getElementById('generatedLink').textContent = shareUrl;
+      document.getElementById('result').style.display = 'block';
+    }
+
+    function copyLink() {
+      const link = document.getElementById('generatedLink').textContent;
+      navigator.clipboard.writeText(link).then(() => {
+        alert('链接已复制到剪贴板');
+      });
+    }
+  </script>
+</body>
+</html>
