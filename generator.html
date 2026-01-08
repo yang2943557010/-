@@ -4,203 +4,940 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>链接生成器</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f3f6fb;
-      min-height: 100vh;
-      padding: 40px 20px;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 18px;
-      padding: 36px;
-      box-shadow: 0 40px 80px rgba(2, 6, 23, 0.06);
-    }
-    h1 { font-size: 24px; color: #0b1220; margin-bottom: 28px; text-align: center; }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; font-size: 14px; color: #374151; margin-bottom: 8px; }
-    input {
-      width: 100%;
-      padding: 14px 16px;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 14px;
-      transition: border-color 0.2s;
-    }
-    input:focus { outline: none; border-color: #3b82f6; }
-    button {
-      width: 100%;
-      padding: 16px;
-      background: #1e3a5f;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.2s;
-      margin-top: 8px;
-    }
-    button:hover { background: #2d4a6f; }
-    .result {
-      margin-top: 24px;
-      padding: 20px;
-      background: #f9fafb;
-      border-radius: 12px;
-      border: 1px solid #e5e7eb;
-    }
-    .result-label { font-size: 13px; color: #6b7280; margin-bottom: 10px; }
-    .result-link { 
-      font-size: 14px; 
-      color: #3b82f6; 
-      word-break: break-all;
-      line-height: 1.6;
-    }
-    .copy-btn {
-      margin-top: 16px;
-      background: #22c55e;
-    }
-    .copy-btn:hover { background: #16a34a; }
-    .toast {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-100px);
-      background: #0b1220;
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 14px;
-      opacity: 0;
-      transition: all 0.3s ease;
-      z-index: 1000;
-    }
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-  </style>
+    :root { --bg:#f8fafc; --card:#fff; --text:#1e293b; --text2:#475569; --text3:#94a3b8; --border:#e2e8f0; --primary:#6366f1; --primary-light:#818cf8; }
+    [data-theme="dark"] { --bg:#0f172a; --card:#1e293b; --text:#f1f5f9; --text2:#cbd5e1; --text3:#64748b; --border:#334155; --primary:#818cf8; --primary-light:#a5b4fc; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); min-height:100vh; padding:20px; color:var(--text); transition:all .2s; }
+    .container { max-width:1000px; margin:0 auto; }
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; padding:0 4px; }
+    .header h1 { font-size:20px; font-weight:600; display:flex; align-items:center; gap:8px; }
+    .header-actions { display:flex; gap:8px; }
+    .icon-btn { width:36px; height:36px; border-radius:10px; border:1px solid var(--border); background:var(--card); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; transition:all .2s; }
+    .icon-btn:hover { border-color:var(--primary); background:var(--primary); color:#fff; }
+    
+    .tabs { display:flex; gap:4px; background:var(--card); padding:6px; border-radius:14px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+    .tab { flex:1; padding:10px 16px; text-align:center; border-radius:10px; cursor:pointer; font-size:13px; font-weight:500; color:var(--text2); transition:all .2s; }
+    .tab.active { background:var(--primary); color:#fff; box-shadow:0 2px 8px rgba(99,102,241,.3); }
+    .tab:hover:not(.active) { background:var(--bg); }
+    
+    .panel { display:none; background:var(--card); border-radius:16px; padding:24px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+    .panel.active { display:block; }
+    
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .form-grid.three { grid-template-columns:1fr 1fr 1fr; }
+    .form-group { display:flex; flex-direction:column; gap:6px; }
+    .form-group.full { grid-column:1/-1; }
+    .form-group label { font-size:12px; font-weight:500; color:var(--text2); }
+    .form-group input, .form-group select, .form-group textarea { padding:10px 14px; border:1px solid var(--border); border-radius:10px; font-size:13px; background:var(--card); color:var(--text); transition:all .2s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(99,102,241,.1); }
+    .form-group textarea { min-height:80px; resize:vertical; font-family:inherit; }
+    
+    .btn { padding:10px 18px; border:none; border-radius:10px; font-size:13px; font-weight:500; cursor:pointer; transition:all .2s; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+    .btn-primary { background:var(--primary); color:#fff; }
+    .btn-primary:hover { background:var(--primary-light); transform:translateY(-1px); box-shadow:0 4px 12px rgba(99,102,241,.3); }
+    .btn-secondary { background:var(--bg); color:var(--text); border:1px solid var(--border); }
+    .btn-secondary:hover { border-color:var(--primary); color:var(--primary); }
+    .btn-success { background:#10b981; color:#fff; }
+    .btn-success:hover { background:#34d399; }
+    .btn-danger { background:#ef4444; color:#fff; }
+    .btn-sm { padding:6px 12px; font-size:12px; }
+    
+    .btn-group { display:flex; gap:10px; margin-top:20px; }
+    
+    .upload-zone { border:2px dashed var(--border); border-radius:12px; padding:32px; text-align:center; cursor:pointer; transition:all .2s; }
+    .upload-zone:hover { border-color:var(--primary); background:rgba(99,102,241,.02); }
+    .upload-zone.dragover { border-color:var(--primary); background:rgba(99,102,241,.05); }
+    .upload-zone .icon { font-size:32px; margin-bottom:8px; }
+    .upload-zone .text { font-size:13px; color:var(--text2); }
+    .upload-zone .hint { font-size:11px; color:var(--text3); margin-top:4px; }
+</style>
 </head>
 <body>
-  <div class="toast" id="toast">链接已复制到剪贴板</div>
-  
+  <div class="toast" id="toast"></div>
   <div class="container">
-    <h1>🔗 分享链接生成器</h1>
-    
-    <div class="form-group">
-      <label>目标URL（必填）</label>
-      <input type="url" id="targetUrl" placeholder="https://pan.quark.cn/s/xxx?pwd=1234" oninput="autoExtractCode()">
+    <div class="header">
+      <h1><span style="font-size:24px;">🔗</span> 链接生成器</h1>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="toggleTheme()" title="切换主题">🌓</button>
+        <button class="icon-btn" onclick="showShortcuts()" title="快捷键">⌨️</button>
+      </div>
     </div>
     
-    <div class="form-group">
-      <label>资源名称（可选）</label>
-      <input type="text" id="resourceName" placeholder="我的资源">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('single')">单个生成</div>
+      <div class="tab" onclick="switchTab('batch')">批量生成</div>
+      <div class="tab" onclick="switchTab('upload')">表格导入</div>
+      <div class="tab" onclick="switchTab('history')">历史记录</div>
+      <div class="tab" onclick="switchTab('settings')">设置</div>
     </div>
-    
-    <div class="form-group">
-      <label>提取码（可选，会自动从URL提取）</label>
-      <input type="text" id="extractCode" placeholder="自动提取或手动输入">
+
+    <!-- 单个生成 -->
+    <div class="panel active" id="panel-single">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>目标链接</label>
+          <input type="url" id="targetUrl" placeholder="粘贴网盘链接，如 https://pan.quark.cn/s/xxx?pwd=1234" oninput="autoExtractCode()">
+        </div>
+        <div class="form-group">
+          <label>资源名称</label>
+          <input type="text" id="resourceName" placeholder="给资源起个名字">
+        </div>
+        <div class="form-group">
+          <label>提取码</label>
+          <input type="text" id="extractCode" placeholder="自动识别">
+        </div>
+        <div class="form-group">
+          <label>分组</label>
+          <select id="groupTag"><option value="">选择分组</option></select>
+        </div>
+        <div class="form-group">
+          <label>页面风格</label>
+          <select id="pageStyle">
+            <option value="default">默认灰蓝</option>
+            <option value="minimal">纯净白</option>
+            <option value="gradient">梦幻紫</option>
+            <option value="sunset">日落橙</option>
+            <option value="ocean">深海蓝</option>
+            <option value="forest">森林绿</option>
+            <option value="cherry">樱花粉</option>
+            <option value="midnight">午夜黑</option>
+            <option value="aurora">极光</option>
+            <option value="candy">糖果色</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>备注信息</label>
+          <textarea id="remarkText" placeholder="添加备注，如资源说明、使用方法等（可选）"></textarea>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="generateSingle()">✨ 生成链接</button>
+        <button class="btn btn-secondary" onclick="previewResult()">👁️ 预览效果</button>
+      </div>
+      <div id="singleResult" style="margin-top:20px;"></div>
     </div>
-    
-    <button onclick="generateLink()">生成分享链接</button>
-    
-    <div class="result" id="result" style="display: none;">
-      <div class="result-label">生成的分享链接：</div>
-      <div class="result-link" id="generatedLink"></div>
-      <button class="copy-btn" onclick="copyLink()">复制链接</button>
+
+    <!-- 批量生成 -->
+    <div class="panel" id="panel-batch">
+      <div class="form-group">
+        <label>批量输入（每行格式：链接|名称|提取码|分组|备注）</label>
+        <textarea id="batchInput" style="min-height:140px;font-family:monospace;font-size:12px;" placeholder="https://pan.quark.cn/s/xxx?pwd=1234|电影资源|1234|娱乐|高清版本
+https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
+      </div>
+      <p style="font-size:11px;color:var(--text3);margin-top:-8px;">提示：名称、提取码、分组、备注均可省略，提取码会自动识别</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="generateBatch()">批量生成</button>
+        <button class="btn btn-success" onclick="exportAllQR()">📦 导出全部二维码</button>
+        <button class="btn btn-secondary" onclick="clearBatch()">清空</button>
+      </div>
+      <div id="batchResult" style="margin-top:20px;"></div>
+    </div>
+
+    <!-- 表格导入 -->
+    <div class="panel" id="panel-upload">
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <div class="icon">📊</div>
+        <div class="text">点击或拖拽上传 Excel/CSV 文件</div>
+        <div class="hint">支持 .xlsx .xls .csv 格式</div>
+      </div>
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFileUpload(event)">
+      <div style="margin-top:16px;padding:16px;background:var(--bg);border-radius:10px;">
+        <div style="font-size:12px;font-weight:500;margin-bottom:8px;">表格格式说明：</div>
+        <table style="width:100%;font-size:11px;color:var(--text2);border-collapse:collapse;">
+          <tr><td style="padding:4px 8px;border:1px solid var(--border);">A列</td><td style="padding:4px 8px;border:1px solid var(--border);">链接（必填）</td></tr>
+          <tr><td style="padding:4px 8px;border:1px solid var(--border);">B列</td><td style="padding:4px 8px;border:1px solid var(--border);">名称</td></tr>
+          <tr><td style="padding:4px 8px;border:1px solid var(--border);">C列</td><td style="padding:4px 8px;border:1px solid var(--border);">提取码</td></tr>
+          <tr><td style="padding:4px 8px;border:1px solid var(--border);">D列</td><td style="padding:4px 8px;border:1px solid var(--border);">分组</td></tr>
+          <tr><td style="padding:4px 8px;border:1px solid var(--border);">E列</td><td style="padding:4px 8px;border:1px solid var(--border);">备注</td></tr>
+        </table>
+        <button class="btn btn-secondary btn-sm" style="margin-top:12px;" onclick="downloadTemplate()">📥 下载模板</button>
+      </div>
+      <div id="uploadResult" style="margin-top:20px;"></div>
+    </div>
+
+    <!-- 历史记录 -->
+    <div class="panel" id="panel-history">
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+        <input type="text" id="searchInput" placeholder="🔍 搜索..." style="flex:1;min-width:160px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--card);color:var(--text);" oninput="filterHistory()">
+        <select id="filterGroup" style="padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--card);color:var(--text);" onchange="filterHistory()"><option value="">全部分组</option></select>
+        <select id="filterDisk" style="padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--card);color:var(--text);" onchange="filterHistory()"><option value="">全部网盘</option></select>
+        <button class="btn btn-secondary btn-sm" onclick="exportHistory()">导出</button>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('importFile').click()">导入</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importHistory(event)">
+        <button class="btn btn-success btn-sm" onclick="exportHistoryQR()">📦 导出二维码</button>
+        <button class="btn btn-danger btn-sm" onclick="clearHistory()">清空</button>
+      </div>
+      <div id="historyList"></div>
+    </div>
+
+    <!-- 设置 -->
+    <div class="panel" id="panel-settings">
+      <div style="margin-bottom:24px;">
+        <h3 style="font-size:14px;font-weight:600;margin-bottom:16px;">🎨 二维码样式</h3>
+        <div class="form-grid three">
+          <div class="form-group">
+            <label>前景色</label>
+            <input type="color" id="qrColorDark" value="#1e293b" style="height:40px;padding:4px;cursor:pointer;">
+          </div>
+          <div class="form-group">
+            <label>背景色</label>
+            <input type="color" id="qrColorLight" value="#ffffff" style="height:40px;padding:4px;cursor:pointer;">
+          </div>
+          <div class="form-group">
+            <label>尺寸</label>
+            <select id="qrSize">
+              <option value="140">小 140px</option>
+              <option value="180" selected>中 180px</option>
+              <option value="220">大 220px</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-group" style="margin-top:16px;">
+          <button class="btn btn-primary btn-sm" onclick="saveSettings()">保存设置</button>
+          <button class="btn btn-secondary btn-sm" onclick="resetSettings()">恢复默认</button>
+        </div>
+      </div>
+      
+      <div style="padding-top:20px;border-top:1px solid var(--border);">
+        <h3 style="font-size:14px;font-weight:600;margin-bottom:16px;">🏷️ 自定义分组</h3>
+        <div style="display:flex;gap:10px;">
+          <input type="text" id="newGroup" placeholder="输入分组名称" style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--card);color:var(--text);">
+          <button class="btn btn-primary btn-sm" onclick="addGroup()">添加</button>
+        </div>
+        <div id="groupList" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;"></div>
+      </div>
     </div>
   </div>
 
+  <!-- 二维码弹窗 -->
+  <div class="modal" id="qrModal">
+    <div class="modal-box" style="max-width:420px;">
+      <div class="modal-header">
+        <h3 id="modalTitle">二维码</h3>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div id="modalQr" style="display:flex;justify-content:center;padding:20px;background:var(--bg);border-radius:12px;margin:16px 0;"></div>
+      <div id="modalRemark" style="display:none;padding:12px;background:var(--bg);border-radius:8px;margin-bottom:16px;font-size:12px;color:var(--text2);"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button class="btn btn-primary" onclick="downloadQR()">💾 下载二维码</button>
+        <button class="btn btn-success" onclick="showPosterModal()">🖼️ 生成海报</button>
+        <button class="btn btn-secondary" onclick="copyCurrentLink()">📋 复制链接</button>
+        <button class="btn btn-secondary" onclick="shareToSocial()">📤 分享</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 海报弹窗 -->
+  <div class="modal" id="posterModal">
+    <div class="modal-box" style="max-width:800px;">
+      <div class="modal-header">
+        <h3>选择海报风格</h3>
+        <button class="modal-close" onclick="closePosterModal()">×</button>
+      </div>
+      <div class="poster-grid" id="posterGrid"></div>
+      <div style="margin-top:16px;text-align:center;">
+        <button class="btn btn-primary" onclick="downloadSelectedPoster()">💾 下载选中海报</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 预览弹窗 -->
+  <div class="modal" id="previewModal">
+    <div class="modal-box" style="max-width:900px;height:85vh;">
+      <div class="modal-header">
+        <h3>页面预览</h3>
+        <button class="modal-close" onclick="closePreview()">×</button>
+      </div>
+      <iframe id="previewFrame" style="width:100%;height:calc(100% - 60px);border:none;border-radius:12px;background:#fff;"></iframe>
+    </div>
+  </div>
+
+  <style>
+    .result-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:12px; display:flex; align-items:center; gap:14px; transition:all .2s; }
+    .result-card:hover { border-color:var(--primary); box-shadow:0 4px 12px rgba(99,102,241,.08); }
+    .result-card .qr { width:56px; height:56px; flex-shrink:0; border-radius:8px; overflow:hidden; background:#fff; padding:4px; border:1px solid var(--border); }
+    .result-card .info { flex:1; min-width:0; }
+    .result-card .name { font-size:14px; font-weight:600; margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+    .result-card .tag { font-size:10px; padding:2px 8px; background:var(--primary); color:#fff; border-radius:10px; }
+    .result-card .link { font-size:11px; color:var(--primary); word-break:break-all; }
+    .result-card .remark { font-size:11px; color:var(--text3); margin-top:4px; }
+    .result-card .actions { display:flex; gap:6px; }
+    
+    .history-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:10px; display:flex; align-items:center; gap:12px; }
+    .history-card .icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .history-card .icon img { width:22px; height:22px; }
+    .history-card .info { flex:1; min-width:0; }
+    .history-card .name { font-size:13px; font-weight:600; }
+    .history-card .meta { font-size:11px; color:var(--text3); margin-top:2px; }
+    .history-card .link { font-size:11px; color:var(--primary); word-break:break-all; margin-top:4px; }
+    
+    .empty { text-align:center; padding:40px; color:var(--text3); }
+    .empty .icon { font-size:48px; margin-bottom:12px; opacity:.5; }
+    
+    .toast { position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-100px); background:var(--text); color:var(--card); padding:12px 24px; border-radius:12px; font-size:13px; font-weight:500; opacity:0; transition:all .3s; z-index:10001; box-shadow:0 4px 20px rgba(0,0,0,.2); }
+    .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+    
+    .modal { display:none; position:fixed; inset:0; background:rgba(15,23,42,.6); backdrop-filter:blur(4px); z-index:10000; align-items:center; justify-content:center; padding:20px; }
+    .modal.show { display:flex; }
+    .modal-box { background:var(--card); border-radius:20px; padding:24px; width:100%; max-height:90vh; overflow:auto; }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .modal-header h3 { font-size:16px; font-weight:600; }
+    .modal-close { width:32px; height:32px; border:none; background:var(--bg); border-radius:8px; cursor:pointer; font-size:18px; color:var(--text2); transition:all .2s; }
+    .modal-close:hover { background:var(--primary); color:#fff; }
+    
+    .poster-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; }
+    .poster-item { cursor:pointer; border:3px solid transparent; border-radius:16px; overflow:hidden; transition:all .2s; }
+    .poster-item:hover { transform:translateY(-4px); box-shadow:0 8px 24px rgba(0,0,0,.12); }
+    .poster-item.selected { border-color:var(--primary); }
+    
+    .group-chip { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; background:var(--bg); border-radius:8px; font-size:12px; }
+    .group-chip .del { cursor:pointer; opacity:.5; }
+    .group-chip .del:hover { opacity:1; color:#ef4444; }
+    
+    @media(max-width:640px) {
+      .form-grid { grid-template-columns:1fr; }
+      .form-grid.three { grid-template-columns:1fr; }
+      .poster-grid { grid-template-columns:1fr 1fr; }
+    }
+  </style>
+
   <script>
-    // Base64编码函数
-    function encodeUrl(url) {
-      try {
-        const encoded = btoa(encodeURIComponent(url));
-        return encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-      } catch (e) {
-        return null;
+    // ==================== 配置 ====================
+    const SECRET_KEY = 'QrShare2024Key!!';
+    const BASE_URL = window.location.origin + '/index.html';
+    
+    const DISK_CONFIG = {
+      baidu: { name: '百度网盘', keywords: ['pan.baidu.com', 'yun.baidu.com'], logo: 'https://testlink11.oss-cn-beijing.aliyuncs.com/baidu-logo.png', color: '#06a7ff' },
+      quark: { name: '夸克网盘', keywords: ['pan.quark.cn', 'quark.cn'], logo: 'https://testlink11.oss-cn-beijing.aliyuncs.com/quark-logo.png', color: '#1890ff' },
+      aliyun: { name: '阿里云盘', keywords: ['aliyundrive.com', 'alipan.com'], logo: 'https://img.alicdn.com/imgextra/i1/O1CN01JDQCi21Hp8ASbOY1a_!!6000000000806-2-tps-512-512.png', color: '#ff6a00' },
+      xunlei: { name: '迅雷云盘', keywords: ['pan.xunlei.com'], logo: 'https://pan.xunlei.com/favicon.ico', color: '#0078d4' },
+      '115': { name: '115网盘', keywords: ['115.com'], logo: 'https://115.com/favicon.ico', color: '#2b579a' },
+      lanzou: { name: '蓝奏云', keywords: ['lanzou', 'lanzoui', 'lanzoux'], logo: 'https://www.lanzou.com/favicon.ico', color: '#0099ff' },
+      tianyi: { name: '天翼云盘', keywords: ['cloud.189.cn', 'e.189.cn'], logo: 'https://cloud.189.cn/favicon.ico', color: '#21a9e1' },
+      default: { name: '资源分享', keywords: [], logo: '', color: '#6366f1' }
+    };
+
+    let history = JSON.parse(localStorage.getItem('linkHistory') || '[]');
+    let groups = JSON.parse(localStorage.getItem('linkGroups') || '["默认","学习","娱乐","工作"]');
+    let settings = JSON.parse(localStorage.getItem('qrSettings') || '{"colorDark":"#1e293b","colorLight":"#ffffff","size":180}');
+    let currentData = null;
+    let selectedPosterStyle = 'elegant';
+
+    // ==================== 工具函数 ====================
+    function encrypt(text) {
+      let result = '';
+      for (let i = 0; i < text.length; i++) {
+        result += String.fromCharCode(text.charCodeAt(i) ^ SECRET_KEY.charCodeAt(i % SECRET_KEY.length));
       }
+      const encoded = btoa(unescape(encodeURIComponent(result)));
+      return encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
 
-    // 自动从URL提取提取码
+    function detectDiskType(url) {
+      if (!url) return DISK_CONFIG.default;
+      const lowerUrl = url.toLowerCase();
+      for (const [key, config] of Object.entries(DISK_CONFIG)) {
+        if (key === 'default') continue;
+        if (config.keywords.some(k => lowerUrl.includes(k))) return { ...config, type: key };
+      }
+      return { ...DISK_CONFIG.default, type: 'default' };
+    }
+
+    function toast(msg, duration = 2000) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), duration);
+    }
+
     function autoExtractCode() {
-      const targetUrl = document.getElementById('targetUrl').value.trim();
-      const codeInput = document.getElementById('extractCode');
+      const url = document.getElementById('targetUrl').value;
+      const match = url.match(/[?&](pwd|password|code)=([^&]+)/i);
+      if (match) document.getElementById('extractCode').value = match[2];
+    }
+
+    function generateLink(url, name, code, remark) {
+      const encoded = encrypt(url);
+      const pageStyle = document.getElementById('pageStyle')?.value || 'default';
+      let link = `${BASE_URL}?u=${encoded}`;
+      if (name) link += `&n=${encodeURIComponent(name)}`;
+      if (code) link += `&c=${encodeURIComponent(code)}`;
+      if (pageStyle !== 'default') link += `&t=${pageStyle}`;
+      return link;
+    }
+
+    // ==================== Tab切换 ====================
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', t.textContent.includes(tab === 'single' ? '单个' : tab === 'batch' ? '批量' : tab === 'upload' ? '表格' : tab === 'history' ? '历史' : '设置'));
+      });
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + tab).classList.add('active');
+      if (tab === 'history') renderHistory();
+      if (tab === 'settings') loadSettings();
+    }
+
+    // ==================== 单个生成 ====================
+    function generateSingle() {
+      const url = document.getElementById('targetUrl').value.trim();
+      if (!url) return toast('请输入链接');
       
-      if (!targetUrl) return;
+      const name = document.getElementById('resourceName').value.trim() || '资源';
+      const code = document.getElementById('extractCode').value.trim();
+      const group = document.getElementById('groupTag').value;
+      const remark = document.getElementById('remarkText').value.trim();
+      
+      const link = generateLink(url, name, code, remark);
+      const disk = detectDiskType(url);
+      
+      currentData = { url, name, code, link, disk, group, remark, time: Date.now() };
+      saveToHistory(currentData);
+      
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=${encodeURIComponent(link)}`;
+      
+      const container = document.getElementById('singleResult');
+      container.innerHTML = `
+        <div class="result-card">
+          <div class="qr"><img src="${qrUrl}" alt="QR" style="width:48px;height:48px;"></div>
+          <div class="info">
+            <div class="name">${name} <span class="tag" style="background:${disk.color}">${disk.name}</span></div>
+            <div class="link">${link}</div>
+            ${remark ? `<div class="remark">📝 ${remark}</div>` : ''}
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary btn-sm" onclick="showQRModal()">查看</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyLink('${link}')">复制</button>
+          </div>
+        </div>
+      `;
+      
+      toast('生成成功！');
+    }
+
+    // ==================== 批量生成 ====================
+    function generateBatch() {
+      const input = document.getElementById('batchInput').value.trim();
+      if (!input) return toast('请输入链接');
+      
+      const lines = input.split('\n').filter(l => l.trim());
+      const container = document.getElementById('batchResult');
+      container.innerHTML = '';
+      
+      lines.forEach((line, i) => {
+        const parts = line.split('|').map(p => p.trim());
+        const url = parts[0];
+        if (!url) return;
+        
+        const match = url.match(/[?&](pwd|password|code)=([^&]+)/i);
+        const name = parts[1] || '资源' + (i + 1);
+        const code = parts[2] || (match ? match[2] : '');
+        const group = parts[3] || '';
+        const remark = parts[4] || '';
+        
+        const link = generateLink(url, name, code, remark);
+        const disk = detectDiskType(url);
+        
+        saveToHistory({ url, name, code, link, disk, group, remark, time: Date.now() });
+        
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=${encodeURIComponent(link)}`;
+        
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        card.innerHTML = `
+          <div class="qr"><img src="${qrUrl}" alt="QR" style="width:48px;height:48px;"></div>
+          <div class="info">
+            <div class="name">${name} <span class="tag" style="background:${disk.color}">${disk.name}</span></div>
+            <div class="link">${link}</div>
+            ${remark ? `<div class="remark">📝 ${remark}</div>` : ''}
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary btn-sm" onclick="copyLink('${link}')">复制</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      
+      toast(`已生成 ${lines.length} 个链接`);
+    }
+
+    function clearBatch() {
+      document.getElementById('batchInput').value = '';
+      document.getElementById('batchResult').innerHTML = '';
+    }
+
+    // ==================== 表格导入 ====================
+    function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+          
+          const container = document.getElementById('uploadResult');
+          container.innerHTML = '';
+          let count = 0;
+          
+          json.forEach((row, i) => {
+            if (i === 0 && row[0]?.toString().includes('链接')) return; // 跳过表头
+            const url = row[0]?.toString().trim();
+            if (!url || !url.startsWith('http')) return;
+            
+            const name = row[1]?.toString().trim() || '资源' + (count + 1);
+            const code = row[2]?.toString().trim() || '';
+            const group = row[3]?.toString().trim() || '';
+            const remark = row[4]?.toString().trim() || '';
+            
+            const link = generateLink(url, name, code, remark);
+            const disk = detectDiskType(url);
+            
+            saveToHistory({ url, name, code, link, disk, group, remark, time: Date.now() });
+            
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=${encodeURIComponent(link)}`;
+            
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            card.innerHTML = `
+              <div class="qr"><img src="${qrUrl}" alt="QR" style="width:48px;height:48px;"></div>
+              <div class="info">
+                <div class="name">${name} <span class="tag" style="background:${disk.color}">${disk.name}</span></div>
+                <div class="link">${link}</div>
+                ${remark ? `<div class="remark">📝 ${remark}</div>` : ''}
+              </div>
+              <div class="actions">
+                <button class="btn btn-secondary btn-sm" onclick="copyLink('${link}')">复制</button>
+              </div>
+            `;
+            container.appendChild(card);
+            count++;
+          });
+          
+          toast(`已导入 ${count} 条记录`);
+        } catch (err) {
+          toast('文件解析失败：' + err.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function downloadTemplate() {
+      const ws = XLSX.utils.aoa_to_sheet([
+        ['链接', '名称', '提取码', '分组', '备注'],
+        ['https://pan.quark.cn/s/xxx?pwd=1234', '示例资源', '1234', '默认', '这是备注']
+      ]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '链接模板');
+      XLSX.writeFile(wb, '链接导入模板.xlsx');
+    }
+
+    // 拖拽上传
+    const uploadZone = document.getElementById('uploadZone');
+    uploadZone?.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+    uploadZone?.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+    uploadZone?.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        document.getElementById('fileInput').files = e.dataTransfer.files;
+        handleFileUpload({ target: { files: [file] } });
+      }
+    });
+
+    // ==================== 历史记录 ====================
+    function saveToHistory(item) {
+      history.unshift(item);
+      if (history.length > 100) history.pop();
+      localStorage.setItem('linkHistory', JSON.stringify(history));
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('historyList');
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const filterG = document.getElementById('filterGroup').value;
+      const filterD = document.getElementById('filterDisk').value;
+      
+      let filtered = history.filter(item => {
+        if (search && !item.name.toLowerCase().includes(search) && !item.url.toLowerCase().includes(search) && !(item.remark || '').toLowerCase().includes(search)) return false;
+        if (filterG && item.group !== filterG) return false;
+        if (filterD && item.disk?.type !== filterD) return false;
+        return true;
+      });
+      
+      if (!filtered.length) {
+        container.innerHTML = '<div class="empty"><div class="icon">📭</div><div>暂无记录</div></div>';
+        return;
+      }
+      
+      container.innerHTML = filtered.map((item, i) => `
+        <div class="history-card">
+          <div class="icon" style="background:${item.disk?.color || '#6366f1'}20">
+            ${item.disk?.logo ? `<img src="${item.disk.logo}" alt="">` : '🔗'}
+          </div>
+          <div class="info">
+            <div class="name">${item.name}</div>
+            <div class="meta">${item.group || '未分组'} · ${new Date(item.time).toLocaleString()}</div>
+            <div class="link">${item.link}</div>
+            ${item.remark ? `<div class="remark" style="font-size:11px;color:var(--text3);margin-top:4px;">📝 ${item.remark}</div>` : ''}
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary btn-sm" onclick="copyLink('${item.link}')">复制</button>
+            <button class="btn btn-secondary btn-sm" onclick="deleteHistory(${i})">删除</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterHistory() { renderHistory(); }
+
+    function deleteHistory(index) {
+      history.splice(index, 1);
+      localStorage.setItem('linkHistory', JSON.stringify(history));
+      renderHistory();
+      toast('已删除');
+    }
+
+    function clearHistory() {
+      if (!confirm('确定清空所有历史记录？')) return;
+      history = [];
+      localStorage.setItem('linkHistory', '[]');
+      renderHistory();
+      toast('已清空');
+    }
+
+    function exportHistory() {
+      if (!history.length) return toast('暂无记录');
+      const data = history.map(item => ({
+        '名称': item.name,
+        '原始链接': item.url,
+        '生成链接': item.link,
+        '提取码': item.code || '',
+        '分组': item.group || '',
+        '备注': item.remark || '',
+        '网盘类型': item.disk?.name || '',
+        '创建时间': new Date(item.time).toLocaleString()
+      }));
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '链接历史');
+      XLSX.writeFile(wb, '链接历史_' + new Date().toLocaleDateString() + '.xlsx');
+      toast('导出成功');
+    }
+
+    function importHistory(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = JSON.parse(evt.target.result);
+          history = [...data, ...history].slice(0, 100);
+          localStorage.setItem('linkHistory', JSON.stringify(history));
+          renderHistory();
+          toast('导入成功');
+        } catch { toast('导入失败'); }
+      };
+      reader.readAsText(file);
+    }
+
+    async function exportHistoryQR() {
+      if (!history.length) return toast('暂无记录');
+      const zip = new JSZip();
+      toast('正在生成...');
+      
+      for (let i = 0; i < history.length; i++) {
+        const item = history[i];
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 200;
+        new QRCode(canvas, { text: item.link, width: 200, height: 200 });
+        await new Promise(r => setTimeout(r, 100));
+        const dataUrl = canvas.querySelector('canvas')?.toDataURL() || canvas.toDataURL();
+        zip.file(`${item.name}_${i + 1}.png`, dataUrl.split(',')[1], { base64: true });
+      }
+      
+      const content = await zip.generateAsync({ type: 'blob' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(content);
+      a.download = '二维码_' + new Date().toLocaleDateString() + '.zip';
+      a.click();
+      toast('导出完成');
+    }
+
+    // ==================== 设置 ====================
+    function loadSettings() {
+      document.getElementById('qrColorDark').value = settings.colorDark;
+      document.getElementById('qrColorLight').value = settings.colorLight;
+      document.getElementById('qrSize').value = settings.size;
+      renderGroups();
+    }
+
+    function saveSettings() {
+      settings = {
+        colorDark: document.getElementById('qrColorDark').value,
+        colorLight: document.getElementById('qrColorLight').value,
+        size: parseInt(document.getElementById('qrSize').value)
+      };
+      localStorage.setItem('qrSettings', JSON.stringify(settings));
+      toast('设置已保存');
+    }
+
+    function resetSettings() {
+      settings = { colorDark: '#1e293b', colorLight: '#ffffff', size: 180 };
+      localStorage.setItem('qrSettings', JSON.stringify(settings));
+      loadSettings();
+      toast('已恢复默认');
+    }
+
+    function renderGroups() {
+      const container = document.getElementById('groupList');
+      container.innerHTML = groups.map(g => `
+        <div class="group-chip">${g} <span class="del" onclick="removeGroup('${g}')">×</span></div>
+      `).join('');
+      
+      const select = document.getElementById('groupTag');
+      select.innerHTML = '<option value="">选择分组</option>' + groups.map(g => `<option value="${g}">${g}</option>`).join('');
+      
+      const filterSelect = document.getElementById('filterGroup');
+      filterSelect.innerHTML = '<option value="">全部分组</option>' + groups.map(g => `<option value="${g}">${g}</option>`).join('');
+    }
+
+    function addGroup() {
+      const input = document.getElementById('newGroup');
+      const name = input.value.trim();
+      if (!name) return;
+      if (groups.includes(name)) return toast('分组已存在');
+      groups.push(name);
+      localStorage.setItem('linkGroups', JSON.stringify(groups));
+      input.value = '';
+      renderGroups();
+      toast('添加成功');
+    }
+
+    function removeGroup(name) {
+      groups = groups.filter(g => g !== name);
+      localStorage.setItem('linkGroups', JSON.stringify(groups));
+      renderGroups();
+    }
+
+    // ==================== 弹窗 ====================
+    function showQRModal() {
+      if (!currentData) return;
+      document.getElementById('modalTitle').textContent = currentData.name;
+      const qrBox = document.getElementById('modalQr');
+      
+      // 使用在线API生成二维码作为备选
+      const qrSize = settings.size || 180;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(currentData.link)}`;
+      qrBox.innerHTML = `<img src="${qrUrl}" alt="二维码" style="width:${qrSize}px;height:${qrSize}px;">`;
+      
+      const remarkBox = document.getElementById('modalRemark');
+      if (currentData.remark) {
+        remarkBox.textContent = '📝 ' + currentData.remark;
+        remarkBox.style.display = 'block';
+      } else {
+        remarkBox.style.display = 'none';
+      }
+      
+      document.getElementById('qrModal').classList.add('show');
+    }
+
+    function closeModal() { document.getElementById('qrModal').classList.remove('show'); }
+
+    function downloadQR() {
+      const img = document.querySelector('#modalQr img');
+      if (!img) return toast('请先生成二维码');
+      
+      // 通过canvas下载图片
+      const canvas = document.createElement('canvas');
+      const size = settings.size || 180;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      
+      const tempImg = new Image();
+      tempImg.crossOrigin = 'anonymous';
+      tempImg.onload = function() {
+        ctx.drawImage(tempImg, 0, 0, size, size);
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = (currentData?.name || '二维码') + '.png';
+        a.click();
+        toast('下载成功');
+      };
+      tempImg.onerror = function() {
+        // 如果跨域失败，直接打开图片
+        window.open(img.src, '_blank');
+        toast('请右键保存图片');
+      };
+      tempImg.src = img.src;
+    }
+
+    function copyCurrentLink() {
+      if (!currentData) return;
+      copyLink(currentData.link);
+    }
+
+    function copyLink(link) {
+      navigator.clipboard.writeText(link).then(() => toast('已复制')).catch(() => toast('复制失败'));
+    }
+
+    function shareToSocial() {
+      if (!currentData) return;
+      const text = `${currentData.name}\n${currentData.link}`;
+      if (navigator.share) {
+        navigator.share({ title: currentData.name, text, url: currentData.link });
+      } else {
+        copyLink(currentData.link);
+        toast('链接已复制，请手动分享');
+      }
+    }
+
+    // ==================== 海报 ====================
+    const POSTER_STYLES = {
+      elegant: { name: '简约白', bg: '#ffffff', text: '#1e293b', accent: '#6366f1' },
+      dark: { name: '暗夜黑', bg: '#0f172a', text: '#f1f5f9', accent: '#818cf8' },
+      warm: { name: '暖阳橙', bg: '#fff7ed', text: '#9a3412', accent: '#f97316' },
+      fresh: { name: '清新绿', bg: '#f0fdf4', text: '#166534', accent: '#22c55e' },
+      ocean: { name: '海洋蓝', bg: '#eff6ff', text: '#1e40af', accent: '#3b82f6' }
+    };
+
+    function showPosterModal() {
+      if (!currentData) return;
+      const grid = document.getElementById('posterGrid');
+      grid.innerHTML = Object.entries(POSTER_STYLES).map(([key, style]) => `
+        <div class="poster-item ${key === selectedPosterStyle ? 'selected' : ''}" onclick="selectPoster('${key}')" id="poster-${key}">
+          <div style="background:${style.bg};padding:24px;border-radius:12px;">
+            <div style="text-align:center;margin-bottom:16px;">
+              <div style="font-size:16px;font-weight:600;color:${style.text}">${currentData.name}</div>
+              <div style="font-size:12px;color:${style.accent};margin-top:4px;">${currentData.disk?.name || '资源分享'}</div>
+            </div>
+            <div style="background:#fff;padding:12px;border-radius:8px;display:flex;justify-content:center;" id="posterQr-${key}"></div>
+            <div style="text-align:center;margin-top:12px;font-size:11px;color:${style.text};opacity:.7;">扫码获取资源</div>
+          </div>
+          <div style="text-align:center;padding:8px;font-size:12px;color:var(--text2)">${style.name}</div>
+        </div>
+      `).join('');
+      
+      Object.keys(POSTER_STYLES).forEach(key => {
+        new QRCode(document.getElementById('posterQr-' + key), { text: currentData.link, width: 100, height: 100 });
+      });
+      
+      document.getElementById('posterModal').classList.add('show');
+    }
+
+    function selectPoster(key) {
+      selectedPosterStyle = key;
+      document.querySelectorAll('.poster-item').forEach(el => el.classList.remove('selected'));
+      document.getElementById('poster-' + key).classList.add('selected');
+    }
+
+    function closePosterModal() { document.getElementById('posterModal').classList.remove('show'); }
+
+    async function downloadSelectedPoster() {
+      const posterEl = document.getElementById('poster-' + selectedPosterStyle);
+      if (!posterEl) return;
       
       try {
-        const url = new URL(targetUrl);
-        // 尝试从pwd参数提取
-        const pwd = url.searchParams.get('pwd') || url.searchParams.get('password') || url.searchParams.get('code');
-        if (pwd && !codeInput.value) {
-          codeInput.value = pwd;
-        }
+        const canvas = await html2canvas(posterEl.querySelector('div'), { scale: 2, backgroundColor: null });
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = `${currentData?.name || '海报'}_${selectedPosterStyle}.png`;
+        a.click();
+        toast('海报已下载');
       } catch (e) {
-        // URL解析失败，尝试正则匹配
-        const pwdMatch = targetUrl.match(/[?&]pwd=([^&]+)/i) || 
-                         targetUrl.match(/[?&]password=([^&]+)/i) ||
-                         targetUrl.match(/[?&]code=([^&]+)/i);
-        if (pwdMatch && !codeInput.value) {
-          codeInput.value = pwdMatch[1];
+        toast('生成失败');
+      }
+    }
+
+    // ==================== 预览 ====================
+    function previewResult() {
+      const url = document.getElementById('targetUrl').value.trim();
+      if (!url) return toast('请先输入链接');
+      
+      const name = document.getElementById('resourceName').value.trim() || '资源';
+      const code = document.getElementById('extractCode').value.trim();
+      const link = generateLink(url, name, code, '');
+      
+      document.getElementById('previewFrame').src = link;
+      document.getElementById('previewModal').classList.add('show');
+    }
+
+    function closePreview() { document.getElementById('previewModal').classList.remove('show'); }
+
+    // ==================== 批量导出二维码 ====================
+    async function exportAllQR() {
+      const cards = document.querySelectorAll('#batchResult .result-card');
+      if (!cards.length) return toast('请先生成链接');
+      
+      const zip = new JSZip();
+      toast('正在生成...');
+      
+      for (let i = 0; i < cards.length; i++) {
+        const canvas = cards[i].querySelector('canvas');
+        if (canvas) {
+          const name = cards[i].querySelector('.name')?.textContent?.split(' ')[0] || '二维码' + (i + 1);
+          zip.file(`${name}.png`, canvas.toDataURL().split(',')[1], { base64: true });
         }
       }
-    }
-
-    function generateLink() {
-      const targetUrl = document.getElementById('targetUrl').value.trim();
-      const name = document.getElementById('resourceName').value.trim();
-      const code = document.getElementById('extractCode').value.trim();
-
-      if (!targetUrl) {
-        showToast('请输入目标URL');
-        return;
-      }
-
-      const encodedUrl = encodeUrl(targetUrl);
-      if (!encodedUrl) {
-        showToast('URL编码失败');
-        return;
-      }
-
-      // 构建分享链接
-      const baseUrl = window.location.origin + window.location.pathname.replace('generator.html', 'index.html');
-      let shareUrl = `${baseUrl}?u=${encodedUrl}`;
       
-      if (name) shareUrl += `&n=${encodeURIComponent(name)}`;
-      if (code) shareUrl += `&c=${encodeURIComponent(code)}`;
-
-      document.getElementById('generatedLink').textContent = shareUrl;
-      document.getElementById('result').style.display = 'block';
+      const content = await zip.generateAsync({ type: 'blob' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(content);
+      a.download = '批量二维码_' + new Date().toLocaleDateString() + '.zip';
+      a.click();
+      toast('导出完成');
     }
 
-    function copyLink() {
-      const link = document.getElementById('generatedLink').textContent;
-      navigator.clipboard.writeText(link).then(() => {
-        showToast('链接已复制到剪贴板');
-      }).catch(() => {
-        // 降级方案
-        const textarea = document.createElement('textarea');
-        textarea.value = link;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        showToast('链接已复制到剪贴板');
-      });
+    // ==================== 主题 ====================
+    function toggleTheme() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
     }
 
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 2000);
+    // ==================== 快捷键 ====================
+    function showShortcuts() {
+      toast('G=生成 P=预览 C=复制 D=主题 1-5=切换标签');
     }
+
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      switch(e.key.toLowerCase()) {
+        case 'g': generateSingle(); break;
+        case 'p': previewResult(); break;
+        case 'c': if (currentData) copyCurrentLink(); break;
+        case 'd': toggleTheme(); break;
+        case '1': switchTab('single'); break;
+        case '2': switchTab('batch'); break;
+        case '3': switchTab('upload'); break;
+        case '4': switchTab('history'); break;
+        case '5': switchTab('settings'); break;
+      }
+    });
+
+    // ==================== 初始化 ====================
+    document.addEventListener('DOMContentLoaded', () => {
+      // 加载主题
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      
+      // 初始化分组选择器
+      renderGroups();
+      
+      // 初始化网盘筛选器
+      const filterDisk = document.getElementById('filterDisk');
+      filterDisk.innerHTML = '<option value="">全部网盘</option>' + 
+        Object.entries(DISK_CONFIG).filter(([k]) => k !== 'default').map(([k, v]) => `<option value="${k}">${v.name}</option>`).join('');
+    });
   </script>
 </body>
 </html>
