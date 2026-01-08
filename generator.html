@@ -55,6 +55,14 @@
     .upload-zone .icon { font-size:32px; margin-bottom:8px; }
     .upload-zone .text { font-size:13px; color:var(--text2); }
     .upload-zone .hint { font-size:11px; color:var(--text3); margin-top:4px; }
+    
+    /* 开关样式 */
+    .switch { position:relative; display:inline-block; width:44px; height:24px; }
+    .switch input { opacity:0; width:0; height:0; }
+    .switch .slider { position:absolute; cursor:pointer; inset:0; background:var(--border); transition:.3s; border-radius:24px; }
+    .switch .slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px; background:#fff; transition:.3s; border-radius:50%; box-shadow:0 2px 4px rgba(0,0,0,.1); }
+    .switch input:checked + .slider { background:var(--primary); }
+    .switch input:checked + .slider:before { transform:translateX(20px); }
 </style>
 </head>
 <body>
@@ -113,6 +121,38 @@
         <div class="form-group full">
           <label>备注信息</label>
           <textarea id="remarkText" placeholder="添加备注，如资源说明、使用方法等（可选）"></textarea>
+        </div>
+        
+        <!-- 广告设置 -->
+        <div class="form-group full" style="margin-top:8px;padding:16px;background:var(--bg);border-radius:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <label style="margin:0;font-weight:600;display:flex;align-items:center;gap:6px;">
+              📢 手机端广告提示
+              <span style="font-size:10px;color:var(--text3);font-weight:400;">（跳转前显示）</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" id="adEnabled">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div id="adSettings" style="display:none;">
+            <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end;">
+              <div class="form-group" style="margin:0;">
+                <label>广告文字（1-15字）</label>
+                <input type="text" id="adText" maxlength="15" placeholder="正在为您跳转..." value="正在为您跳转...">
+              </div>
+              <div class="form-group" style="margin:0;width:100px;">
+                <label>显示时长</label>
+                <select id="adDuration">
+                  <option value="2">2秒</option>
+                  <option value="3">3秒</option>
+                  <option value="4">4秒</option>
+                  <option value="5">5秒</option>
+                </select>
+              </div>
+            </div>
+            <p style="font-size:11px;color:var(--text3);margin-top:8px;">💡 开启后，手机用户打开链接时会先显示广告提示，倒计时结束后自动跳转</p>
+          </div>
         </div>
       </div>
       <div class="btn-group">
@@ -364,10 +404,21 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     function generateLink(url, name, code, remark) {
       const encoded = encrypt(url);
       const pageStyle = document.getElementById('pageStyle')?.value || 'default';
+      const adEnabled = document.getElementById('adEnabled')?.checked || false;
+      const adText = document.getElementById('adText')?.value || '';
+      const adDuration = document.getElementById('adDuration')?.value || '2';
+      
       let link = `${BASE_URL}?u=${encoded}`;
       if (name) link += `&n=${encodeURIComponent(name)}`;
       if (code) link += `&c=${encodeURIComponent(code)}`;
       if (pageStyle !== 'default') link += `&t=${pageStyle}`;
+      
+      // 添加广告参数
+      if (adEnabled && adText.trim()) {
+        link += `&ad=${encodeURIComponent(adText.trim())}`;
+        link += `&ad_t=${adDuration}`;
+      }
+      
       return link;
     }
 
@@ -937,6 +988,13 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       const filterDisk = document.getElementById('filterDisk');
       filterDisk.innerHTML = '<option value="">全部网盘</option>' + 
         Object.entries(DISK_CONFIG).filter(([k]) => k !== 'default').map(([k, v]) => `<option value="${k}">${v.name}</option>`).join('');
+      
+      // 广告开关事件
+      const adEnabled = document.getElementById('adEnabled');
+      const adSettings = document.getElementById('adSettings');
+      adEnabled?.addEventListener('change', () => {
+        adSettings.style.display = adEnabled.checked ? 'block' : 'none';
+      });
     });
   </script>
 </body>

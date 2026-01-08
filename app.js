@@ -168,12 +168,16 @@ const UrlHandler = {
     const name = params.get('n') || '资源';
     const code = params.get('c') || '无';
     const template = params.get('t') || 'default';
+    const adText = params.get('ad') || '';
+    const adDuration = parseInt(params.get('ad_t')) || 2;
     const targetUrl = this.decode(encodedUrl);
     return {
       targetUrl,
       resourceName: decodeURIComponent(name),
       extractCode: decodeURIComponent(code),
       template,
+      adText: adText ? decodeURIComponent(adText) : '',
+      adDuration: Math.min(Math.max(adDuration, 2), 5),
       isValid: !!targetUrl
     };
   }
@@ -283,10 +287,63 @@ function init() {
   
   const isMobile = DeviceDetector.isMobile();
   if (isMobile) {
-    PageRenderer.redirect(params.targetUrl);
+    // 检查是否有广告设置
+    if (params.adText) {
+      showAdAndRedirect(params.targetUrl, params.adText, params.adDuration);
+    } else {
+      PageRenderer.redirect(params.targetUrl);
+    }
   } else {
     PageRenderer.renderQRPage(params);
   }
+}
+
+// 显示广告并跳转
+function showAdAndRedirect(targetUrl, adText, duration) {
+  const overlay = document.getElementById('adOverlay');
+  const textEl = document.getElementById('adText');
+  const countdownEl = document.getElementById('adCountdown');
+  const progressBar = document.getElementById('adProgressBar');
+  
+  if (!overlay) {
+    // 如果没有广告元素，直接跳转
+    PageRenderer.redirect(targetUrl);
+    return;
+  }
+  
+  // 设置广告文字
+  textEl.textContent = adText;
+  countdownEl.textContent = duration;
+  progressBar.style.width = '100%';
+  
+  // 显示广告
+  overlay.style.display = 'flex';
+  
+  let remaining = duration;
+  const startTime = Date.now();
+  const totalMs = duration * 1000;
+  
+  // 更新进度条和倒计时
+  const updateInterval = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.max(0, 100 - (elapsed / totalMs * 100));
+    progressBar.style.width = progress + '%';
+    
+    const newRemaining = Math.ceil((totalMs - elapsed) / 1000);
+    if (newRemaining !== remaining && newRemaining >= 0) {
+      remaining = newRemaining;
+      countdownEl.textContent = remaining;
+    }
+  }, 50);
+  
+  // 倒计时结束后跳转
+  setTimeout(() => {
+    clearInterval(updateInterval);
+    overlay.classList.add('fade-out');
+    setTimeout(() => {
+      PageRenderer.redirect(targetUrl);
+    }, 300);
+  }, totalMs);
 }
 
 // 模板样式

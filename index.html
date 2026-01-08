@@ -213,10 +213,265 @@
         max-height: 400px;
       }
     }
+
+    /* 广告弹窗样式 */
+    .ad-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+    
+    .ad-overlay.fade-out {
+      opacity: 0;
+    }
+    
+    .ad-container {
+      text-align: center;
+      color: #fff;
+      padding: 40px;
+      max-width: 90%;
+    }
+    
+    .ad-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 36px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+    }
+    
+    .ad-text {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    .ad-countdown {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.2);
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .ad-countdown-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: #fff;
+      color: #764ba2;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    
+    .ad-hint {
+      margin-top: 20px;
+      font-size: 13px;
+      opacity: 0.8;
+    }
+    
+    .ad-progress {
+      width: 200px;
+      height: 4px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 2px;
+      margin: 20px auto 0;
+      overflow: hidden;
+    }
+    
+    .ad-progress-bar {
+      height: 100%;
+      background: #fff;
+      border-radius: 2px;
+      transition: width 0.1s linear;
+    }
+    
+    /* 网站推广入口 */
+    .promo-link {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px dashed rgba(255,255,255,0.3);
+    }
+    
+    .promo-link a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      font-size: 12px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      transition: all 0.2s;
+    }
+    
+    .promo-link a:hover {
+      background: rgba(255,255,255,0.25);
+      transform: translateY(-1px);
+    }
+    
+    /* 分享页底部推广 */
+    .page-promo {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    
+    .page-promo-text {
+      color: rgba(255,255,255,0.9);
+      font-size: 13px;
+    }
+    
+    .page-promo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      color: #764ba2;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 20px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .page-promo-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+    
+    /* 错误页推广 */
+    .error-promo {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #f3f4f6;
+    }
+    
+    .error-promo-text {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 12px;
+    }
+    
+    .error-promo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 24px;
+      border-radius: 10px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+    }
+    
+    .error-promo-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102,126,234,0.4);
+    }
+    
+    /* 卡片内推广 */
+    .card-promo {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px dashed #e5e7eb;
+      text-align: center;
+    }
+    
+    .card-promo a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #6366f1;
+      text-decoration: none;
+      font-size: 12px;
+      padding: 6px 14px;
+      background: #f0f0ff;
+      border-radius: 16px;
+      transition: all 0.2s;
+    }
+    
+    .card-promo a:hover {
+      background: #e0e0ff;
+    }
+    
+    @media (max-width: 1000px) {
+      .page-promo {
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 16px;
+      }
+      
+      .page-promo-text {
+        font-size: 12px;
+      }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body>
+  <!-- 广告弹窗 -->
+  <div class="ad-overlay" id="adOverlay" style="display: none;">
+    <div class="ad-container">
+      <div class="ad-icon">🚀</div>
+      <div class="ad-text" id="adText">正在为您跳转...</div>
+      <div class="ad-countdown">
+        <span>即将跳转</span>
+        <span class="ad-countdown-num" id="adCountdown">3</span>
+        <span>秒</span>
+      </div>
+      <div class="ad-progress">
+        <div class="ad-progress-bar" id="adProgressBar" style="width: 100%;"></div>
+      </div>
+      <div class="ad-hint">请稍候，正在为您准备资源...</div>
+      <div class="promo-link">
+        <a href="generator.html" target="_blank">
+          <span>🔗</span>
+          <span>免费生成分享链接</span>
+          <span>→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- 顶部Logo -->
   <div class="topbar" id="topbar">
     <img src="" alt="logo" class="site-logo" id="siteLogo" style="display: none;">
@@ -235,6 +490,12 @@
         由于资源仅允许手机端访问<br>
         <small>请使用 <span class="highlight" id="bottomAppName">手机浏览器</span> 或浏览器扫码打开</small>
       </div>
+      <div class="card-promo">
+        <a href="generator.html" target="_blank">
+          <span>✨</span>
+          <span>我也要生成分享链接</span>
+        </a>
+      </div>
     </div>
 
     <!-- 引导图 -->
@@ -242,9 +503,25 @@
 
     <!-- 错误页面 -->
     <div class="error-container" id="errorContainer" style="display: none;">
-      <h2>链接无效</h2>
+      <h2>😕 链接无效</h2>
       <p>请检查链接是否完整或联系分享者重新获取</p>
+      <div class="error-promo">
+        <p class="error-promo-text">想要分享自己的资源？</p>
+        <a href="generator.html" class="error-promo-btn">
+          <span>🔗</span>
+          <span>免费生成分享链接</span>
+        </a>
+      </div>
     </div>
+  </div>
+
+  <!-- 底部推广条 -->
+  <div class="page-promo" id="pagePromo">
+    <span class="page-promo-text">📢 想要分享自己的网盘资源？</span>
+    <a href="generator.html" class="page-promo-btn">
+      <span>🔗</span>
+      <span>免费生成链接</span>
+    </a>
   </div>
 
   <script src="app.js"></script>
