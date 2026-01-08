@@ -251,6 +251,24 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         </div>
         <div id="groupList" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;"></div>
       </div>
+      
+      <div style="padding-top:20px;margin-top:20px;border-top:1px solid var(--border);">
+        <h3 style="font-size:14px;font-weight:600;margin-bottom:16px;">🛡️ 敏感词过滤</h3>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;">
+            <div style="font-size:12px;color:var(--text2);">
+              词库来源：GitHub开源词库 + 内置基础词库
+            </div>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px;" id="wordCountInfo">
+              加载中...
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="refreshBannedWordsCache()">🔄 更新词库</button>
+        </div>
+        <p style="font-size:11px;color:var(--text3);margin-top:12px;">
+          💡 词库每7天自动更新一次，也可手动刷新获取最新词库
+        </p>
+      </div>
     </div>
   </div>
 
@@ -412,6 +430,585 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       }
     }
 
+    // ==================== 输入验证 ====================
+    // 支持的网盘域名
+    const VALID_DOMAINS = [
+      'pan.baidu.com', 'yun.baidu.com',
+      'pan.quark.cn', 'quark.cn',
+      'aliyundrive.com', 'alipan.com',
+      'pan.xunlei.com',
+      '115.com',
+      'lanzou.com', 'lanzoui.com', 'lanzoux.com', 'lanzouv.com', 'lanzouy.com',
+      'cloud.189.cn', 'e.189.cn',
+      'weiyun.com',
+      'ctfile.com',
+      'cowtransfer.com',
+      'wenshushu.cn',
+      '123pan.com',
+      'uc.cn'
+    ];
+    
+    // ==================== 敏感词过滤系统 ====================
+    // 基础违禁词（内置）- 包含脏话、骂人词汇、各种变体
+    const BASE_BANNED_WORDS = [
+      // ========== 赌博类 ==========
+      '赌博', '博彩', '赌场', '押注', '网赌', '赌钱', '赌球', '赌马',
+      '彩票', '六合彩', '时时彩', '北京赛车', 'pk10', '快三', '快3',
+      '百家乐', '轮盘', '老虎机', '捕鱼', '棋牌', '德州扑克',
+      'casino', 'gambling', 'bet', 'lottery',
+      
+      // ========== 色情类 ==========
+      '色情', '黄色', '黄片', '毛片', 'av', 'porn', 'xxx', 'sex', 'nude',
+      '裸聊', '约炮', '嫖娼', '卖淫', '援交', '一夜情', '包夜', '出台',
+      '小姐', '鸡婆', '站街', '楼凤', '外围', '模特服务',
+      '做爱', '性交', '口交', '肛交', '乱伦', '强奸', '迷奸',
+      '自慰', '手淫', '打飞机', '撸管', '高潮', '潮吹',
+      '阴道', '阴茎', '乳房', '胸部', '屁股', '私处',
+      '情趣用品', '充气娃娃', '飞机杯', '跳蛋', '按摩棒',
+      '成人网站', '成人视频', '成人电影', '激情', '诱惑',
+      
+      // ========== 毒品类 ==========
+      '毒品', '吸毒', '贩毒', '制毒', '冰毒', '海洛因', '大麻', '可卡因',
+      '摇头丸', 'k粉', 'k仔', '麻古', '神仙水', '迷幻药', '致幻剂',
+      '鸦片', '吗啡', '杜冷丁', '安非他命', '甲基苯丙胺',
+      
+      // ========== 暴力/武器类 ==========
+      '枪支', '手枪', '步枪', '冲锋枪', '狙击枪', '猎枪', '气枪',
+      '弹药', '子弹', '炸药', '炸弹', '雷管', '导火索', '火药',
+      '军火', '武器', '管制刀具', '砍刀', '匕首',
+      '杀人', '行凶', '暗杀', '绑架', '勒索',
+      
+      // ========== 诈骗/违法类 ==========
+      '诈骗', '骗子', '骗钱', '传销', '洗钱', '非法集资', '庞氏骗局',
+      '刷单', '兼职诈骗', '杀猪盘', '网络诈骗', '电信诈骗',
+      '假币', '伪钞', '洗黑钱', '地下钱庄',
+      '黑客', '木马', '病毒', '盗号', '钓鱼网站',
+      '代开发票', '假证', '办证', '刻章',
+      
+      // ========== 政治敏感 ==========
+      '反动', '邪教', '法轮', '全能神', '门徒会',
+      
+      // ========== 其他违法 ==========
+      '代孕', '器官买卖', '人口贩卖', '偷渡', '走私',
+      '高利贷', '套路贷', '裸贷', '校园贷',
+      
+      // ========== 脏话骂人（基础） ==========
+      '傻逼', '傻b', '傻叉', '傻屌', '煞笔', '沙比', '傻比', '撒比',
+      '二逼', '二b', '牛逼', '牛b', '装逼', '装b', '逼样',
+      '妈的', '他妈', '你妈', '老母', '娘的', '爹的',
+      '草泥马', '操你', '日你', '干你', '肏', '艹', '草',
+      '狗日', '狗娘', '狗杂种', '狗东西', '狗屎', '狗屁',
+      '王八蛋', '王八', '龟儿子', '龟孙', '乌龟',
+      '混蛋', '浑蛋', '混球', '浑球', '蠢蛋', '笨蛋',
+      '贱人', '贱货', '贱逼', '贱b', '贱种', '下贱',
+      '婊子', '臭婊子', '绿茶婊', '心机婊', '白莲花',
+      '妓女', '鸡', '野鸡', '破鞋', '骚货', '骚逼', '骚b',
+      '鸡巴', '几把', 'jb', '屌', '吊', '叼', '雕',
+      '屁眼', '菊花', '肛门', '屎', '尿', '屁',
+      '滚蛋', '滚犊子', '滚粗', '爬', '爬开',
+      '去死', '该死', '找死', '作死', '死开', '死远点',
+      '白痴', '痴呆', '智障', '脑残', '弱智', '低能', '蠢货', '蠢猪',
+      '废物', '废柴', '没用', '窝囊废', '软蛋',
+      '垃圾', '人渣', '败类', '渣滓', '社会渣滓',
+      '畜生', '禽兽', '牲口', '杂种', '野种', '私生子',
+      '变态', '神经病', '神经', '有病', '脑子有病', '精神病',
+      '恶心', '呕吐', '作呕', '令人作呕',
+      
+      // ========== 脏话骂人（谐音/变体） ==========
+      '麻痹', '麻痺', '妈逼', '妈b', '妈批', '马勒戈壁',
+      '尼玛', '你麻痹', '你妈逼', '你妈b', '你妈死了',
+      '卧槽', '我操', '我草', '我艹', '我靠', '我擦', '握草',
+      '靠北', '靠腰', '靠夭', '他奶奶', '奶奶的',
+      '去你的', '去你妈', '去你大爷', '滚你妈',
+      '特么', '特喵', '尼玛', '泥马', '你马', '妮玛',
+      '卧艹', '卧草', '窝草', '我曹', '我槽',
+      '擦', '靠', '我去', '我了个去', '我勒个去',
+      '妈蛋', '蛋疼', '菊紧', '蛋碎',
+      '坑爹', '坑货', '坑逼', '坑b',
+      '逗比', '逗b', '二货', '二百五', '250', '38', '三八',
+      '神tm', '什么鬼', '什么玩意', '什么东西', '什么货色',
+      
+      // ========== 脏话骂人（拼音/缩写） ==========
+      'sb', 'shabi', 'sha bi', 'shaби',
+      'nmsl', 'nmsle', 'ni ma si le',
+      'cnm', 'cao ni ma', 'caonima',
+      'wcnm', 'wo cao ni ma',
+      'rnm', 'ri ni ma',
+      'gnm', 'gan ni ma',
+      'mdzz', 'ma de zhi zhang',
+      'tmd', 'ta ma de', 'tamade',
+      'wdnmd', 'wo de ni ma de',
+      'nmd', 'ni ma de', 'nimade',
+      'mlgb', 'ma le ge bi',
+      'wqnmlgb', 'wo qu ni ma le ge bi',
+      'nc', 'nao can', 'naocan',
+      'zz', 'zhi zhang', 'zhizhang',
+      'jb', 'ji ba', 'jiba',
+      'wsn', 'wei suo nan',
+      'lj', 'la ji', 'laji',
+      'fw', 'fei wu', 'feiwu',
+      'djb', 'da ji ba',
+      'gg', 'gege', 'gun',
+      'qnmd', 'qu ni ma de',
+      'qnmlgb', 'qu ni ma le ge bi',
+      'ysdd', 'yao si de dong xi',
+      
+      // ========== 脏话骂人（英文） ==========
+      'fuck', 'fucking', 'fucked', 'fucker', 'fck', 'fuk', 'f*ck', 'f**k',
+      'shit', 'shitty', 'bullshit', 'sh*t', 's**t',
+      'bitch', 'bitchy', 'b*tch', 'b**ch', 'biatch',
+      'ass', 'asshole', 'a**hole', 'arse', 'arsehole',
+      'damn', 'dammit', 'goddamn',
+      'dick', 'dickhead', 'd*ck', 'dik',
+      'cock', 'c*ck', 'cok',
+      'pussy', 'p*ssy', 'puss',
+      'cunt', 'c*nt', 'cnt',
+      'whore', 'wh*re', 'hoe', 'ho',
+      'slut', 'sl*t', 'slutty',
+      'bastard', 'b*stard',
+      'idiot', 'moron', 'retard', 'retarded',
+      'stupid', 'dumb', 'dumbass',
+      'loser', 'sucker', 'suck',
+      'wtf', 'stfu', 'gtfo', 'lmao', 'lmfao',
+      'nigger', 'nigga', 'n*gger', 'n*gga',
+      'faggot', 'fag', 'f*ggot', 'f*g',
+      
+      // ========== 侮辱性称呼 ==========
+      '死胖子', '肥猪', '肥婆', '丑八怪', '丑逼', '丑b',
+      '穷鬼', '穷逼', '穷b', '乞丐', '叫花子',
+      '老不死', '老东西', '老废物', '老杂毛',
+      '小杂种', '小畜生', '小王八',
+      '臭傻逼', '臭sb', '臭狗屎',
+      '死变态', '死基佬', '死gay', '死娘炮',
+      '汉奸', '卖国贼', '走狗', '狗腿子',
+      '小人', '伪君子', '两面派', '墙头草'
+    ];
+    
+    // 扩展词库（从远程加载）
+    let extendedBannedWords = [];
+    let bannedWordsLoaded = false;
+    
+    // 词库配置
+    const WORD_LIST_CONFIG = {
+      // 可以配置多个词库源（jsdelivr CDN加速GitHub资源）
+      sources: [
+        // ===== fwwdn/sensitive-stop-words 词库 =====
+        // 色情类
+        'https://cdn.jsdelivr.net/gh/fwwdn/sensitive-stop-words@master/%E8%89%B2%E6%83%85%E7%B1%BB.txt',
+        // 政治类
+        'https://cdn.jsdelivr.net/gh/fwwdn/sensitive-stop-words@master/%E6%94%BF%E6%B2%BB%E7%B1%BB.txt',
+        // 涉枪涉爆违法信息
+        'https://cdn.jsdelivr.net/gh/fwwdn/sensitive-stop-words@master/%E6%B6%89%E6%9E%AA%E6%B6%89%E7%88%86%E8%BF%9D%E6%B3%95%E4%BF%A1%E6%81%AF%E5%85%B3%E9%94%AE%E8%AF%8D.txt',
+        // 广告类
+        'https://cdn.jsdelivr.net/gh/fwwdn/sensitive-stop-words@master/%E5%B9%BF%E5%91%8A.txt',
+        
+        // ===== TsingJyujing/sensitive-word 词库 =====
+        // 暴恐词库
+        'https://cdn.jsdelivr.net/gh/TsingJyujing/sensitive-word@master/%E6%9A%B4%E6%81%90%E8%AF%8D%E5%BA%93.txt',
+        // 反动词库
+        'https://cdn.jsdelivr.net/gh/TsingJyujing/sensitive-word@master/%E5%8F%8D%E5%8A%A8%E8%AF%8D%E5%BA%93.txt',
+        // 民生词库
+        'https://cdn.jsdelivr.net/gh/TsingJyujing/sensitive-word@master/%E6%B0%91%E7%94%9F%E8%AF%8D%E5%BA%93.txt',
+        // 色情词库
+        'https://cdn.jsdelivr.net/gh/TsingJyujing/sensitive-word@master/%E8%89%B2%E6%83%85%E8%AF%8D%E5%BA%93.txt',
+        // 贪腐词库
+        'https://cdn.jsdelivr.net/gh/TsingJyujing/sensitive-word@master/%E8%B4%AA%E8%85%90%E8%AF%8D%E5%BA%93.txt',
+        // 其他词库
+        'https://cdn.jsdelivr.net/gh/TsingJyujing/sensitive-word@master/%E5%85%B6%E4%BB%96%E8%AF%8D%E5%BA%93.txt',
+        
+        // ===== cjh0613/tencent-sensitive-words 腾讯词库 =====
+        'https://cdn.jsdelivr.net/gh/cjh0613/tencent-sensitive-words@main/sensitive_words_lines.txt'
+      ],
+      // 本地缓存key
+      cacheKey: 'bannedWordsCache_v2',
+      // 缓存有效期（3天，更频繁更新）
+      cacheExpiry: 3 * 24 * 60 * 60 * 1000,
+      // 是否启用远程词库
+      enableRemote: true,
+      // 最大词库大小（防止内存溢出）
+      maxWords: 50000
+    };
+    
+    // 加载远程词库
+    async function loadRemoteBannedWords() {
+      if (!WORD_LIST_CONFIG.enableRemote) {
+        bannedWordsLoaded = true;
+        return;
+      }
+      
+      // 检查缓存
+      try {
+        const cached = localStorage.getItem(WORD_LIST_CONFIG.cacheKey);
+        if (cached) {
+          const { words, timestamp } = JSON.parse(cached);
+          if (Date.now() - timestamp < WORD_LIST_CONFIG.cacheExpiry) {
+            extendedBannedWords = words;
+            bannedWordsLoaded = true;
+            console.log(`已从缓存加载 ${words.length} 个敏感词`);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('读取缓存失败:', e);
+      }
+      
+      // 从远程加载（并行请求提高速度）
+      const allWords = new Set();
+      let loadedCount = 0;
+      let failedCount = 0;
+      
+      const fetchPromises = WORD_LIST_CONFIG.sources.map(async (url) => {
+        try {
+          const response = await fetch(url, { 
+            mode: 'cors',
+            cache: 'force-cache'
+          });
+          if (response.ok) {
+            const text = await response.text();
+            const words = text.split(/[\n\r]+/)
+              .map(w => w.trim().toLowerCase())
+              .filter(w => w && w.length >= 2 && w.length <= 30 && !/^\d+$/.test(w));
+            words.forEach(w => {
+              if (allWords.size < WORD_LIST_CONFIG.maxWords) {
+                allWords.add(w);
+              }
+            });
+            loadedCount++;
+          }
+        } catch (e) {
+          failedCount++;
+          console.warn(`加载词库失败: ${url.split('/').pop()}`);
+        }
+      });
+      
+      // 等待所有请求完成（最多10秒超时）
+      await Promise.race([
+        Promise.all(fetchPromises),
+        new Promise(resolve => setTimeout(resolve, 10000))
+      ]);
+      
+      if (allWords.size > 0) {
+        extendedBannedWords = Array.from(allWords);
+        // 缓存到本地
+        try {
+          localStorage.setItem(WORD_LIST_CONFIG.cacheKey, JSON.stringify({
+            words: extendedBannedWords,
+            timestamp: Date.now()
+          }));
+        } catch (e) {
+          console.warn('缓存词库失败（可能超出存储限制）:', e);
+          // 如果存储失败，尝试只存储部分
+          try {
+            const partialWords = extendedBannedWords.slice(0, 10000);
+            localStorage.setItem(WORD_LIST_CONFIG.cacheKey, JSON.stringify({
+              words: partialWords,
+              timestamp: Date.now()
+            }));
+          } catch (e2) {
+            console.warn('部分缓存也失败:', e2);
+          }
+        }
+        console.log(`词库加载完成: ${loadedCount}/${WORD_LIST_CONFIG.sources.length} 成功, 共 ${extendedBannedWords.length} 个词`);
+      }
+      
+      bannedWordsLoaded = true;
+    }
+    
+    // 获取所有违禁词
+    function getAllBannedWords() {
+      const allWords = new Set([...BASE_BANNED_WORDS.map(w => w.toLowerCase())]);
+      extendedBannedWords.forEach(w => allWords.add(w));
+      return Array.from(allWords);
+    }
+    
+    // 构建DFA敏感词树（高效匹配）
+    let dfaTree = null;
+    
+    function buildDFATree(words) {
+      const root = {};
+      for (const word of words) {
+        let node = root;
+        for (const char of word) {
+          if (!node[char]) node[char] = {};
+          node = node[char];
+        }
+        node.isEnd = true;
+        node.word = word;
+      }
+      return root;
+    }
+    
+    function checkTextWithDFA(text, tree) {
+      if (!text || !tree) return { valid: true };
+      
+      const lowerText = text.toLowerCase();
+      for (let i = 0; i < lowerText.length; i++) {
+        let node = tree;
+        let j = i;
+        while (j < lowerText.length && node[lowerText[j]]) {
+          node = node[lowerText[j]];
+          if (node.isEnd) {
+            return { valid: false, word: node.word };
+          }
+          j++;
+        }
+      }
+      return { valid: true };
+    }
+    
+    // 验证URL是否为有效网盘链接
+    function validateUrl(url) {
+      if (!url || !url.trim()) {
+        return { valid: false, error: '请输入链接' };
+      }
+      
+      url = url.trim();
+      
+      // 检查是否为有效URL格式
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        return { valid: false, error: '请输入有效的网址（以 http:// 或 https:// 开头）' };
+      }
+      
+      try {
+        const urlObj = new URL(url);
+        const hostname = urlObj.hostname.toLowerCase();
+        
+        // 检查是否为支持的网盘域名
+        const isValidDomain = VALID_DOMAINS.some(domain => 
+          hostname === domain || hostname.endsWith('.' + domain)
+        );
+        
+        if (!isValidDomain) {
+          return { 
+            valid: false, 
+            error: '仅支持主流网盘链接（百度、夸克、阿里云盘、迅雷、115、蓝奏云、天翼云盘等）' 
+          };
+        }
+        
+        return { valid: true };
+      } catch (e) {
+        return { valid: false, error: '链接格式不正确' };
+      }
+    }
+    
+    // 检查文本是否包含违禁词（使用DFA高效匹配）
+    function checkBannedWords(text) {
+      if (!text) return { valid: true };
+      
+      // 确保DFA树已构建
+      if (!dfaTree) {
+        dfaTree = buildDFATree(getAllBannedWords());
+      }
+      
+      return checkTextWithDFA(text, dfaTree);
+    }
+    
+    // 过滤文本中的违禁词（替换为*）
+    function filterBannedWords(text) {
+      if (!text) return text;
+      
+      // 确保DFA树已构建
+      if (!dfaTree) {
+        dfaTree = buildDFATree(getAllBannedWords());
+      }
+      
+      const lowerText = text.toLowerCase();
+      let result = text;
+      const replacements = []; // 记录需要替换的位置
+      
+      for (let i = 0; i < lowerText.length; i++) {
+        let node = dfaTree;
+        let j = i;
+        let lastMatchEnd = -1;
+        let lastMatchWord = '';
+        
+        while (j < lowerText.length && node[lowerText[j]]) {
+          node = node[lowerText[j]];
+          if (node.isEnd) {
+            lastMatchEnd = j;
+            lastMatchWord = node.word;
+          }
+          j++;
+        }
+        
+        if (lastMatchEnd >= 0) {
+          replacements.push({
+            start: i,
+            end: lastMatchEnd + 1,
+            word: lastMatchWord
+          });
+          i = lastMatchEnd; // 跳过已匹配的部分
+        }
+      }
+      
+      // 从后往前替换，避免位置偏移
+      for (let k = replacements.length - 1; k >= 0; k--) {
+        const r = replacements[k];
+        const stars = '*'.repeat(r.end - r.start);
+        result = result.substring(0, r.start) + stars + result.substring(r.end);
+      }
+      
+      return result;
+    }
+    
+    // 移除文本中的违禁词（直接删除）
+    function removeBannedWords(text) {
+      if (!text) return text;
+      
+      // 确保DFA树已构建
+      if (!dfaTree) {
+        dfaTree = buildDFATree(getAllBannedWords());
+      }
+      
+      const lowerText = text.toLowerCase();
+      let result = text;
+      const replacements = [];
+      
+      for (let i = 0; i < lowerText.length; i++) {
+        let node = dfaTree;
+        let j = i;
+        let lastMatchEnd = -1;
+        
+        while (j < lowerText.length && node[lowerText[j]]) {
+          node = node[lowerText[j]];
+          if (node.isEnd) {
+            lastMatchEnd = j;
+          }
+          j++;
+        }
+        
+        if (lastMatchEnd >= 0) {
+          replacements.push({ start: i, end: lastMatchEnd + 1 });
+          i = lastMatchEnd;
+        }
+      }
+      
+      // 从后往前删除
+      for (let k = replacements.length - 1; k >= 0; k--) {
+        const r = replacements[k];
+        result = result.substring(0, r.start) + result.substring(r.end);
+      }
+      
+      return result.trim();
+    }
+    
+    // 移除文本中的网址
+    function removeUrls(text) {
+      if (!text) return text;
+      return text
+        .replace(/https?:\/\/[^\s]+/gi, '')
+        .replace(/www\.[^\s]+/gi, '')
+        .replace(/[a-z0-9]+\.(com|cn|net|org|io|cc|co|me|tv|info|xyz|top|vip|club|site|online|shop|app)[^\s]*/gi, '')
+        .trim();
+    }
+    
+    // 清理文本（移除违禁词和网址）
+    function cleanText(text) {
+      if (!text) return text;
+      let cleaned = removeUrls(text);
+      cleaned = removeBannedWords(cleaned);
+      // 清理多余空格
+      cleaned = cleaned.replace(/\s+/g, ' ').trim();
+      return cleaned;
+    }
+    
+    // 验证提取码格式（只允许字母和数字）
+    function validateExtractCode(code) {
+      if (!code || !code.trim()) return { valid: true }; // 提取码可以为空
+      
+      const trimmedCode = code.trim();
+      // 只允许字母、数字
+      if (!/^[a-zA-Z0-9]+$/.test(trimmedCode)) {
+        return { valid: false, error: '提取码只能包含字母和数字' };
+      }
+      
+      // 长度限制
+      if (trimmedCode.length > 10) {
+        return { valid: false, error: '提取码长度不能超过10位' };
+      }
+      
+      return { valid: true };
+    }
+    
+    // 检查文本是否包含网址
+    function containsUrl(text) {
+      if (!text) return false;
+      // 匹配常见网址格式
+      const urlPatterns = [
+        /https?:\/\//i,                          // http:// 或 https://
+        /www\./i,                                 // www.
+        /\.[a-z]{2,6}(\/|$|\s)/i,                // .com .cn .net 等顶级域名
+        /[a-z0-9]+(\.com|\.cn|\.net|\.org|\.io|\.cc|\.co|\.me|\.tv|\.info|\.xyz|\.top|\.vip|\.club|\.site|\.online|\.shop|\.app)/i
+      ];
+      return urlPatterns.some(pattern => pattern.test(text));
+    }
+    
+    // 综合验证（只验证URL和提取码格式，其他内容自动清理）
+    function validateInput(url, name, remark, adText, extractCode) {
+      // 验证URL（必须是有效网盘链接）
+      const urlResult = validateUrl(url);
+      if (!urlResult.valid) {
+        return urlResult;
+      }
+      
+      // 验证提取码格式（只允许字母数字）
+      if (extractCode) {
+        const codeResult = validateExtractCode(extractCode);
+        if (!codeResult.valid) {
+          return codeResult;
+        }
+      }
+      
+      // 其他字段（名称、备注、广告文字）会在生成时自动清理
+      return { valid: true };
+    }
+    
+    // 处理输入数据（自动清理违禁内容）
+    function sanitizeInputData(data) {
+      const result = { ...data };
+      let hasFiltered = false;
+      
+      // 清理资源名称
+      if (result.name) {
+        const cleanedName = cleanText(result.name);
+        if (cleanedName !== result.name) {
+          hasFiltered = true;
+          result.name = cleanedName || '资源';
+        }
+      }
+      
+      // 清理备注
+      if (result.remark) {
+        const cleanedRemark = cleanText(result.remark);
+        if (cleanedRemark !== result.remark) {
+          hasFiltered = true;
+          result.remark = cleanedRemark;
+        }
+      }
+      
+      // 清理广告文字
+      if (result.adText) {
+        const cleanedAd = cleanText(result.adText);
+        if (cleanedAd !== result.adText) {
+          hasFiltered = true;
+          result.adText = cleanedAd;
+        }
+      }
+      
+      result.hasFiltered = hasFiltered;
+      return result;
+    }
+    
+    // 刷新词库缓存
+    async function refreshBannedWordsCache() {
+      localStorage.removeItem(WORD_LIST_CONFIG.cacheKey);
+      dfaTree = null;
+      extendedBannedWords = [];
+      await loadRemoteBannedWords();
+      dfaTree = buildDFATree(getAllBannedWords());
+      toast(`词库已更新，共 ${getAllBannedWords().length} 个敏感词`);
+    }
+
     function detectDiskType(url) {
       if (!url) return DISK_CONFIG.default;
       const lowerUrl = url.toLowerCase();
@@ -432,7 +1029,12 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     function autoExtractCode() {
       const url = document.getElementById('targetUrl').value;
       const match = url.match(/[?&](pwd|password|code)=([^&]+)/i);
-      if (match) document.getElementById('extractCode').value = match[2];
+      if (match) {
+        // 只保留字母和数字，过滤掉中文和其他字符
+        const rawCode = match[2];
+        const cleanCode = rawCode.replace(/[^a-zA-Z0-9]/g, '');
+        document.getElementById('extractCode').value = cleanCode;
+      }
     }
 
     function generateLink(url, name, code, remark) {
@@ -472,10 +1074,37 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       const url = document.getElementById('targetUrl').value.trim();
       if (!url) return toast('请输入链接');
       
-      const name = document.getElementById('resourceName').value.trim() || '资源';
+      let name = document.getElementById('resourceName').value.trim() || '资源';
       const code = document.getElementById('extractCode').value.trim();
       const group = document.getElementById('groupTag').value;
-      const remark = document.getElementById('remarkText').value.trim();
+      let remark = document.getElementById('remarkText').value.trim();
+      const adEnabled = document.getElementById('adEnabled')?.checked || false;
+      let adText = document.getElementById('adText')?.value || '';
+      
+      // 输入验证（URL和提取码格式）
+      const validation = validateInput(url, name, remark, adEnabled ? adText : '', code);
+      if (!validation.valid) {
+        toast(validation.error);
+        return;
+      }
+      
+      // 自动清理违禁内容
+      const sanitized = sanitizeInputData({ 
+        name, 
+        remark, 
+        adText: adEnabled ? adText : '' 
+      });
+      name = sanitized.name;
+      remark = sanitized.remark;
+      adText = sanitized.adText;
+      
+      // 更新输入框显示清理后的内容
+      if (sanitized.hasFiltered) {
+        document.getElementById('resourceName').value = name;
+        document.getElementById('remarkText').value = remark;
+        if (adEnabled) document.getElementById('adText').value = adText;
+        toast('已自动过滤违禁内容');
+      }
       
       const link = generateLink(url, name, code, remark);
       const disk = detectDiskType(url);
@@ -501,7 +1130,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         </div>
       `;
       
-      toast('生成成功！');
+      toast(sanitized.hasFiltered ? '生成成功（已过滤违禁内容）' : '生成成功！');
     }
 
     // ==================== 批量生成 ====================
@@ -513,16 +1142,37 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       const container = document.getElementById('batchResult');
       container.innerHTML = '';
       
+      let successCount = 0;
+      let errorCount = 0;
+      let filteredCount = 0;
+      const errors = [];
+      
       lines.forEach((line, i) => {
         const parts = line.split('|').map(p => p.trim());
         const url = parts[0];
         if (!url) return;
         
         const match = url.match(/[?&](pwd|password|code)=([^&]+)/i);
-        const name = parts[1] || '资源' + (i + 1);
-        const code = parts[2] || (match ? match[2] : '');
+        let name = parts[1] || '资源' + (i + 1);
+        // 提取码只保留字母数字
+        let code = parts[2] || (match ? match[2] : '');
+        code = code.replace(/[^a-zA-Z0-9]/g, '');
         const group = parts[3] || '';
-        const remark = parts[4] || '';
+        let remark = parts[4] || '';
+        
+        // 输入验证（URL和提取码格式）
+        const validation = validateInput(url, name, remark, '', code);
+        if (!validation.valid) {
+          errorCount++;
+          errors.push(`第${i + 1}行: ${validation.error}`);
+          return;
+        }
+        
+        // 自动清理违禁内容
+        const sanitized = sanitizeInputData({ name, remark, adText: '' });
+        name = sanitized.name || '资源' + (i + 1);
+        remark = sanitized.remark;
+        if (sanitized.hasFiltered) filteredCount++;
         
         const link = generateLink(url, name, code, remark);
         const disk = detectDiskType(url);
@@ -545,9 +1195,14 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
           </div>
         `;
         container.appendChild(card);
+        successCount++;
       });
       
-      toast(`已生成 ${lines.length} 个链接`);
+      let msg = `已生成 ${successCount} 个链接`;
+      if (filteredCount > 0) msg += `（${filteredCount} 个已过滤违禁内容）`;
+      if (errorCount > 0) msg = `成功 ${successCount} 个，失败 ${errorCount} 个`;
+      toast(msg, 3000);
+      if (errors.length) console.warn('批量生成错误:', errors);
     }
 
     function clearBatch() {
@@ -570,17 +1225,36 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
           
           const container = document.getElementById('uploadResult');
           container.innerHTML = '';
-          let count = 0;
+          let successCount = 0;
+          let errorCount = 0;
+          let filteredCount = 0;
+          const errors = [];
           
           json.forEach((row, i) => {
             if (i === 0 && row[0]?.toString().includes('链接')) return; // 跳过表头
             const url = row[0]?.toString().trim();
             if (!url || !url.startsWith('http')) return;
             
-            const name = row[1]?.toString().trim() || '资源' + (count + 1);
-            const code = row[2]?.toString().trim() || '';
+            let name = row[1]?.toString().trim() || '资源' + (successCount + 1);
+            // 提取码只保留字母数字
+            let code = row[2]?.toString().trim() || '';
+            code = code.replace(/[^a-zA-Z0-9]/g, '');
             const group = row[3]?.toString().trim() || '';
-            const remark = row[4]?.toString().trim() || '';
+            let remark = row[4]?.toString().trim() || '';
+            
+            // 输入验证（URL和提取码格式）
+            const validation = validateInput(url, name, remark, '', code);
+            if (!validation.valid) {
+              errorCount++;
+              errors.push(`第${i + 1}行: ${validation.error}`);
+              return;
+            }
+            
+            // 自动清理违禁内容
+            const sanitized = sanitizeInputData({ name, remark, adText: '' });
+            name = sanitized.name || '资源' + (successCount + 1);
+            remark = sanitized.remark;
+            if (sanitized.hasFiltered) filteredCount++;
             
             const link = generateLink(url, name, code, remark);
             const disk = detectDiskType(url);
@@ -603,10 +1277,14 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
               </div>
             `;
             container.appendChild(card);
-            count++;
+            successCount++;
           });
           
-          toast(`已导入 ${count} 条记录`);
+          let msg = `已导入 ${successCount} 条记录`;
+          if (filteredCount > 0) msg += `（${filteredCount} 条已过滤违禁内容）`;
+          if (errorCount > 0) msg = `成功 ${successCount} 条，失败 ${errorCount} 条`;
+          toast(msg, 3000);
+          if (errors.length) console.warn('导入错误:', errors);
         } catch (err) {
           toast('文件解析失败：' + err.message);
         }
@@ -763,6 +1441,15 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       document.getElementById('qrColorLight').value = settings.colorLight;
       document.getElementById('qrSize').value = settings.size;
       renderGroups();
+      
+      // 更新词库数量显示
+      const wordCountInfo = document.getElementById('wordCountInfo');
+      if (wordCountInfo) {
+        const totalWords = getAllBannedWords().length;
+        const baseCount = BASE_BANNED_WORDS.length;
+        const remoteCount = extendedBannedWords.length;
+        wordCountInfo.textContent = `当前词库：${totalWords} 个敏感词（内置 ${baseCount} + 远程 ${remoteCount}）`;
+      }
     }
 
     function saveSettings() {
@@ -1010,7 +1697,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     });
 
     // ==================== 初始化 ====================
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       // 加载主题
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
@@ -1028,6 +1715,12 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       const adSettings = document.getElementById('adSettings');
       adEnabled?.addEventListener('change', () => {
         adSettings.style.display = adEnabled.checked ? 'block' : 'none';
+      });
+      
+      // 异步加载远程敏感词库
+      loadRemoteBannedWords().then(() => {
+        dfaTree = buildDFATree(getAllBannedWords());
+        console.log(`敏感词系统就绪，共 ${getAllBannedWords().length} 个词`);
       });
     });
   </script>
