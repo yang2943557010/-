@@ -368,14 +368,48 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     let currentData = null;
     let selectedPosterStyle = 'elegant';
 
-    // ==================== 工具函数 ====================
-    function encrypt(text) {
+    // ==================== 加密工具 ====================
+    // XOR加密
+    function xorEncrypt(str) {
+      const key = 'Qr24';
       let result = '';
-      for (let i = 0; i < text.length; i++) {
-        result += String.fromCharCode(text.charCodeAt(i) ^ SECRET_KEY.charCodeAt(i % SECRET_KEY.length));
+      for (let i = 0; i < str.length; i++) {
+        result += String.fromCharCode(str.charCodeAt(i) ^ key.charCodeAt(i % key.length));
       }
-      const encoded = btoa(unescape(encodeURIComponent(result)));
-      return encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      return result;
+    }
+    
+    // 转URL安全Base64
+    function toBase64Url(str) {
+      try {
+        const utf8 = unescape(encodeURIComponent(str));
+        const b64 = btoa(utf8);
+        return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      } catch (e) {
+        return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      }
+    }
+    
+    // 加密数据对象
+    function encryptData(data) {
+      try {
+        // 紧凑格式：u|n|c|t|a|at
+        const parts = [
+          data.u || '',
+          data.n || '',
+          data.c || '',
+          data.t || '',
+          data.a || '',
+          data.at || ''
+        ];
+        while (parts.length > 1 && !parts[parts.length - 1]) parts.pop();
+        const str = parts.join('|');
+        const encrypted = xorEncrypt(str);
+        return toBase64Url(encrypted);
+      } catch (e) {
+        console.error('加密失败:', e);
+        return null;
+      }
     }
 
     function detectDiskType(url) {
@@ -402,24 +436,24 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     }
 
     function generateLink(url, name, code, remark) {
-      const encoded = encrypt(url);
       const pageStyle = document.getElementById('pageStyle')?.value || 'default';
       const adEnabled = document.getElementById('adEnabled')?.checked || false;
       const adText = document.getElementById('adText')?.value || '';
       const adDuration = document.getElementById('adDuration')?.value || '2';
       
-      let link = `${BASE_URL}?u=${encoded}`;
-      if (name) link += `&n=${encodeURIComponent(name)}`;
-      if (code) link += `&c=${encodeURIComponent(code)}`;
-      if (pageStyle !== 'default') link += `&t=${pageStyle}`;
-      
-      // 添加广告参数
+      // 构建数据对象（使用短键名）
+      const data = { u: url };
+      if (name && name !== '资源') data.n = name;
+      if (code) data.c = code;
+      if (pageStyle !== 'default') data.t = pageStyle;
       if (adEnabled && adText.trim()) {
-        link += `&ad=${encodeURIComponent(adText.trim())}`;
-        link += `&ad_t=${adDuration}`;
+        data.a = adText.trim();
+        data.at = adDuration;
       }
       
-      return link;
+      // 使用压缩加密生成短链接
+      const encoded = encryptData(data);
+      return `${BASE_URL}?d=${encoded}`;
     }
 
     // ==================== Tab切换 ====================

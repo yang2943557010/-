@@ -2,28 +2,33 @@
  * URL重定向二维码页面 - 主应用脚本
  */
 
-// ==================== AES加密模块 ====================
+// ==================== 加密模块 ====================
 
 const CryptoUtil = {
-  // 加密密钥（实际使用时应该更复杂）
-  SECRET_KEY: 'QrShare2024Key!!',
+  SECRET_KEY: 'Qr24',  // 短密钥
   
   /**
-   * AES加密
-   * @param {string} text - 原始文本
-   * @returns {string} - 加密后的字符串
+   * 加密数据对象为短字符串
    */
-  encrypt(text) {
+  encryptData(data) {
     try {
-      // 简单的XOR加密 + Base64（轻量级方案）
-      const key = this.SECRET_KEY;
-      let result = '';
-      for (let i = 0; i < text.length; i++) {
-        result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-      }
-      // Base64编码并URL安全化
-      const encoded = btoa(unescape(encodeURIComponent(result)));
-      return encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      // 紧凑格式：u|n|c|t|a|at 用|分隔
+      const parts = [
+        data.u || '',
+        data.n || '',
+        data.c || '',
+        data.t || '',
+        data.a || '',
+        data.at || ''
+      ];
+      // 去掉末尾空值
+      while (parts.length > 1 && !parts[parts.length - 1]) parts.pop();
+      const str = parts.join('|');
+      
+      // XOR加密
+      const encrypted = this.xorEncrypt(str);
+      // Base64编码
+      return this.toBase64Url(encrypted);
     } catch (e) {
       console.error('加密失败:', e);
       return null;
@@ -31,26 +36,77 @@ const CryptoUtil = {
   },
   
   /**
-   * AES解密
-   * @param {string} encrypted - 加密的字符串
-   * @returns {string|null} - 解密后的文本
+   * 解密字符串为数据对象
    */
-  decrypt(encrypted) {
+  decryptData(str) {
     try {
-      if (!encrypted) return null;
-      // 还原URL安全的Base64
-      let base64 = encrypted.replace(/-/g, '+').replace(/_/g, '/');
-      while (base64.length % 4) base64 += '=';
-      
-      const decoded = decodeURIComponent(escape(atob(base64)));
-      const key = this.SECRET_KEY;
-      let result = '';
-      for (let i = 0; i < decoded.length; i++) {
-        result += String.fromCharCode(decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-      }
-      return result;
+      if (!str) return null;
+      // Base64解码
+      const encrypted = this.fromBase64Url(str);
+      // XOR解密
+      const decrypted = this.xorEncrypt(encrypted);
+      // 解析紧凑格式
+      const parts = decrypted.split('|');
+      return {
+        u: parts[0] || '',
+        n: parts[1] || '',
+        c: parts[2] || '',
+        t: parts[3] || '',
+        a: parts[4] || '',
+        at: parts[5] || ''
+      };
     } catch (e) {
       console.error('解密失败:', e);
+      return null;
+    }
+  },
+  
+  // XOR加密/解密
+  xorEncrypt(str) {
+    const key = this.SECRET_KEY;
+    let result = '';
+    for (let i = 0; i < str.length; i++) {
+      result += String.fromCharCode(str.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return result;
+  },
+  
+  // 转URL安全Base64
+  toBase64Url(str) {
+    try {
+      // 先转UTF-8字节
+      const utf8 = unescape(encodeURIComponent(str));
+      const b64 = btoa(utf8);
+      return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    } catch (e) {
+      return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+  },
+  
+  // 从URL安全Base64解码
+  fromBase64Url(str) {
+    let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+    try {
+      const utf8 = atob(b64);
+      return decodeURIComponent(escape(utf8));
+    } catch (e) {
+      return atob(b64);
+    }
+  },
+  
+  // 兼容旧版
+  encrypt(text) {
+    const encrypted = this.xorEncrypt(text);
+    return this.toBase64Url(encrypted);
+  },
+  
+  decrypt(str) {
+    try {
+      if (!str) return null;
+      const encrypted = this.fromBase64Url(str);
+      return this.xorEncrypt(encrypted);
+    } catch (e) {
       return null;
     }
   }
@@ -143,16 +199,23 @@ function detectDiskType(url) {
 // ==================== URL处理模块 ====================
 
 const UrlHandler = {
+  // 新版：使用压缩编码（单参数d）
+  encodeData(data) {
+    return CryptoUtil.encryptData(data);
+  },
+  
+  decodeData(str) {
+    return CryptoUtil.decryptData(str);
+  },
+  
+  // 旧版兼容
   encode(url) {
     return CryptoUtil.encrypt(url);
   },
   
   decode(encodedUrl) {
-    // 先尝试新的加密方式
     let result = CryptoUtil.decrypt(encodedUrl);
     if (result && result.startsWith('http')) return result;
-    
-    // 兼容旧的Base64方式
     try {
       let base64 = encodedUrl.replace(/-/g, '+').replace(/_/g, '/');
       while (base64.length % 4) base64 += '=';
@@ -164,6 +227,25 @@ const UrlHandler = {
   
   parseParams() {
     const params = new URLSearchParams(window.location.search);
+    
+    // 新版：单参数d包含所有数据
+    const compressedData = params.get('d');
+    if (compressedData) {
+      const data = this.decodeData(compressedData);
+      if (data && data.u) {
+        return {
+          targetUrl: data.u,
+          resourceName: data.n || '资源',
+          extractCode: data.c || '无',
+          template: data.t || 'default',
+          adText: data.a || '',
+          adDuration: Math.min(Math.max(parseInt(data.at) || 2, 2), 5),
+          isValid: true
+        };
+      }
+    }
+    
+    // 旧版兼容：多参数模式
     const encodedUrl = params.get('u');
     const name = params.get('n') || '资源';
     const code = params.get('c') || '无';
