@@ -391,7 +391,10 @@ function init() {
   if (isMobile) {
     // 检查是否有广告设置
     if (params.adText) {
-      showAdAndRedirect(params.targetUrl, params.adText, params.adDuration);
+      showAdAndRedirect(params.targetUrl, params.adText, params.adDuration, {
+        resourceName: params.resourceName,
+        template: params.template
+      });
     } else {
       PageRenderer.redirect(params.targetUrl);
     }
@@ -400,26 +403,112 @@ function init() {
   }
 }
 
-// 显示广告并跳转
-function showAdAndRedirect(targetUrl, adText, duration) {
+// 显示广告并跳转 - 增强版（带预加载）
+function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
   const overlay = document.getElementById('adOverlay');
   const textEl = document.getElementById('adText');
   const countdownEl = document.getElementById('adCountdown');
   const progressBar = document.getElementById('adProgressBar');
+  const skipBtn = document.getElementById('adSkipBtn');
+  const resourceInfo = document.getElementById('adResourceInfo');
+  const resourceName = document.getElementById('adResourceName');
+  const diskLogo = document.getElementById('adDiskLogo');
+  const diskName = document.getElementById('adDiskName');
+  const adIcon = document.getElementById('adIcon');
+  const adHint = document.getElementById('adHint');
   
   if (!overlay) {
-    // 如果没有广告元素，直接跳转
     PageRenderer.redirect(targetUrl);
     return;
   }
+  
+  // 🚀 预加载目标页面 - 在广告显示期间提前加载
+  const preloadLink = document.createElement('link');
+  preloadLink.rel = 'preconnect';
+  preloadLink.href = new URL(targetUrl).origin;
+  document.head.appendChild(preloadLink);
+  
+  // DNS预解析
+  const dnsLink = document.createElement('link');
+  dnsLink.rel = 'dns-prefetch';
+  dnsLink.href = new URL(targetUrl).origin;
+  document.head.appendChild(dnsLink);
+  
+  // 预加载页面（使用隐藏iframe）
+  const preloadFrame = document.createElement('iframe');
+  preloadFrame.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;';
+  preloadFrame.src = targetUrl;
+  document.body.appendChild(preloadFrame);
   
   // 设置广告文字
   textEl.textContent = adText;
   countdownEl.textContent = duration;
   progressBar.style.width = '100%';
   
+  // 设置资源信息
+  if (params.resourceName) {
+    resourceName.textContent = params.resourceName;
+    resourceInfo.style.display = 'block';
+  }
+  
+  // 设置网盘信息
+  const diskConfig = detectDiskType(targetUrl);
+  if (diskConfig.logo) {
+    diskLogo.src = diskConfig.logo;
+    diskLogo.style.display = 'inline';
+  } else {
+    diskLogo.style.display = 'none';
+  }
+  diskName.textContent = diskConfig.name;
+  
+  // 根据网盘类型设置图标
+  const iconMap = {
+    'baidu': '💙',
+    'quark': '⚡',
+    'aliyun': '☁️',
+    'xunlei': '⚡',
+    '115': '📦',
+    'lanzou': '🔵',
+    'tianyi': '☁️',
+    'default': '🚀'
+  };
+  adIcon.textContent = iconMap[diskConfig.type] || '🚀';
+  
+  // 根据页面模板设置主题
+  const themeMap = {
+    'default': 'theme-gradient',
+    'gradient': 'theme-gradient',
+    'sunset': 'theme-sunset',
+    'ocean': 'theme-ocean',
+    'forest': 'theme-forest',
+    'midnight': 'theme-dark',
+    'cherry': 'theme-candy',
+    'candy': 'theme-candy'
+  };
+  const template = params.template || 'default';
+  overlay.className = 'ad-overlay ' + (themeMap[template] || 'theme-gradient');
+  
+  // 设置提示文字
+  const hints = [
+    '请稍候，正在为您准备资源...',
+    '即将为您打开资源页面...',
+    '资源加载中，请耐心等待...',
+    '正在连接资源服务器...'
+  ];
+  adHint.textContent = hints[Math.floor(Math.random() * hints.length)];
+  
   // 显示广告
   overlay.style.display = 'flex';
+  
+  // 跳过按钮逻辑（1秒后显示，加快体验）
+  skipBtn.classList.remove('visible');
+  setTimeout(() => {
+    skipBtn.classList.add('visible');
+  }, 1000);
+  
+  // 保存跳转目标供跳过按钮使用
+  window._adTargetUrl = targetUrl;
+  window._preloadFrame = preloadFrame;
   
   let remaining = duration;
   const startTime = Date.now();
@@ -435,17 +524,46 @@ function showAdAndRedirect(targetUrl, adText, duration) {
     if (newRemaining !== remaining && newRemaining >= 0) {
       remaining = newRemaining;
       countdownEl.textContent = remaining;
+      
+      // 倒计时动画
+      countdownEl.style.transform = 'scale(1.2)';
+      setTimeout(() => countdownEl.style.transform = 'scale(1)', 150);
     }
   }, 50);
   
   // 倒计时结束后跳转
-  setTimeout(() => {
+  window._adTimeout = setTimeout(() => {
     clearInterval(updateInterval);
-    overlay.classList.add('fade-out');
-    setTimeout(() => {
-      PageRenderer.redirect(targetUrl);
-    }, 300);
+    doRedirect(targetUrl);
   }, totalMs);
+  
+  window._adInterval = updateInterval;
+}
+
+// 执行跳转（快速版）
+function doRedirect(targetUrl) {
+  const overlay = document.getElementById('adOverlay');
+  
+  // 清理预加载iframe
+  if (window._preloadFrame) {
+    window._preloadFrame.remove();
+  }
+  
+  // 快速淡出（200ms）
+  overlay.classList.add('fade-out');
+  
+  // 立即跳转，不等待淡出完成
+  setTimeout(() => {
+    window.location.replace(targetUrl); // 使用replace避免返回到广告页
+  }, 100);
+}
+
+// 跳过广告
+function skipAd() {
+  if (window._adTimeout) clearTimeout(window._adTimeout);
+  if (window._adInterval) clearInterval(window._adInterval);
+  
+  doRedirect(window._adTargetUrl);
 }
 
 // 模板样式

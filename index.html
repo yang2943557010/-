@@ -457,63 +457,157 @@
       }
     }
 
-    /* 广告弹窗样式 */
+    /* 广告弹窗样式 - 增强版 */
     .ad-overlay {
       position: fixed;
       inset: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 99999;
       opacity: 1;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.5s ease;
     }
     
     .ad-overlay.fade-out {
       opacity: 0;
     }
     
+    /* 广告背景主题 */
+    .ad-overlay.theme-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .ad-overlay.theme-sunset {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #f6d365 100%);
+    }
+    .ad-overlay.theme-ocean {
+      background: linear-gradient(135deg, #0c3483 0%, #a2b6df 50%, #6b8dd6 100%);
+    }
+    .ad-overlay.theme-forest {
+      background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+    }
+    .ad-overlay.theme-dark {
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    }
+    .ad-overlay.theme-candy {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #d299c2 100%);
+    }
+    
+    /* 动态背景效果 */
+    .ad-bg-animation {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    
+    .ad-bg-animation .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      animation: float 8s ease-in-out infinite;
+    }
+    
+    .ad-bg-animation .circle:nth-child(1) { width: 300px; height: 300px; left: -100px; top: -100px; animation-delay: 0s; }
+    .ad-bg-animation .circle:nth-child(2) { width: 200px; height: 200px; right: -50px; top: 30%; animation-delay: -2s; }
+    .ad-bg-animation .circle:nth-child(3) { width: 250px; height: 250px; left: 20%; bottom: -80px; animation-delay: -4s; }
+    .ad-bg-animation .circle:nth-child(4) { width: 150px; height: 150px; right: 20%; bottom: 20%; animation-delay: -6s; }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.1; }
+      50% { transform: translateY(-30px) scale(1.1); opacity: 0.2; }
+    }
+    
     .ad-container {
+      position: relative;
       text-align: center;
       color: #fff;
       padding: 40px;
       max-width: 90%;
+      z-index: 1;
+    }
+    
+    /* 广告卡片样式 */
+    .ad-card {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 40px 50px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
     }
     
     .ad-icon {
-      width: 80px;
-      height: 80px;
+      width: 90px;
+      height: 90px;
       background: rgba(255,255,255,0.2);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 24px;
-      font-size: 36px;
-      animation: pulse 1.5s ease-in-out infinite;
+      font-size: 42px;
+      animation: pulse 2s ease-in-out infinite;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
     
     @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.05); opacity: 0.8; }
+      0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+      50% { transform: scale(1.05); box-shadow: 0 15px 40px rgba(0,0,0,0.15); }
+    }
+    
+    /* 资源信息展示 */
+    .ad-resource-info {
+      margin-bottom: 24px;
+    }
+    
+    .ad-resource-name {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    .ad-resource-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+    }
+    
+    .ad-resource-type img {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
     }
     
     .ad-text {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 20px;
       text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    /* 倒计时样式 */
+    .ad-countdown-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
     }
     
     .ad-countdown {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       background: rgba(255,255,255,0.2);
-      padding: 10px 20px;
+      padding: 12px 24px;
       border-radius: 30px;
-      font-size: 14px;
+      font-size: 15px;
       backdrop-filter: blur(10px);
     }
     
@@ -521,60 +615,122 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 28px;
-      height: 28px;
+      width: 36px;
+      height: 36px;
       background: #fff;
       color: #764ba2;
       border-radius: 50%;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 18px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      animation: countPulse 1s ease-in-out infinite;
     }
     
-    .ad-hint {
-      margin-top: 20px;
-      font-size: 13px;
-      opacity: 0.8;
+    @keyframes countPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
     }
     
+    /* 进度条样式 */
     .ad-progress {
-      width: 200px;
-      height: 4px;
-      background: rgba(255,255,255,0.3);
-      border-radius: 2px;
-      margin: 20px auto 0;
+      width: 240px;
+      height: 6px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 3px;
+      margin: 0 auto 20px;
       overflow: hidden;
     }
     
     .ad-progress-bar {
       height: 100%;
-      background: #fff;
-      border-radius: 2px;
+      background: linear-gradient(90deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+      border-radius: 3px;
       transition: width 0.1s linear;
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
     }
     
-    /* 网站推广入口 */
+    /* 提示文字 */
+    .ad-hint {
+      font-size: 13px;
+      opacity: 0.8;
+      margin-bottom: 24px;
+    }
+    
+    /* 跳过按钮 */
+    .ad-skip-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 25px;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s;
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .ad-skip-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .ad-skip-btn:hover {
+      background: rgba(255,255,255,0.25);
+      transform: translateY(-2px);
+    }
+    
+    /* 底部推广链接 */
     .promo-link {
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px dashed rgba(255,255,255,0.3);
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.2);
     }
     
     .promo-link a {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       color: rgba(255,255,255,0.9);
       text-decoration: none;
-      font-size: 12px;
-      padding: 8px 16px;
+      font-size: 13px;
+      padding: 12px 24px;
       background: rgba(255,255,255,0.15);
-      border-radius: 20px;
-      transition: all 0.2s;
+      border-radius: 25px;
+      transition: all 0.3s;
+      border: 1px solid rgba(255,255,255,0.2);
     }
     
     .promo-link a:hover {
       background: rgba(255,255,255,0.25);
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    /* 装饰元素 */
+    .ad-decoration {
+      position: absolute;
+      pointer-events: none;
+    }
+    
+    .ad-decoration.sparkle {
+      width: 20px;
+      height: 20px;
+      background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+      animation: sparkle 2s ease-in-out infinite;
+    }
+    
+    .ad-decoration.sparkle:nth-child(1) { top: 20%; left: 15%; animation-delay: 0s; }
+    .ad-decoration.sparkle:nth-child(2) { top: 30%; right: 20%; animation-delay: 0.5s; }
+    .ad-decoration.sparkle:nth-child(3) { bottom: 25%; left: 25%; animation-delay: 1s; }
+    .ad-decoration.sparkle:nth-child(4) { bottom: 35%; right: 15%; animation-delay: 1.5s; }
+    
+    @keyframes sparkle {
+      0%, 100% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 1; transform: scale(1); }
     }
     
     /* 分享页底部推广 */
@@ -691,11 +847,17 @@
     /* 广告弹窗移动端优化 */
     @media (max-width: 768px) {
       .ad-overlay {
-        padding: 20px;
+        padding: 16px;
       }
       
       .ad-container {
-        padding: 30px 20px;
+        padding: 20px;
+        max-width: 100%;
+      }
+      
+      .ad-card {
+        padding: 30px 24px;
+        border-radius: 20px;
       }
       
       .ad-icon {
@@ -705,9 +867,18 @@
         margin-bottom: 20px;
       }
       
+      .ad-resource-name {
+        font-size: 18px;
+      }
+      
+      .ad-resource-type {
+        font-size: 12px;
+        padding: 5px 12px;
+      }
+      
       .ad-text {
-        font-size: 20px;
-        margin-bottom: 14px;
+        font-size: 16px;
+        margin-bottom: 16px;
       }
       
       .ad-countdown {
@@ -716,19 +887,25 @@
       }
       
       .ad-countdown-num {
-        width: 26px;
-        height: 26px;
-        font-size: 13px;
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
       }
       
       .ad-progress {
-        width: 180px;
-        margin-top: 16px;
+        width: 200px;
+        height: 5px;
+        margin-bottom: 16px;
       }
       
       .ad-hint {
         font-size: 12px;
-        margin-top: 16px;
+        margin-bottom: 20px;
+      }
+      
+      .ad-skip-btn {
+        padding: 10px 18px;
+        font-size: 12px;
       }
       
       .promo-link {
@@ -743,26 +920,71 @@
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
       }
+      
+      .ad-bg-animation .circle {
+        display: none;
+      }
+      
+      .ad-decoration {
+        display: none;
+      }
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="enhancements.js"></script>
 </head>
 <body>
-  <!-- 广告弹窗 -->
-  <div class="ad-overlay" id="adOverlay" style="display: none;">
+  <!-- 广告弹窗 - 增强版 -->
+  <div class="ad-overlay theme-gradient" id="adOverlay" style="display: none;">
+    <!-- 动态背景 -->
+    <div class="ad-bg-animation">
+      <div class="circle"></div>
+      <div class="circle"></div>
+      <div class="circle"></div>
+      <div class="circle"></div>
+    </div>
+    
+    <!-- 装饰元素 -->
+    <div class="ad-decoration sparkle"></div>
+    <div class="ad-decoration sparkle"></div>
+    <div class="ad-decoration sparkle"></div>
+    <div class="ad-decoration sparkle"></div>
+    
     <div class="ad-container">
-      <div class="ad-icon">🚀</div>
-      <div class="ad-text" id="adText">正在为您跳转...</div>
-      <div class="ad-countdown">
-        <span>即将跳转</span>
-        <span class="ad-countdown-num" id="adCountdown">3</span>
-        <span>秒</span>
+      <div class="ad-card">
+        <div class="ad-icon" id="adIcon">🚀</div>
+        
+        <!-- 资源信息 -->
+        <div class="ad-resource-info" id="adResourceInfo" style="display:none;">
+          <div class="ad-resource-name" id="adResourceName"></div>
+          <div class="ad-resource-type" id="adResourceType">
+            <img id="adDiskLogo" src="" alt="">
+            <span id="adDiskName"></span>
+          </div>
+        </div>
+        
+        <div class="ad-text" id="adText">正在为您跳转...</div>
+        
+        <div class="ad-countdown-wrapper">
+          <div class="ad-countdown">
+            <span>即将跳转</span>
+            <span class="ad-countdown-num" id="adCountdown">3</span>
+            <span>秒</span>
+          </div>
+        </div>
+        
+        <div class="ad-progress">
+          <div class="ad-progress-bar" id="adProgressBar" style="width: 100%;"></div>
+        </div>
+        
+        <div class="ad-hint" id="adHint">请稍候，正在为您准备资源...</div>
+        
+        <button class="ad-skip-btn" id="adSkipBtn" onclick="skipAd()">
+          <span>⏭️</span>
+          <span>跳过</span>
+        </button>
       </div>
-      <div class="ad-progress">
-        <div class="ad-progress-bar" id="adProgressBar" style="width: 100%;"></div>
-      </div>
-      <div class="ad-hint">请稍候，正在为您准备资源...</div>
+      
       <div class="promo-link">
         <a href="generator.html" target="_blank">
           <span>🔗</span>
