@@ -14,6 +14,7 @@
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -231,7 +232,46 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     <div class="panel" id="panel-settings">
       <div style="margin-bottom:24px;">
         <h3 style="font-size:14px;font-weight:600;margin-bottom:16px;">🎨 二维码样式</h3>
-        <div class="form-grid three">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>码点样式</label>
+            <select id="qrDotStyle">
+              <option value="square">方形</option>
+              <option value="dots">圆点</option>
+              <option value="rounded">圆角</option>
+              <option value="extra-rounded">超圆角</option>
+              <option value="classy">经典</option>
+              <option value="classy-rounded">经典圆角</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>码眼样式</label>
+            <select id="qrCornerStyle">
+              <option value="square">方形</option>
+              <option value="dot">圆点</option>
+              <option value="extra-rounded">超圆角</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>颜色模式</label>
+            <select id="qrColorMode" onchange="toggleGradient()">
+              <option value="solid">纯色</option>
+              <option value="gradient">渐变</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>尺寸</label>
+            <select id="qrSize">
+              <option value="140">小 140px</option>
+              <option value="180" selected>中 180px</option>
+              <option value="220">大 220px</option>
+              <option value="280">超大 280px</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- 纯色设置 -->
+        <div id="solidColorSettings" class="form-grid" style="margin-top:12px;">
           <div class="form-group">
             <label>前景色</label>
             <input type="color" id="qrColorDark" value="#1e293b" style="height:40px;padding:4px;cursor:pointer;">
@@ -240,30 +280,53 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
             <label>背景色</label>
             <input type="color" id="qrColorLight" value="#ffffff" style="height:40px;padding:4px;cursor:pointer;">
           </div>
+        </div>
+        
+        <!-- 渐变设置 -->
+        <div id="gradientColorSettings" class="form-grid" style="margin-top:12px;display:none;">
           <div class="form-group">
-            <label>尺寸</label>
-            <select id="qrSize">
-              <option value="140">小 140px</option>
-              <option value="180" selected>中 180px</option>
-              <option value="220">大 220px</option>
+            <label>渐变色1</label>
+            <input type="color" id="qrGradient1" value="#6366f1" style="height:40px;padding:4px;cursor:pointer;">
+          </div>
+          <div class="form-group">
+            <label>渐变色2</label>
+            <input type="color" id="qrGradient2" value="#8b5cf6" style="height:40px;padding:4px;cursor:pointer;">
+          </div>
+          <div class="form-group">
+            <label>渐变方向</label>
+            <select id="qrGradientType">
+              <option value="linear">线性</option>
+              <option value="radial">径向</option>
             </select>
           </div>
           <div class="form-group">
-            <label>边框样式</label>
-            <select id="qrBorderStyle" onchange="QRBorderStyles.apply(this.value, document.querySelector('#modalQr'))">
-              <option value="none">无边框</option>
-              <option value="simple">简约</option>
-              <option value="rounded">圆角</option>
-              <option value="shadow">阴影</option>
-              <option value="gradient">渐变</option>
-              <option value="neon">霓虹</option>
-              <option value="gold">金边</option>
-              <option value="dashed">虚线</option>
-            </select>
+            <label>背景色</label>
+            <input type="color" id="qrGradientBg" value="#ffffff" style="height:40px;padding:4px;cursor:pointer;">
           </div>
         </div>
+        
+        <!-- 预设样式 -->
+        <div style="margin-top:16px;">
+          <label style="font-size:12px;font-weight:500;color:var(--text2);display:block;margin-bottom:8px;">快速预设</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="applyQRPreset('classic')">经典黑白</button>
+            <button class="btn btn-secondary btn-sm" onclick="applyQRPreset('blue')">科技蓝</button>
+            <button class="btn btn-secondary btn-sm" onclick="applyQRPreset('purple')">梦幻紫</button>
+            <button class="btn btn-secondary btn-sm" onclick="applyQRPreset('sunset')">日落橙</button>
+            <button class="btn btn-secondary btn-sm" onclick="applyQRPreset('forest')">森林绿</button>
+            <button class="btn btn-secondary btn-sm" onclick="applyQRPreset('neon')">霓虹粉</button>
+          </div>
+        </div>
+        
+        <!-- 预览 -->
+        <div style="margin-top:16px;padding:20px;background:var(--bg);border-radius:12px;text-align:center;">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">样式预览</div>
+          <div id="qrPreviewContainer" style="display:inline-block;"></div>
+        </div>
+        
         <div class="btn-group" style="margin-top:16px;">
           <button class="btn btn-primary btn-sm" onclick="saveSettings()">保存设置</button>
+          <button class="btn btn-secondary btn-sm" onclick="previewQRStyle()">刷新预览</button>
           <button class="btn btn-secondary btn-sm" onclick="resetSettings()">恢复默认</button>
         </div>
       </div>
@@ -781,9 +844,10 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
 
     let history = JSON.parse(localStorage.getItem('linkHistory') || '[]');
     let groups = JSON.parse(localStorage.getItem('linkGroups') || '["默认","学习","娱乐","工作"]');
-    let settings = JSON.parse(localStorage.getItem('qrSettings') || '{"colorDark":"#1e293b","colorLight":"#ffffff","size":180}');
+    let settings = JSON.parse(localStorage.getItem('qrSettings') || '{"colorDark":"#1e293b","colorLight":"#ffffff","size":180,"dotStyle":"rounded","cornerStyle":"dot","colorMode":"solid","gradient1":"#6366f1","gradient2":"#8b5cf6","gradientType":"linear"}');
     let currentData = null;
     let selectedPosterStyle = 'elegant';
+    let currentQRCode = null;
 
     // ==================== 加密工具 ====================
     // XOR加密
@@ -1514,12 +1578,11 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       currentData = { url, name, code, link, disk, group, remark, time: Date.now() };
       saveToHistory(currentData);
       
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=${encodeURIComponent(url)}`;
-      
       const container = document.getElementById('singleResult');
+      const qrId = 'qr-single-' + Date.now();
       container.innerHTML = `
         <div class="result-card">
-          <div class="qr"><img src="${qrUrl}" alt="QR" style="width:48px;height:48px;"></div>
+          <div class="qr" id="${qrId}" style="width:56px;height:56px;"></div>
           <div class="info">
             <div class="name">${name} <span class="tag" style="background:${disk.color}">${disk.name}</span></div>
             <div class="link">${link}</div>
@@ -1531,6 +1594,14 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
           </div>
         </div>
       `;
+      
+      // 生成小二维码（使用设置中的样式）
+      setTimeout(() => {
+        const qrContainer = document.getElementById(qrId);
+        if (qrContainer) {
+          generateStyledQR(url, qrContainer, 56);
+        }
+      }, 50);
       
       toast(sanitized.hasFiltered ? '生成成功（已过滤违禁内容）' : '生成成功！');
     }
@@ -1581,12 +1652,11 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         
         saveToHistory({ url, name, code, link, disk, group, remark, time: Date.now() });
         
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=${encodeURIComponent(url)}`;
-        
+        const qrId = 'qr-batch-' + i + '-' + Date.now();
         const card = document.createElement('div');
         card.className = 'result-card';
         card.innerHTML = `
-          <div class="qr"><img src="${qrUrl}" alt="QR" style="width:48px;height:48px;"></div>
+          <div class="qr" id="${qrId}" style="width:56px;height:56px;"></div>
           <div class="info">
             <div class="name">${name} <span class="tag" style="background:${disk.color}">${disk.name}</span></div>
             <div class="link">${link}</div>
@@ -1597,6 +1667,17 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
           </div>
         `;
         container.appendChild(card);
+        
+        // 生成小二维码（使用设置中的样式）
+        ((qId, targetUrl) => {
+          setTimeout(() => {
+            const qrContainer = document.getElementById(qId);
+            if (qrContainer) {
+              generateStyledQR(targetUrl, qrContainer, 56);
+            }
+          }, 50 + i * 20);
+        })(qrId, url);
+        
         successCount++;
       });
       
@@ -1663,12 +1744,11 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
             
             saveToHistory({ url, name, code, link, disk, group, remark, time: Date.now() });
             
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=56x56&data=${encodeURIComponent(url)}`;
-            
+            const qrId = 'qr-upload-' + i + '-' + Date.now();
             const card = document.createElement('div');
             card.className = 'result-card';
             card.innerHTML = `
-              <div class="qr"><img src="${qrUrl}" alt="QR" style="width:48px;height:48px;"></div>
+              <div class="qr" id="${qrId}" style="width:56px;height:56px;"></div>
               <div class="info">
                 <div class="name">${name} <span class="tag" style="background:${disk.color}">${disk.name}</span></div>
                 <div class="link">${link}</div>
@@ -1679,6 +1759,17 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
               </div>
             `;
             container.appendChild(card);
+            
+            // 生成小二维码（使用设置中的样式）
+            ((qId, targetUrl) => {
+              setTimeout(() => {
+                const qrContainer = document.getElementById(qId);
+                if (qrContainer) {
+                  generateStyledQR(targetUrl, qrContainer, 56);
+                }
+              }, 50 + successCount * 20);
+            })(qrId, url);
+            
             successCount++;
           });
           
@@ -1839,10 +1930,20 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
 
     // ==================== 设置 ====================
     function loadSettings() {
-      document.getElementById('qrColorDark').value = settings.colorDark;
-      document.getElementById('qrColorLight').value = settings.colorLight;
-      document.getElementById('qrSize').value = settings.size;
+      document.getElementById('qrColorDark').value = settings.colorDark || '#1e293b';
+      document.getElementById('qrColorLight').value = settings.colorLight || '#ffffff';
+      document.getElementById('qrSize').value = settings.size || 180;
+      document.getElementById('qrDotStyle').value = settings.dotStyle || 'rounded';
+      document.getElementById('qrCornerStyle').value = settings.cornerStyle || 'dot';
+      document.getElementById('qrColorMode').value = settings.colorMode || 'solid';
+      document.getElementById('qrGradient1').value = settings.gradient1 || '#6366f1';
+      document.getElementById('qrGradient2').value = settings.gradient2 || '#8b5cf6';
+      document.getElementById('qrGradientType').value = settings.gradientType || 'linear';
+      document.getElementById('qrGradientBg').value = settings.gradientBg || '#ffffff';
+      
+      toggleGradient();
       renderGroups();
+      previewQRStyle();
       
       // 更新词库数量显示
       const wordCountInfo = document.getElementById('wordCountInfo');
@@ -1858,17 +1959,161 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       settings = {
         colorDark: document.getElementById('qrColorDark').value,
         colorLight: document.getElementById('qrColorLight').value,
-        size: parseInt(document.getElementById('qrSize').value)
+        size: parseInt(document.getElementById('qrSize').value),
+        dotStyle: document.getElementById('qrDotStyle').value,
+        cornerStyle: document.getElementById('qrCornerStyle').value,
+        colorMode: document.getElementById('qrColorMode').value,
+        gradient1: document.getElementById('qrGradient1').value,
+        gradient2: document.getElementById('qrGradient2').value,
+        gradientType: document.getElementById('qrGradientType').value,
+        gradientBg: document.getElementById('qrGradientBg').value
       };
       localStorage.setItem('qrSettings', JSON.stringify(settings));
       toast('设置已保存');
     }
 
     function resetSettings() {
-      settings = { colorDark: '#1e293b', colorLight: '#ffffff', size: 180 };
+      settings = { 
+        colorDark: '#1e293b', 
+        colorLight: '#ffffff', 
+        size: 180,
+        dotStyle: 'rounded',
+        cornerStyle: 'dot',
+        colorMode: 'solid',
+        gradient1: '#6366f1',
+        gradient2: '#8b5cf6',
+        gradientType: 'linear',
+        gradientBg: '#ffffff'
+      };
       localStorage.setItem('qrSettings', JSON.stringify(settings));
       loadSettings();
       toast('已恢复默认');
+    }
+    
+    // 切换渐变/纯色设置显示
+    function toggleGradient() {
+      const mode = document.getElementById('qrColorMode').value;
+      document.getElementById('solidColorSettings').style.display = mode === 'solid' ? 'grid' : 'none';
+      document.getElementById('gradientColorSettings').style.display = mode === 'gradient' ? 'grid' : 'none';
+    }
+    
+    // 二维码预设样式
+    function applyQRPreset(preset) {
+      const presets = {
+        classic: { dotStyle: 'square', cornerStyle: 'square', colorMode: 'solid', colorDark: '#000000', colorLight: '#ffffff' },
+        blue: { dotStyle: 'rounded', cornerStyle: 'dot', colorMode: 'gradient', gradient1: '#0ea5e9', gradient2: '#2563eb', gradientBg: '#ffffff' },
+        purple: { dotStyle: 'dots', cornerStyle: 'extra-rounded', colorMode: 'gradient', gradient1: '#8b5cf6', gradient2: '#d946ef', gradientBg: '#ffffff' },
+        sunset: { dotStyle: 'extra-rounded', cornerStyle: 'dot', colorMode: 'gradient', gradient1: '#f97316', gradient2: '#ef4444', gradientBg: '#ffffff' },
+        forest: { dotStyle: 'classy-rounded', cornerStyle: 'extra-rounded', colorMode: 'gradient', gradient1: '#22c55e', gradient2: '#14b8a6', gradientBg: '#ffffff' },
+        neon: { dotStyle: 'dots', cornerStyle: 'dot', colorMode: 'gradient', gradient1: '#ec4899', gradient2: '#8b5cf6', gradientBg: '#0f172a' }
+      };
+      
+      const p = presets[preset];
+      if (!p) return;
+      
+      document.getElementById('qrDotStyle').value = p.dotStyle;
+      document.getElementById('qrCornerStyle').value = p.cornerStyle;
+      document.getElementById('qrColorMode').value = p.colorMode;
+      
+      if (p.colorMode === 'solid') {
+        document.getElementById('qrColorDark').value = p.colorDark;
+        document.getElementById('qrColorLight').value = p.colorLight;
+      } else {
+        document.getElementById('qrGradient1').value = p.gradient1;
+        document.getElementById('qrGradient2').value = p.gradient2;
+        document.getElementById('qrGradientBg').value = p.gradientBg;
+      }
+      
+      toggleGradient();
+      previewQRStyle();
+      toast('已应用预设：' + preset);
+    }
+    
+    // 预览二维码样式（从DOM读取当前设置）
+    function previewQRStyle() {
+      const container = document.getElementById('qrPreviewContainer');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      // 预览时使用DOM的值，不使用保存的设置
+      const options = getQROptions('https://example.com/preview', 120, false);
+      const qrCode = new QRCodeStyling(options);
+      qrCode.append(container);
+    }
+    
+    // 获取二维码配置（useSettings=true时强制使用保存的设置）
+    function getQROptions(data, size, useSettings = false) {
+      // 判断是否在设置页面（用于实时预览）
+      const isSettingsPage = document.getElementById('panel-settings')?.classList.contains('active');
+      const useSaved = useSettings || !isSettingsPage;
+      
+      const colorMode = useSaved ? (settings.colorMode || 'solid') : (document.getElementById('qrColorMode')?.value || settings.colorMode || 'solid');
+      const dotStyle = useSaved ? (settings.dotStyle || 'rounded') : (document.getElementById('qrDotStyle')?.value || settings.dotStyle || 'rounded');
+      const cornerStyle = useSaved ? (settings.cornerStyle || 'dot') : (document.getElementById('qrCornerStyle')?.value || settings.cornerStyle || 'dot');
+      
+      let dotsOptions = { type: dotStyle };
+      
+      if (colorMode === 'gradient') {
+        const gradient1 = useSaved ? (settings.gradient1 || '#6366f1') : (document.getElementById('qrGradient1')?.value || settings.gradient1 || '#6366f1');
+        const gradient2 = useSaved ? (settings.gradient2 || '#8b5cf6') : (document.getElementById('qrGradient2')?.value || settings.gradient2 || '#8b5cf6');
+        const gradientType = useSaved ? (settings.gradientType || 'linear') : (document.getElementById('qrGradientType')?.value || settings.gradientType || 'linear');
+        
+        dotsOptions.gradient = {
+          type: gradientType,
+          rotation: gradientType === 'linear' ? Math.PI / 4 : 0,
+          colorStops: [
+            { offset: 0, color: gradient1 },
+            { offset: 1, color: gradient2 }
+          ]
+        };
+      } else {
+        dotsOptions.color = useSaved ? (settings.colorDark || '#1e293b') : (document.getElementById('qrColorDark')?.value || settings.colorDark || '#1e293b');
+      }
+      
+      const bgColor = colorMode === 'gradient' 
+        ? (useSaved ? (settings.gradientBg || '#ffffff') : (document.getElementById('qrGradientBg')?.value || settings.gradientBg || '#ffffff'))
+        : (useSaved ? (settings.colorLight || '#ffffff') : (document.getElementById('qrColorLight')?.value || settings.colorLight || '#ffffff'));
+      
+      // 码眼颜色
+      const cornerColor = colorMode === 'gradient' 
+        ? (useSaved ? (settings.gradient1 || '#6366f1') : (document.getElementById('qrGradient1')?.value || settings.gradient1 || '#6366f1'))
+        : (useSaved ? (settings.colorDark || '#1e293b') : (document.getElementById('qrColorDark')?.value || settings.colorDark || '#1e293b'));
+      
+      const cornerDotColor = colorMode === 'gradient'
+        ? (useSaved ? (settings.gradient2 || '#8b5cf6') : (document.getElementById('qrGradient2')?.value || settings.gradient2 || '#8b5cf6'))
+        : cornerColor;
+      
+      return {
+        width: size || settings.size || 180,
+        height: size || settings.size || 180,
+        type: 'canvas',
+        data: data,
+        dotsOptions: dotsOptions,
+        cornersSquareOptions: {
+          type: cornerStyle,
+          color: cornerColor
+        },
+        cornersDotOptions: {
+          type: cornerStyle === 'square' ? 'square' : 'dot',
+          color: cornerDotColor
+        },
+        backgroundOptions: {
+          color: bgColor
+        },
+        qrOptions: {
+          errorCorrectionLevel: 'H'
+        }
+      };
+    }
+    
+    // 生成炫酷二维码（使用保存的设置）
+    function generateStyledQR(data, container, size) {
+      container.innerHTML = '';
+      const options = getQROptions(data, size || settings.size || 180, true);
+      const qrCode = new QRCodeStyling(options);
+      qrCode.append(container);
+      return qrCode;
     }
 
     function renderGroups() {
@@ -1908,10 +2153,9 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       document.getElementById('modalTitle').textContent = currentData.name;
       const qrBox = document.getElementById('modalQr');
       
-      // 使用原始目标链接生成二维码
-      const qrSize = settings.size || 180;
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(currentData.url)}`;
-      qrBox.innerHTML = `<img src="${qrUrl}" alt="二维码" style="width:${qrSize}px;height:${qrSize}px;">`;
+      // 使用炫酷二维码样式
+      qrBox.innerHTML = '';
+      currentQRCode = generateStyledQR(currentData.url, qrBox, settings.size || 180);
       
       const remarkBox = document.getElementById('modalRemark');
       if (currentData.remark) {
@@ -1927,6 +2171,17 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     function closeModal() { document.getElementById('qrModal').classList.remove('show'); }
 
     function downloadQR() {
+      if (!currentQRCode) return toast('请先生成二维码');
+      
+      currentQRCode.download({
+        name: currentData?.name || '二维码',
+        extension: 'png'
+      });
+      toast('下载成功');
+    }
+
+    // 旧的下载方法备用
+    function downloadQROld() {
       const img = document.querySelector('#modalQr img');
       if (!img) return toast('请先生成二维码');
       
@@ -2002,20 +2257,38 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         </div>
       `).join('');
       
-      // 延迟生成二维码，使用原始目标链接
+      // 使用炫酷二维码样式
       setTimeout(() => {
         Object.keys(POSTER_STYLES).forEach(key => {
           const container = document.getElementById('posterQr-' + key);
           if (container) {
             container.innerHTML = '';
-            new QRCode(container, { 
-              text: currentData.url,  // 使用原始目标链接
-              width: 120, 
+            // 使用QRCodeStyling生成炫酷二维码
+            const qrCode = new QRCodeStyling({
+              width: 120,
               height: 120,
-              colorDark: '#000000',
-              colorLight: '#ffffff',
-              correctLevel: QRCode.CorrectLevel.H
+              type: 'canvas',
+              data: currentData.url,
+              dotsOptions: {
+                type: settings.dotStyle || 'rounded',
+                color: settings.colorDark || '#1e293b'
+              },
+              cornersSquareOptions: {
+                type: settings.cornerStyle || 'dot',
+                color: settings.colorDark || '#1e293b'
+              },
+              cornersDotOptions: {
+                type: 'dot',
+                color: settings.colorDark || '#1e293b'
+              },
+              backgroundOptions: {
+                color: '#ffffff'
+              },
+              qrOptions: {
+                errorCorrectionLevel: 'H'
+              }
             });
+            qrCode.append(container);
           }
         });
       }, 100);
@@ -2249,6 +2522,16 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       // 加载主题
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      
+      // 从localStorage加载保存的设置
+      const savedSettings = localStorage.getItem('qrSettings');
+      if (savedSettings) {
+        try {
+          settings = JSON.parse(savedSettings);
+        } catch (e) {
+          console.warn('加载设置失败，使用默认值');
+        }
+      }
       
       // 初始化分组选择器
       renderGroups();
