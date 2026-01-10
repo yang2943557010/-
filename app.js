@@ -1,5 +1,7 @@
 /**
  * URL重定向二维码页面 - 主应用脚本
+ * @license Proprietary - All Rights Reserved
+ * @copyright 2024
  */
 
 // ==================== 加密模块 ====================
