@@ -230,6 +230,24 @@ const UrlHandler = {
   parseParams() {
     const params = new URLSearchParams(window.location.search);
     
+    // 短链接模式
+    const shortId = params.get('s');
+    if (shortId && window.ShortLinkGenerator) {
+      ShortLinkGenerator.init();
+      const data = ShortLinkGenerator.resolve(shortId);
+      if (data && data.u) {
+        return {
+          targetUrl: data.u,
+          resourceName: data.n || '资源',
+          extractCode: data.c || '无',
+          template: data.t || 'default',
+          adText: data.a || '',
+          adDuration: Math.min(Math.max(parseInt(data.at) || 2, 2), 5),
+          isValid: true
+        };
+      }
+    }
+    
     // 新版：单参数d包含所有数据
     const compressedData = params.get('d');
     if (compressedData) {
