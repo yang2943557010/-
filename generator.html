@@ -451,7 +451,9 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
           <tr><td style="padding:4px 8px;border:1px solid var(--border);">D列</td><td style="padding:4px 8px;border:1px solid var(--border);">分组</td></tr>
           <tr><td style="padding:4px 8px;border:1px solid var(--border);">E列</td><td style="padding:4px 8px;border:1px solid var(--border);">备注</td></tr>
         </table>
-        <button class="btn btn-secondary btn-sm" style="margin-top:12px;" onclick="downloadTemplate()">📥 下载模板</button>
+        <div style="display:flex;gap:10px;margin-top:12px;">
+          <button class="btn btn-secondary btn-sm" onclick="downloadTemplate()">📥 下载模板</button>
+        </div>
       </div>
       <div id="uploadResult" style="margin-top:20px;"></div>
     </div>
@@ -1984,9 +1986,15 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     }
 
     // ==================== 表格导入 ====================
+    // 存储导入生成的结果
+    let uploadGeneratedResults = [];
+    
     function handleFileUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
+      
+      // 清空之前的结果
+      uploadGeneratedResults = [];
       
       const reader = new FileReader();
       reader.onload = function(evt) {
@@ -2034,6 +2042,17 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
             
             saveToHistory({ url, name, code, link, disk, group, remark, time: Date.now() });
             
+            // 保存到导入结果数组
+            uploadGeneratedResults.push({
+              url,
+              name,
+              code,
+              group,
+              remark,
+              link,
+              diskName: disk.name
+            });
+            
             const qrId = 'qr-upload-' + i + '-' + Date.now();
             const card = document.createElement('div');
             card.className = 'result-card';
@@ -2063,6 +2082,18 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
             successCount++;
           });
           
+          // 如果有成功导入的记录，显示导出按钮
+          if (successCount > 0) {
+            const exportBar = document.createElement('div');
+            exportBar.style.cssText = 'display:flex;gap:10px;justify-content:center;margin-top:16px;padding:16px;background:var(--bg);border-radius:10px;';
+            exportBar.innerHTML = `
+              <span style="font-size:13px;color:var(--text2);display:flex;align-items:center;">✅ 成功生成 ${successCount} 条链接</span>
+              <button class="btn btn-success btn-sm" onclick="exportUploadResults()">📤 导出为表格</button>
+              <button class="btn btn-secondary btn-sm" onclick="copyAllUploadLinks()">📋 复制全部链接</button>
+            `;
+            container.insertBefore(exportBar, container.firstChild);
+          }
+          
           let msg = `已导入 ${successCount} 条记录`;
           if (filteredCount > 0) msg += `（${filteredCount} 条已过滤违禁内容）`;
           if (errorCount > 0) msg = `成功 ${successCount} 条，失败 ${errorCount} 条`;
@@ -2073,6 +2104,50 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         }
       };
       reader.readAsArrayBuffer(file);
+    }
+    
+    // 导出导入生成的结果为表格
+    function exportUploadResults() {
+      if (!uploadGeneratedResults.length) return toast('暂无可导出的数据');
+      
+      const data = uploadGeneratedResults.map(item => ({
+        '原始链接': item.url,
+        '名称': item.name,
+        '提取码': item.code || '',
+        '分组': item.group || '',
+        '备注': item.remark || '',
+        '生成链接': item.link,
+        '网盘类型': item.diskName
+      }));
+      
+      const ws = XLSX.utils.json_to_sheet(data);
+      // 设置列宽
+      ws['!cols'] = [
+        { wch: 50 }, // 原始链接
+        { wch: 20 }, // 名称
+        { wch: 10 }, // 提取码
+        { wch: 10 }, // 分组
+        { wch: 20 }, // 备注
+        { wch: 60 }, // 生成链接
+        { wch: 12 }  // 网盘类型
+      ];
+      
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '生成结果');
+      XLSX.writeFile(wb, '链接生成结果_' + new Date().toLocaleDateString() + '.xlsx');
+      toast('导出成功');
+    }
+    
+    // 复制全部导入生成的链接
+    function copyAllUploadLinks() {
+      if (!uploadGeneratedResults.length) return toast('暂无可复制的链接');
+      
+      const links = uploadGeneratedResults.map(item => item.link).join('\n');
+      navigator.clipboard.writeText(links).then(() => {
+        toast('已复制 ' + uploadGeneratedResults.length + ' 条链接');
+      }).catch(() => {
+        toast('复制失败');
+      });
     }
 
     function downloadTemplate() {
