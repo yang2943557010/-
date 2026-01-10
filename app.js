@@ -11,6 +11,8 @@ const CryptoUtil = {
   
   /**
    * 加密数据对象为短字符串
+  /**
+   * 加密数据对象为短字符串
    */
   encryptData(data) {
     try {
@@ -242,7 +244,7 @@ const UrlHandler = {
           extractCode: data.c || '无',
           template: data.t || 'default',
           adText: data.a || '',
-          adDuration: Math.min(Math.max(parseInt(data.at) || 2, 2), 5),
+          adDuration: Math.min(Math.max(parseInt(data.at) || 2, 1), 5),
           isValid: true
         };
       }
@@ -259,7 +261,7 @@ const UrlHandler = {
           extractCode: data.c || '无',
           template: data.t || 'default',
           adText: data.a || '',
-          adDuration: Math.min(Math.max(parseInt(data.at) || 2, 2), 5),
+          adDuration: Math.min(Math.max(parseInt(data.at) || 2, 1), 5),
           isValid: true
         };
       }
@@ -279,7 +281,7 @@ const UrlHandler = {
       extractCode: decodeURIComponent(code),
       template,
       adText: adText ? decodeURIComponent(adText) : '',
-      adDuration: Math.min(Math.max(adDuration, 2), 5),
+      adDuration: Math.min(Math.max(adDuration, 1), 5),
       isValid: !!targetUrl
     };
   }
@@ -440,8 +442,8 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
   preloadFrame.src = targetUrl;
   document.body.appendChild(preloadFrame);
   
-  // 设置广告文字
-  textEl.textContent = adText;
+  // 设置广告文字（保留换行格式）
+  textEl.innerHTML = adText.replace(/\n/g, '<br>');
   countdownEl.textContent = duration;
   progressBar.style.width = '100%';
   

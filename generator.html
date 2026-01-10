@@ -392,14 +392,16 @@
             </label>
           </div>
           <div id="adSettings" style="display:none;">
-            <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end;">
+            <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;">
               <div class="form-group" style="margin:0;">
-                <label>广告文字（1-15字）</label>
-                <input type="text" id="adText" maxlength="15" placeholder="正在为您跳转..." value="正在为您跳转...">
+                <label>广告文字（最多30字，支持换行）</label>
+                <textarea id="adText" maxlength="30" rows="3" placeholder="正在为您跳转...&#10;请稍候" style="resize:vertical;min-height:60px;font-size:13px;line-height:1.5;">正在为您跳转...</textarea>
+                <span style="font-size:10px;color:var(--text3);margin-top:4px;display:block;">💡 按 Enter 换行，空格调整间距</span>
               </div>
-              <div class="form-group" style="margin:0;width:100px;">
+              <div class="form-group" style="margin:0;width:90px;">
                 <label>显示时长</label>
                 <select id="adDuration">
+                  <option value="1">1秒</option>
                   <option value="2">2秒</option>
                   <option value="3">3秒</option>
                   <option value="4">4秒</option>
@@ -426,6 +428,39 @@
 https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       </div>
       <p style="font-size:11px;color:var(--text3);margin-top:-8px;">提示：名称、提取码、分组、备注均可省略，提取码会自动识别</p>
+      
+      <!-- 批量生成广告设置 -->
+      <div style="margin-top:12px;padding:16px;background:var(--bg);border-radius:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <label style="margin:0;font-weight:600;display:flex;align-items:center;gap:6px;font-size:13px;">
+            📢 广告提示设置
+            <span style="font-size:10px;color:var(--text3);font-weight:400;">（应用到所有链接）</span>
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="batchAdEnabled">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div id="batchAdSettings" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;">
+            <div class="form-group" style="margin:0;">
+              <label>广告文字（最多30字，支持换行）</label>
+              <textarea id="batchAdText" maxlength="30" rows="2" placeholder="正在为您跳转..." style="resize:vertical;min-height:50px;font-size:13px;">正在为您跳转...</textarea>
+            </div>
+            <div class="form-group" style="margin:0;width:90px;">
+              <label>显示时长</label>
+              <select id="batchAdDuration">
+                <option value="1">1秒</option>
+                <option value="2">2秒</option>
+                <option value="3">3秒</option>
+                <option value="4">4秒</option>
+                <option value="5">5秒</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <div class="btn-group">
         <button class="btn btn-primary" onclick="generateBatch()">批量生成</button>
         <button class="btn btn-success" onclick="exportAllQR()">📦 导出全部二维码</button>
@@ -455,6 +490,39 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
           <button class="btn btn-secondary btn-sm" onclick="downloadTemplate()">📥 下载模板</button>
         </div>
       </div>
+      
+      <!-- 表格导入广告设置 -->
+      <div style="margin-top:16px;padding:16px;background:var(--bg);border-radius:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <label style="margin:0;font-weight:600;display:flex;align-items:center;gap:6px;font-size:13px;">
+            📢 广告提示设置
+            <span style="font-size:10px;color:var(--text3);font-weight:400;">（应用到所有链接）</span>
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="uploadAdEnabled">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div id="uploadAdSettings" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;">
+            <div class="form-group" style="margin:0;">
+              <label>广告文字（最多30字，支持换行）</label>
+              <textarea id="uploadAdText" maxlength="30" rows="2" placeholder="正在为您跳转..." style="resize:vertical;min-height:50px;font-size:13px;">正在为您跳转...</textarea>
+            </div>
+            <div class="form-group" style="margin:0;width:90px;">
+              <label>显示时长</label>
+              <select id="uploadAdDuration">
+                <option value="1">1秒</option>
+                <option value="2">2秒</option>
+                <option value="3">3秒</option>
+                <option value="4">4秒</option>
+                <option value="5">5秒</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <div id="uploadResult" style="margin-top:20px;"></div>
     </div>
 
@@ -1812,6 +1880,25 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       const encoded = encryptData(data);
       return `${BASE_URL}?d=${encoded}`;
     }
+    
+    // 带自定义广告设置的链接生成函数（用于批量生成和表格导入）
+    function generateLinkWithAd(url, name, code, remark, adEnabled, adText, adDuration) {
+      const pageStyle = document.getElementById('pageStyle')?.value || 'default';
+      
+      // 构建数据对象（使用短键名）
+      const data = { u: url };
+      if (name && name !== '资源') data.n = name;
+      if (code) data.c = code;
+      if (pageStyle !== 'default') data.t = pageStyle;
+      if (adEnabled && adText && adText.trim()) {
+        data.a = adText.trim();
+        data.at = adDuration;
+      }
+      
+      // 使用压缩加密生成短链接
+      const encoded = encryptData(data);
+      return `${BASE_URL}?d=${encoded}`;
+    }
 
     // ==================== Tab切换 ====================
     function switchTab(tab) {
@@ -1903,6 +1990,11 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       const input = document.getElementById('batchInput').value.trim();
       if (!input) return toast('请输入链接');
       
+      // 获取批量广告设置
+      const batchAdEnabled = document.getElementById('batchAdEnabled')?.checked || false;
+      const batchAdText = document.getElementById('batchAdText')?.value || '';
+      const batchAdDuration = document.getElementById('batchAdDuration')?.value || '2';
+      
       const lines = input.split('\n').filter(l => l.trim());
       const container = document.getElementById('batchResult');
       container.innerHTML = '';
@@ -1939,7 +2031,8 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         remark = sanitized.remark;
         if (sanitized.hasFiltered) filteredCount++;
         
-        const link = generateLink(url, name, code, remark);
+        // 使用批量广告设置生成链接
+        const link = generateLinkWithAd(url, name, code, remark, batchAdEnabled, batchAdText, batchAdDuration);
         const disk = detectDiskType(url);
         
         saveToHistory({ url, name, code, link, disk, group, remark, time: Date.now() });
@@ -1996,6 +2089,11 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       // 清空之前的结果
       uploadGeneratedResults = [];
       
+      // 获取表格导入广告设置
+      const uploadAdEnabled = document.getElementById('uploadAdEnabled')?.checked || false;
+      const uploadAdText = document.getElementById('uploadAdText')?.value || '';
+      const uploadAdDuration = document.getElementById('uploadAdDuration')?.value || '2';
+      
       const reader = new FileReader();
       reader.onload = function(evt) {
         try {
@@ -2037,7 +2135,8 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
             remark = sanitized.remark;
             if (sanitized.hasFiltered) filteredCount++;
             
-            const link = generateLink(url, name, code, remark);
+            // 使用表格导入广告设置生成链接
+            const link = generateLinkWithAd(url, name, code, remark, uploadAdEnabled, uploadAdText, uploadAdDuration);
             const disk = detectDiskType(url);
             
             saveToHistory({ url, name, code, link, disk, group, remark, time: Date.now() });
@@ -2898,6 +2997,9 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         }
       }
       
+      // 加载表单设置
+      loadFormSettings();
+      
       // 初始化分组选择器
       renderGroups();
       
@@ -2911,7 +3013,25 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       const adSettings = document.getElementById('adSettings');
       adEnabled?.addEventListener('change', () => {
         adSettings.style.display = adEnabled.checked ? 'block' : 'none';
+        saveFormSettings();
       });
+      
+      // 批量生成广告开关事件
+      const batchAdEnabled = document.getElementById('batchAdEnabled');
+      const batchAdSettings = document.getElementById('batchAdSettings');
+      batchAdEnabled?.addEventListener('change', () => {
+        batchAdSettings.style.display = batchAdEnabled.checked ? 'block' : 'none';
+      });
+      
+      // 表格导入广告开关事件
+      const uploadAdEnabled = document.getElementById('uploadAdEnabled');
+      const uploadAdSettings = document.getElementById('uploadAdSettings');
+      uploadAdEnabled?.addEventListener('change', () => {
+        uploadAdSettings.style.display = uploadAdEnabled.checked ? 'block' : 'none';
+      });
+      
+      // 监听表单变化自动保存
+      setupFormAutoSave();
       
       // 初始化增强功能设置
       if (window.QRBorderStyles) {
@@ -2932,6 +3052,87 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         console.log(`敏感词系统就绪，共 ${getAllBannedWords().length} 个词`);
       });
     });
+    
+    // ==================== 表单设置保存/加载 ====================
+    function saveFormSettings() {
+      const formSettings = {
+        pageStyle: document.getElementById('pageStyle')?.value || 'default',
+        groupTag: document.getElementById('groupTag')?.value || '',
+        adEnabled: document.getElementById('adEnabled')?.checked || false,
+        adText: document.getElementById('adText')?.value || '正在为您跳转...',
+        adDuration: document.getElementById('adDuration')?.value || '2'
+      };
+      localStorage.setItem('formSettings', JSON.stringify(formSettings));
+    }
+    
+    function loadFormSettings() {
+      const saved = localStorage.getItem('formSettings');
+      if (!saved) return;
+      
+      try {
+        const formSettings = JSON.parse(saved);
+        
+        // 页面风格
+        const pageStyle = document.getElementById('pageStyle');
+        if (pageStyle && formSettings.pageStyle) {
+          pageStyle.value = formSettings.pageStyle;
+        }
+        
+        // 分组（需要在renderGroups之后设置）
+        setTimeout(() => {
+          const groupTag = document.getElementById('groupTag');
+          if (groupTag && formSettings.groupTag) {
+            groupTag.value = formSettings.groupTag;
+          }
+        }, 100);
+        
+        // 广告设置
+        const adEnabled = document.getElementById('adEnabled');
+        const adSettings = document.getElementById('adSettings');
+        const adText = document.getElementById('adText');
+        const adDuration = document.getElementById('adDuration');
+        
+        if (adEnabled && formSettings.adEnabled !== undefined) {
+          adEnabled.checked = formSettings.adEnabled;
+          if (adSettings) {
+            adSettings.style.display = formSettings.adEnabled ? 'block' : 'none';
+          }
+        }
+        
+        if (adText && formSettings.adText) {
+          adText.value = formSettings.adText;
+        }
+        
+        if (adDuration && formSettings.adDuration) {
+          adDuration.value = formSettings.adDuration;
+        }
+      } catch (e) {
+        console.warn('加载表单设置失败:', e);
+      }
+    }
+    
+    function setupFormAutoSave() {
+      // 监听页面风格变化
+      document.getElementById('pageStyle')?.addEventListener('change', saveFormSettings);
+      
+      // 监听分组变化
+      document.getElementById('groupTag')?.addEventListener('change', saveFormSettings);
+      
+      // 监听广告文字变化
+      document.getElementById('adText')?.addEventListener('input', debounce(saveFormSettings, 500));
+      
+      // 监听广告时长变化
+      document.getElementById('adDuration')?.addEventListener('change', saveFormSettings);
+    }
+    
+    // 防抖函数
+    function debounce(fn, delay) {
+      let timer = null;
+      return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+      };
+    }
     
     // 生成侧边栏广告二维码
     function generateSidebarAdQR() {
