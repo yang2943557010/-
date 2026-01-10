@@ -25,6 +25,206 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); min-height:100vh; padding:20px; color:var(--text); transition:all .2s; }
     .container { max-width:1000px; margin:0 auto; }
+    
+    /* 页面布局 - 三栏 */
+    .page-layout {
+      display: flex;
+      gap: 20px;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 0 20px;
+      align-items: flex-start;
+    }
+    
+    /* 侧边广告栏 */
+    .sidebar-ad {
+      width: 220px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+    }
+    
+    .sidebar-ad-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    
+    .sidebar-ad-card .ad-badge {
+      display: inline-block;
+      font-size: 10px;
+      color: var(--text3);
+      background: var(--bg);
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+    
+    .sidebar-ad-card .ad-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    
+    .sidebar-ad-card .ad-desc {
+      font-size: 12px;
+      color: var(--text2);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    
+    .sidebar-ad-card .ad-highlight {
+      display: inline-block;
+      background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .sidebar-ad-card .ad-qr {
+      background: #fff;
+      padding: 10px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      display: inline-block;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    
+    .sidebar-ad-card .ad-qr canvas,
+    .sidebar-ad-card .ad-qr img {
+      display: block;
+    }
+    
+    .sidebar-ad-card .ad-tip {
+      font-size: 11px;
+      color: var(--text3);
+      margin-bottom: 12px;
+    }
+    
+    .sidebar-ad-card .ad-btn {
+      display: block;
+      width: 100%;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: #fff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 10px;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .sidebar-ad-card .ad-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99,102,241,0.3);
+    }
+    
+    .sidebar-ad-card .ad-features {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 12px 0;
+      text-align: left;
+    }
+    
+    .sidebar-ad-card .ad-feature {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text2);
+    }
+    
+    .sidebar-ad-card .ad-feature .icon {
+      font-size: 12px;
+      color: #10b981;
+    }
+    
+    /* 可放大的二维码 */
+    .zoomable-qr {
+      cursor: zoom-in;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .zoomable-qr:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    }
+    
+    /* 二维码放大弹窗 */
+    .qr-zoom-box {
+      animation: zoomIn 0.25s ease-out;
+    }
+    
+    @keyframes zoomIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    #qrZoomContent img,
+    #qrZoomContent canvas {
+      max-width: 280px;
+      max-height: 280px;
+      width: auto;
+      height: auto;
+    }
+    
+    /* 广告卡片动画 */
+    .sidebar-ad-card {
+      animation: fadeInUp 0.5s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .sidebar-left .sidebar-ad-card {
+      animation-delay: 0.1s;
+    }
+    
+    .sidebar-right .sidebar-ad-card {
+      animation-delay: 0.2s;
+    }
+    
+    /* 主内容区 */
+    .main-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    /* 响应式 - 隐藏侧边栏 */
+    @media (max-width: 1200px) {
+      .sidebar-ad {
+        display: none;
+      }
+      .page-layout {
+        padding: 0;
+      }
+    }
     .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; padding:0 4px; }
     .header h1 { font-size:20px; font-weight:600; display:flex; align-items:center; gap:8px; }
     .header-actions { display:flex; gap:8px; }
@@ -78,8 +278,52 @@
 </head>
 <body>
   <div class="toast" id="toast"></div>
-  <div class="container">
-    <div class="header">
+  
+  <!-- 页面三栏布局 -->
+  <div class="page-layout">
+    <!-- 左侧广告栏 -->
+    <aside class="sidebar-ad sidebar-left">
+      <div class="sidebar-ad-card">
+        <span class="ad-badge">💰 赚钱福利</span>
+        <div class="ad-title">网盘拉新</div>
+        <div class="ad-desc">分享资源链接<br>用户转存即可赚钱</div>
+        <span class="ad-highlight">🔥 转存有奖</span>
+        <div class="ad-qr zoomable-qr" id="leftAdQr" ondblclick="zoomQR(this, '网盘拉新')"></div>
+        <div class="ad-tip">双击放大 · 扫码转存资源</div>
+        <div class="ad-features">
+          <div class="ad-feature"><span class="icon">✓</span> 分享链接赚佣金</div>
+          <div class="ad-feature"><span class="icon">✓</span> 用户转存即收益</div>
+          <div class="ad-feature"><span class="icon">✓</span> 零门槛轻松赚</div>
+        </div>
+        <a href="https://dt.bd.cn/#/pages/login/register?invite_code=3617287&qd=self_team_android" target="_blank" class="ad-btn">立即参与赚钱</a>
+      </div>
+      
+      <!-- 打印拉新卡片 -->
+      <div class="sidebar-ad-card" style="margin-top:16px;">
+        <span class="ad-badge">🖨️ 打印福利</span>
+        <div class="ad-title">打印拉新</div>
+        <div class="ad-desc">首单免费在线打印<br>满1.9元包邮</div>
+        <span class="ad-highlight">🔥 首单免费</span>
+        <div class="ad-qr zoomable-qr" id="printAdQr" ondblclick="zoomQR(this, '打印拉新')">
+          <img src="print-qr.png" alt="刺猬云印小程序码" style="width:100px;height:100px;display:block;">
+        </div>
+       <div class="ad-tip">双击放大 · 扫码打印资源</div>
+        <div class="ad-features">
+          <div class="ad-feature"><span class="icon">✓</span> 7大自营工厂</div>
+          <div class="ad-feature"><span class="icon">✓</span> 全国销量第一</div>
+          <div class="ad-feature"><span class="icon">✓</span> 彩色黑白同价5分/页</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px;padding:8px;background:var(--bg);border-radius:8px;">
+          📱 微信扫码打开小程序<br>
+          📝 填写邀请码：<strong style="color:var(--primary);">j1MRscbDuR</strong>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <div class="container">
+        <div class="header">
       <h1><span style="font-size:24px;">🔗</span> 链接生成器</h1>
       <div class="header-actions">
         <button class="icon-btn" onclick="toggleTheme()" title="切换主题">🌓</button>
@@ -390,6 +634,40 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         </ul>
       </div>
     </div>
+      </div>
+    </main>
+    
+    <!-- 右侧广告栏 -->
+    <aside class="sidebar-ad sidebar-right">
+      <div class="sidebar-ad-card">
+        <span class="ad-badge">💡 广告位招租</span>
+        <div class="ad-title">敬请期待</div>
+        <div class="ad-desc">更多优质资源<br>即将上线</div>
+        <div style="padding:20px 0;font-size:40px;opacity:0.3;">🚀</div>
+      </div>
+      
+      <!-- 联系方式卡片 -->
+      <div class="sidebar-ad-card" style="margin-top:16px;">
+        <span class="ad-badge">📱 联系我</span>
+        <div class="ad-title" style="font-size:14px;">微信号</div>
+        <div style="background:var(--bg);padding:8px 12px;border-radius:8px;margin:8px 0;font-size:13px;font-weight:600;color:var(--primary);user-select:all;cursor:pointer;" onclick="copyWechatId()">cxks25180</div>
+        <div class="ad-qr zoomable-qr" id="wechatQr" ondblclick="zoomQR(this, '微信二维码')">
+          <img src="wechat-qr.png" alt="微信二维码" style="width:100px;height:100px;display:block;">
+        </div>
+        <div class="ad-tip">双击放大 · 扫码添加好友</div>
+      </div>
+      
+      <!-- 打赏卡片 -->
+      <div class="sidebar-ad-card" style="margin-top:16px;">
+        <span class="ad-badge" style="background:linear-gradient(135deg,#f97316,#ef4444);color:#fff;">❤️ 打赏支持</span>
+        <div class="ad-title" style="font-size:14px;">感谢支持</div>
+        <div class="ad-desc" style="font-size:11px;">如果觉得有用<br>请作者喝杯咖啡☕</div>
+        <div class="ad-qr zoomable-qr" id="donateQr" ondblclick="zoomQR(this, '打赏二维码')">
+          <img src="donate-qr.png" alt="打赏二维码" style="width:100px;height:100px;display:block;">
+        </div>
+        <div class="ad-tip">扫码打赏</div>
+      </div>
+    </aside>
   </div>
 
   <!-- 二维码弹窗 -->
@@ -459,6 +737,18 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         <button class="modal-close" onclick="closeShortcutsModal()">×</button>
       </div>
       <div id="shortcutsList"></div>
+    </div>
+  </div>
+  
+  <!-- 二维码放大弹窗 -->
+  <div class="modal" id="qrZoomModal" onclick="closeQRZoom()">
+    <div class="modal-box qr-zoom-box" style="max-width:360px;text-align:center;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="qrZoomTitle">二维码</h3>
+        <button class="modal-close" onclick="closeQRZoom()">×</button>
+      </div>
+      <div id="qrZoomContent" style="padding:20px;background:#fff;border-radius:12px;display:flex;justify-content:center;align-items:center;min-height:280px;"></div>
+      <div style="margin-top:12px;font-size:12px;color:var(--text3);">点击空白处关闭</div>
     </div>
   </div>
 
@@ -2558,12 +2848,117 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         if (bgSelect) bgSelect.value = DynamicBackground.current;
       }
       
+      // 生成侧边栏广告二维码
+      generateSidebarAdQR();
+      
       // 异步加载远程敏感词库
       loadRemoteBannedWords().then(() => {
         dfaTree = buildDFATree(getAllBannedWords());
         console.log(`敏感词系统就绪，共 ${getAllBannedWords().length} 个词`);
       });
     });
+    
+    // 生成侧边栏广告二维码
+    function generateSidebarAdQR() {
+      const leftAdContainer = document.getElementById('leftAdQr');
+      if (!leftAdContainer) return;
+      
+      const adUrl = 'https://dt.bd.cn/#/pages/login/register?invite_code=3617287&qd=self_team_android';
+      
+      // 使用 qr-code-styling 生成美观的二维码
+      const qrCode = new QRCodeStyling({
+        width: 120,
+        height: 120,
+        data: adUrl,
+        dotsOptions: {
+          color: '#1e293b',
+          type: 'rounded'
+        },
+        cornersSquareOptions: {
+          type: 'extra-rounded'
+        },
+        cornersDotOptions: {
+          type: 'dot'
+        },
+        backgroundOptions: {
+          color: '#ffffff'
+        }
+      });
+      
+      leftAdContainer.innerHTML = '';
+      qrCode.append(leftAdContainer);
+    }
+    
+    // 复制微信号
+    function copyWechatId() {
+      const wechatId = 'cxks25180';
+      navigator.clipboard.writeText(wechatId).then(() => {
+        toast('微信号已复制：' + wechatId);
+      }).catch(() => {
+        // 降级方案
+        const input = document.createElement('input');
+        input.value = wechatId;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        toast('微信号已复制：' + wechatId);
+      });
+    }
+    
+    // 双击放大二维码
+    function zoomQR(element, title) {
+      const modal = document.getElementById('qrZoomModal');
+      const titleEl = document.getElementById('qrZoomTitle');
+      const content = document.getElementById('qrZoomContent');
+      
+      titleEl.textContent = title || '二维码';
+      content.innerHTML = '';
+      
+      // 查找二维码内容（canvas 或 img）
+      const canvas = element.querySelector('canvas');
+      const img = element.querySelector('img');
+      
+      if (canvas) {
+        // 对于 canvas 生成的二维码，重新生成一个更大的版本
+        const adUrl = 'https://dt.bd.cn/#/pages/login/register?invite_code=3617287&qd=self_team_android';
+        const largeQR = new QRCodeStyling({
+          width: 280,
+          height: 280,
+          data: adUrl,
+          dotsOptions: {
+            color: '#1e293b',
+            type: 'rounded'
+          },
+          cornersSquareOptions: {
+            type: 'extra-rounded'
+          },
+          cornersDotOptions: {
+            type: 'dot'
+          },
+          backgroundOptions: {
+            color: '#ffffff'
+          }
+        });
+        largeQR.append(content);
+      } else if (img) {
+        // 复制 img 并放大显示
+        const newImg = document.createElement('img');
+        newImg.src = img.src;
+        newImg.alt = img.alt;
+        newImg.style.cssText = 'width:280px;height:280px;border-radius:8px;object-fit:contain;';
+        content.appendChild(newImg);
+      } else {
+        content.innerHTML = '<div style="color:var(--text3);padding:40px;">暂无二维码</div>';
+      }
+      
+      modal.classList.add('show');
+    }
+    
+    // 关闭二维码放大弹窗
+    function closeQRZoom() {
+      document.getElementById('qrZoomModal').classList.remove('show');
+    }
   </script>
 </body>
 </html>
