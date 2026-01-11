@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实用工具 - 链接生成器</title>
+  <style>
+    :root { --bg:#f8fafc; --card:#fff; --text:#1e293b; --text2:#475569; --text3:#94a3b8; --border:#e2e8f0; --primary:#6366f1; --primary-light:#818cf8; }
+    [data-theme="dark"] { --bg:#0f172a; --card:#1e293b; --text:#f1f5f9; --text2:#cbd5e1; --text3:#64748b; --border:#334155; --primary:#818cf8; --primary-light:#a5b4fc; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); min-height:100vh; padding:20px; color:var(--text); transition:all .2s; }
+    
+    .container { max-width:1000px; margin:0 auto; }
+    
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; padding:0 4px; }
+    .header h1 { font-size:20px; font-weight:600; display:flex; align-items:center; gap:8px; }
+    .header-actions { display:flex; gap:8px; }
+    .icon-btn { width:36px; height:36px; border-radius:10px; border:1px solid var(--border); background:var(--card); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; transition:all .2s; text-decoration:none; color:var(--text); }
+    .icon-btn:hover { border-color:var(--primary); background:var(--primary); color:#fff; }
+    
+    .back-link { display:inline-flex; align-items:center; gap:6px; color:var(--primary); text-decoration:none; font-size:14px; margin-bottom:20px; padding:8px 16px; background:var(--card); border-radius:10px; border:1px solid var(--border); transition:all .2s; }
+    .back-link:hover { background:var(--primary); color:#fff; border-color:var(--primary); }
+    
+    .page-title { font-size:24px; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+    .page-desc { color:var(--text2); font-size:14px; margin-bottom:24px; }
+    
+    .tools-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:20px; }
+    
+    .tool-card { background:var(--card); border-radius:16px; padding:24px; box-shadow:0 2px 12px rgba(0,0,0,0.04); border:1px solid var(--border); transition:all .2s; }
+    .tool-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.08); border-color:var(--primary); }
+    
+    .tool-icon { width:56px; height:56px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:16px; }
+    .tool-icon.blue { background:linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+    .tool-icon.purple { background:linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
+    .tool-icon.green { background:linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .tool-icon.orange { background:linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+    .tool-icon.pink { background:linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
+    .tool-icon.cyan { background:linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+    
+    .tool-name { font-size:18px; font-weight:600; margin-bottom:8px; color:var(--text); }
+    .tool-desc { font-size:13px; color:var(--text2); line-height:1.6; margin-bottom:16px; }
+    
+    .tool-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+    .tool-tag { font-size:11px; padding:4px 10px; background:var(--bg); color:var(--text3); border-radius:20px; }
+    
+    .tool-actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn { padding:10px 18px; border:none; border-radius:10px; font-size:13px; font-weight:500; cursor:pointer; transition:all .2s; display:inline-flex; align-items:center; justify-content:center; gap:6px; text-decoration:none; }
+    .btn-primary { background:var(--primary); color:#fff; }
+    .btn-primary:hover { background:var(--primary-light); transform:translateY(-1px); box-shadow:0 4px 12px rgba(99,102,241,.3); }
+    .btn-secondary { background:var(--bg); color:var(--text); border:1px solid var(--border); }
+    .btn-secondary:hover { border-color:var(--primary); color:var(--primary); }
+    
+    .tool-version { font-size:11px; color:var(--text3); margin-top:12px; }
+    
+    .coming-soon { opacity:0.6; pointer-events:none; }
+    .coming-soon .tool-card { background:var(--bg); }
+    .coming-soon-badge { display:inline-block; font-size:10px; padding:3px 8px; background:var(--text3); color:#fff; border-radius:10px; margin-left:8px; }
+    
+    .section-title { font-size:16px; font-weight:600; margin:32px 0 16px; padding-bottom:8px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+    
+    .disclaimer { margin-top:40px; padding:16px 20px; background:var(--bg); border:1px solid var(--border); border-radius:12px; font-size:11px; color:var(--text3); line-height:1.8; }
+    .disclaimer strong { color:var(--text2); }
+    
+    @media (max-width: 768px) {
+      body { padding:16px; }
+      .tools-grid { grid-template-columns:1fr; }
+      .page-title { font-size:20px; }
+      .tool-card { padding:20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="generator.html" class="back-link">
+      <span>←</span>
+      <span>返回链接生成器</span>
+    </a>
+    
+    <h1 class="page-title">
+      <span>🧰</span>
+      实用工具箱
+    </h1>
+    <p class="page-desc">精选实用工具，提升你的效率</p>
+    
+    <div class="section-title">
+      <span>📦</span>
+      网盘工具
+    </div>
+    
+    <div class="tools-grid">
+      <!-- 百度网盘批量转存工具 -->
+      <div class="tool-card">
+        <div class="tool-icon blue">📁</div>
+        <div class="tool-name">百度网盘批量转存</div>
+        <div class="tool-desc">
+          支持批量转存百度网盘分享链接，自动识别提取码，支持自定义保存路径，大幅提升转存效率。
+        </div>
+        <div class="tool-tags">
+          <span class="tool-tag">Windows</span>
+          <span class="tool-tag">免费</span>
+          <span class="tool-tag">开源</span>
+        </div>
+        <div class="tool-actions">
+          <a href="https://github.com/hxz393/BaiduPanFilesTransfers/releases/download/2.8.2/BaiduPanFilesTransfers.exe" class="btn btn-primary" download>
+            <span>⬇️</span>
+            <span>下载 v2.8.2</span>
+          </a>
+          <a href="https://github.com/hxz393/BaiduPanFilesTransfers" target="_blank" class="btn btn-secondary">
+            <span>📖</span>
+            <span>查看说明</span>
+          </a>
+        </div>
+        <div class="tool-version">更新时间：2024年 · 作者：hxz393</div>
+      </div>
+      
+      <!-- 阿里云盘小白羊版 -->
+      <div class="tool-card">
+        <div class="tool-icon purple">☁️</div>
+        <div class="tool-name">阿里云盘小白羊版</div>
+        <div class="tool-desc">
+          基于阿里云盘网页版开发的PC客户端，支持多账号登录、文件夹树、在线播放视频、批量重命名等功能，比官方更快更好用。
+        </div>
+        <div class="tool-tags">
+          <span class="tool-tag">Windows</span>
+          <span class="tool-tag">macOS</span>
+          <span class="tool-tag">免费</span>
+          <span class="tool-tag">开源</span>
+        </div>
+        <div class="tool-actions">
+          <a href="https://wwe.lanzoui.com/b01nqc4gd" target="_blank" class="btn btn-primary">
+            <span>⬇️</span>
+            <span>下载 v2.12.14</span>
+          </a>
+          <a href="https://www.yuque.com/liupan1890/xiaobaiyang" target="_blank" class="btn btn-secondary">
+            <span>📖</span>
+            <span>使用帮助</span>
+          </a>
+        </div>
+        <div class="tool-version">⭐ 12.2k Stars · 作者：liupan1890</div>
+      </div>
+      
+      <!-- 阿里云盘命令行版 -->
+      <div class="tool-card">
+        <div class="tool-icon purple">💻</div>
+        <div class="tool-name">阿里云盘命令行版</div>
+        <div class="tool-desc">
+          阿里云盘CLI客户端，支持同步备份、多用户、JavaScript插件、相册批量下载，适合NAS和服务器使用。
+        </div>
+        <div class="tool-tags">
+          <span class="tool-tag">多平台</span>
+          <span class="tool-tag">Docker</span>
+          <span class="tool-tag">免费</span>
+          <span class="tool-tag">开源</span>
+        </div>
+        <div class="tool-actions">
+          <a href="https://github.com/tickstep/aliyunpan/releases" target="_blank" class="btn btn-primary">
+            <span>⬇️</span>
+            <span>下载 v0.3.7</span>
+          </a>
+          <a href="https://github.com/tickstep/aliyunpan" target="_blank" class="btn btn-secondary">
+            <span>📖</span>
+            <span>查看说明</span>
+          </a>
+        </div>
+        <div class="tool-version">更新时间：2025年3月 · 作者：tickstep</div>
+      </div>
+      
+      <!-- 夸克网盘工具 -->
+      <div class="tool-card">
+        <div class="tool-icon green">⚡</div>
+        <div class="tool-name">夸克网盘批量转存</div>
+        <div class="tool-desc">
+          支持夸克网盘批量转存、分享链接提取、文件管理等功能，提升网盘操作效率。
+        </div>
+        <div class="tool-tags">
+          <span class="tool-tag">Windows</span>
+          <span class="tool-tag">免费</span>
+          <span class="tool-tag">开源</span>
+        </div>
+        <div class="tool-actions">
+          <a href="https://github.com/ihmily/QuarkPanTool/releases/download/v0.0.6/QuarkPanTool_v0.0.6.zip" class="btn btn-primary" download>
+            <span>⬇️</span>
+            <span>下载 v0.0.6</span>
+          </a>
+          <a href="https://github.com/ihmily/QuarkPanTool/wiki" target="_blank" class="btn btn-secondary">
+            <span>📖</span>
+            <span>使用教程</span>
+          </a>
+        </div>
+        <div class="tool-version">更新时间：2024年 · 作者：ihmily</div>
+      </div>
+    </div>
+    
+    <div class="section-title">
+      <span>🔧</span>
+      文件管理工具
+    </div>
+    
+    <div class="tools-grid">
+      <!-- AList 多存储文件列表 -->
+      <div class="tool-card">
+        <div class="tool-icon orange">📂</div>
+        <div class="tool-name">AList 多存储管理</div>
+        <div class="tool-desc">
+          支持多种存储的文件列表/WebDAV程序，可聚合阿里云盘、百度网盘、OneDrive等多个网盘，支持在线预览和下载。
+        </div>
+        <div class="tool-tags">
+          <span class="tool-tag">多平台</span>
+          <span class="tool-tag">Docker</span>
+          <span class="tool-tag">WebDAV</span>
+          <span class="tool-tag">开源</span>
+        </div>
+        <div class="tool-actions">
+          <a href="https://github.com/alist-org/alist/releases" target="_blank" class="btn btn-primary">
+            <span>⬇️</span>
+            <span>下载 v3.56.0</span>
+          </a>
+          <a href="https://alistgo.com/" target="_blank" class="btn btn-secondary">
+            <span>📖</span>
+            <span>官方文档</span>
+          </a>
+        </div>
+        <div class="tool-version">⭐ 超热门项目 · 作者：alist-org</div>
+      </div>
+    </div>
+    
+    <div class="section-title">
+      <span>🎬</span>
+      视频下载工具
+    </div>
+    
+    <div class="tools-grid">
+      <!-- 哔哩下载姬 -->
+      <div class="tool-card">
+        <div class="tool-icon pink">📺</div>
+        <div class="tool-name">哔哩下载姬</div>
+        <div class="tool-desc">
+          B站视频下载工具，支持批量下载、4K画质、解除地区限制，提供音视频提取、去水印等工具箱功能。
+        </div>
+        <div class="tool-tags">
+          <span class="tool-tag">Windows</span>
+          <span class="tool-tag">免费</span>
+          <span class="tool-tag">开源</span>
+        </div>
+        <div class="tool-actions">
+          <a href="https://github.com/leiurayer/downkyi/releases" target="_blank" class="btn btn-primary">
+            <span>⬇️</span>
+            <span>下载 v1.6.1</span>
+          </a>
+          <a href="https://github.com/leiurayer/downkyi" target="_blank" class="btn btn-secondary">
+            <span>📖</span>
+            <span>查看说明</span>
+          </a>
+        </div>
+        <div class="tool-version">⭐ 超热门项目 · 作者：leiurayer</div>
+      </div>
+      
+      <!-- yt-dlp -->
+      <div class="tool-card">
+        <div class="tool-icon cyan">🎥</div>
+        <div class="tool-name">yt-dlp 视频下载器</div>
+        <div class="tool-desc">
+          功能强大的命令行视频下载工具，支持YouTube、Twitter等上千个网站，多线程加速下载，支持字幕嵌入。
+        </div>
+        <div class="tool-tags">
+          <span class="tool-tag">多平台</span>
+          <span class="tool-tag">命令行</span>
+          <span class="tool-tag">免费</span>
+          <span class="tool-tag">开源</span>
+        </div>
+        <div class="tool-actions">
+          <a href="https://github.com/yt-dlp/yt-dlp/releases" target="_blank" class="btn btn-primary">
+            <span>⬇️</span>
+            <span>下载 2025.12.08</span>
+          </a>
+          <a href="https://github.com/yt-dlp/yt-dlp" target="_blank" class="btn btn-secondary">
+            <span>📖</span>
+            <span>使用文档</span>
+          </a>
+        </div>
+        <div class="tool-version">⭐ 超热门项目 · youtube-dl增强版</div>
+      </div>
+    </div>
+    
+    <div class="section-title">
+      <span>🖼️</span>
+      图片处理工具
+    </div>
+    
+    <div class="tools-grid">
+      <!-- Caesium 图片压缩 -->
+      <div class="tool-card">
+        <div class="tool-icon green">🗜️</div>
+        <div class="tool-name">Caesium 图片压缩</div>
+        <div class="tool-desc">
+          开源图片压缩工具，支持JPG、PNG、WebP、TIFF格式，可批量压缩并保持画质，大幅减小文件体积。
+        </div>
+        <div class="tool-tags">
+          <span class="tool-tag">Windows</span>
+          <span class="tool-tag">macOS</span>
+          <span class="tool-tag">Linux</span>
+          <span class="tool-tag">开源</span>
+        </div>
+        <div class="tool-actions">
+          <a href="https://github.com/Lymphatus/caesium-image-compressor/releases" target="_blank" class="btn btn-primary">
+            <span>⬇️</span>
+            <span>下载 v2.8.5</span>
+          </a>
+          <a href="https://github.com/Lymphatus/caesium-image-compressor" target="_blank" class="btn btn-secondary">
+            <span>📖</span>
+            <span>查看说明</span>
+          </a>
+        </div>
+        <div class="tool-version">更新时间：2025年 · 作者：Lymphatus</div>
+      </div>
+      
+      <!-- TinyPNG 客户端 -->
+      <div class="tool-card">
+        <div class="tool-icon orange">🐼</div>
+        <div class="tool-name">TinyPNG 客户端</div>
+        <div class="tool-desc">
+          基于TinyPNG的图片压缩软件，操作简单高效，支持拖拽批量压缩，无需其它依赖即可运行。
+        </div>
+        <div class="tool-tags">
+          <span class="tool-tag">Windows</span>
+          <span class="tool-tag">macOS</span>
+          <span class="tool-tag">免费</span>
+          <span class="tool-tag">开源</span>
+        </div>
+        <div class="tool-actions">
+          <a href="https://github.com/yongplus/tinypng/releases" target="_blank" class="btn btn-primary">
+            <span>⬇️</span>
+            <span>下载</span>
+          </a>
+          <a href="https://github.com/yongplus/tinypng" target="_blank" class="btn btn-secondary">
+            <span>📖</span>
+            <span>查看说明</span>
+          </a>
+        </div>
+        <div class="tool-version">作者：yongplus</div>
+      </div>
+    </div>
+    
+    <div class="section-title">
+      <span>⚙️</span>
+      更多工具
+    </div>
+    
+    <div class="tools-grid">
+      <!-- FFmpeg -->
+      <div class="tool-card">
+        <div class="tool-icon blue">🎞️</div>
+        <div class="tool-name">FFmpeg 音视频处理</div>
+        <div class="tool-desc">
+          跨平台音视频处理工具，支持格式转换、视频剪辑、音频提取、压缩等功能，是视频处理的瑞士军刀。
+        </div>
+        <div class="tool-tags">
+          <span class="tool-tag">多平台</span>
+          <span class="tool-tag">命令行</span>
+          <span class="tool-tag">免费</span>
+          <span class="tool-tag">开源</span>
+        </div>
+        <div class="tool-actions">
+          <a href="https://ffmpeg.org/download.html" target="_blank" class="btn btn-primary">
+            <span>⬇️</span>
+            <span>下载 v8.0</span>
+          </a>
+          <a href="https://ffmpeg.org/documentation.html" target="_blank" class="btn btn-secondary">
+            <span>📖</span>
+            <span>官方文档</span>
+          </a>
+        </div>
+        <div class="tool-version">⭐ 业界标准 · 开源社区维护</div>
+      </div>
+      
+      <!-- Link Extractor 链接提取 -->
+      <div class="tool-card">
+        <div class="tool-icon pink">🔗</div>
+        <div class="tool-name">Link Extractor 链接提取</div>
+        <div class="tool-desc">
+          浏览器扩展，可从网页或文本中批量提取、解析链接，支持正则过滤、复制到剪贴板、快捷键操作。
+        </div>
+        <div class="tool-tags">
+          <span class="tool-tag">Chrome</span>
+          <span class="tool-tag">Firefox</span>
+          <span class="tool-tag">免费</span>
+          <span class="tool-tag">开源</span>
+        </div>
+        <div class="tool-actions">
+          <a href="https://chromewebstore.google.com/detail/link-extractor/ifefifghpkllfibejafbakmflidjcjfp" target="_blank" class="btn btn-primary">
+            <span>⬇️</span>
+            <span>Chrome 安装</span>
+          </a>
+          <a href="https://github.com/cssnr/link-extractor" target="_blank" class="btn btn-secondary">
+            <span>📖</span>
+            <span>查看说明</span>
+          </a>
+        </div>
+        <div class="tool-version">浏览器扩展 · 作者：cssnr</div>
+      </div>
+      
+      <!-- QRBTF 艺术二维码 -->
+      <div class="tool-card">
+        <div class="tool-icon cyan">📊</div>
+        <div class="tool-name">QRBTF 艺术二维码</div>
+        <div class="tool-desc">
+          AI与参数化二维码生成器，支持多种艺术风格，可生成独特美观的二维码，在线使用无需下载。
+        </div>
+        <div class="tool-tags">
+          <span class="tool-tag">在线工具</span>
+          <span class="tool-tag">AI生成</span>
+          <span class="tool-tag">免费</span>
+          <span class="tool-tag">开源</span>
+        </div>
+        <div class="tool-actions">
+          <a href="https://qrbtf.com/" target="_blank" class="btn btn-primary">
+            <span>🌐</span>
+            <span>在线使用</span>
+          </a>
+          <a href="https://github.com/latentcat/qrbtf" target="_blank" class="btn btn-secondary">
+            <span>📖</span>
+            <span>GitHub</span>
+          </a>
+        </div>
+        <div class="tool-version">⭐ 6k+ Stars · 作者：latentcat</div>
+      </div>
+    </div></div>
+    
+    <div class="disclaimer">
+      <strong>⚠️ 免责声明</strong><br>
+      本页面提供的工具均来自第三方开发者，本站仅提供下载链接汇总，不对工具的安全性、稳定性负责。<br>
+      请在下载前自行判断风险，建议从官方渠道获取最新版本。如有侵权，请联系我们删除。
+    </div>
+  </div>
+  
+  <script>
+    // 主题切换
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  </script>
+</body>
+</html>
