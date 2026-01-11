@@ -698,8 +698,8 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       <div style="margin-top:20px;padding:16px;background:var(--bg);border-radius:12px;">
         <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">💡 预设说明</div>
         <ul style="font-size:11px;color:var(--text3);padding-left:16px;line-height:1.8;">
-          <li>预设会保存当前的页面风格、广告设置、二维码边框和背景效果</li>
-          <li>点击"应用"可快速切换到该预设的配置</li>
+          <li>预设会保存：页面风格、分组、广告设置（开关/文字/时长）、二维码样式（码点/码眼/颜色/尺寸）、边框和背景效果</li>
+          <li>点击"应用"可快速切换到该预设的全部配置</li>
           <li>自定义预设可以删除，默认预设不可删除</li>
         </ul>
       </div>
@@ -1726,12 +1726,15 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     }
     
     // 清理文本（移除违禁词和网址）
-    function cleanText(text) {
+    function cleanText(text, preserveNewlines = false) {
       if (!text) return text;
+      
+      // 先移除网址
       let cleaned = removeUrls(text);
+      // 再移除违禁词
       cleaned = removeBannedWords(cleaned);
-      // 清理多余空格
-      cleaned = cleaned.replace(/\s+/g, ' ').trim();
+      
+      // 不再清理空格，保留原始格式
       return cleaned;
     }
     
@@ -1809,9 +1812,9 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         }
       }
       
-      // 清理广告文字
+      // 清理广告文字（保留换行符）
       if (result.adText) {
-        const cleanedAd = cleanText(result.adText);
+        const cleanedAd = cleanText(result.adText, true);
         if (cleanedAd !== result.adText) {
           hasFiltered = true;
           result.adText = cleanedAd;
@@ -2500,28 +2503,24 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       
       container.innerHTML = '';
       
-      // 预览时使用DOM的值，不使用保存的设置
-      const options = getQROptions('https://example.com/preview', 120, false);
+      // 预览时始终使用DOM的值
+      const options = getQROptionsFromDOM('https://example.com/preview', 120);
       const qrCode = new QRCodeStyling(options);
       qrCode.append(container);
     }
     
-    // 获取二维码配置（useSettings=true时强制使用保存的设置）
-    function getQROptions(data, size, useSettings = false) {
-      // 判断是否在设置页面（用于实时预览）
-      const isSettingsPage = document.getElementById('panel-settings')?.classList.contains('active');
-      const useSaved = useSettings || !isSettingsPage;
-      
-      const colorMode = useSaved ? (settings.colorMode || 'solid') : (document.getElementById('qrColorMode')?.value || settings.colorMode || 'solid');
-      const dotStyle = useSaved ? (settings.dotStyle || 'rounded') : (document.getElementById('qrDotStyle')?.value || settings.dotStyle || 'rounded');
-      const cornerStyle = useSaved ? (settings.cornerStyle || 'dot') : (document.getElementById('qrCornerStyle')?.value || settings.cornerStyle || 'dot');
+    // 从DOM获取二维码配置（用于预览）
+    function getQROptionsFromDOM(data, size) {
+      const colorMode = document.getElementById('qrColorMode')?.value || 'solid';
+      const dotStyle = document.getElementById('qrDotStyle')?.value || 'rounded';
+      const cornerStyle = document.getElementById('qrCornerStyle')?.value || 'dot';
       
       let dotsOptions = { type: dotStyle };
       
       if (colorMode === 'gradient') {
-        const gradient1 = useSaved ? (settings.gradient1 || '#6366f1') : (document.getElementById('qrGradient1')?.value || settings.gradient1 || '#6366f1');
-        const gradient2 = useSaved ? (settings.gradient2 || '#8b5cf6') : (document.getElementById('qrGradient2')?.value || settings.gradient2 || '#8b5cf6');
-        const gradientType = useSaved ? (settings.gradientType || 'linear') : (document.getElementById('qrGradientType')?.value || settings.gradientType || 'linear');
+        const gradient1 = document.getElementById('qrGradient1')?.value || '#6366f1';
+        const gradient2 = document.getElementById('qrGradient2')?.value || '#8b5cf6';
+        const gradientType = document.getElementById('qrGradientType')?.value || 'linear';
         
         dotsOptions.gradient = {
           type: gradientType,
@@ -2532,20 +2531,84 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
           ]
         };
       } else {
-        dotsOptions.color = useSaved ? (settings.colorDark || '#1e293b') : (document.getElementById('qrColorDark')?.value || settings.colorDark || '#1e293b');
+        dotsOptions.color = document.getElementById('qrColorDark')?.value || '#1e293b';
       }
       
       const bgColor = colorMode === 'gradient' 
-        ? (useSaved ? (settings.gradientBg || '#ffffff') : (document.getElementById('qrGradientBg')?.value || settings.gradientBg || '#ffffff'))
-        : (useSaved ? (settings.colorLight || '#ffffff') : (document.getElementById('qrColorLight')?.value || settings.colorLight || '#ffffff'));
+        ? (document.getElementById('qrGradientBg')?.value || '#ffffff')
+        : (document.getElementById('qrColorLight')?.value || '#ffffff');
       
-      // 码眼颜色
       const cornerColor = colorMode === 'gradient' 
-        ? (useSaved ? (settings.gradient1 || '#6366f1') : (document.getElementById('qrGradient1')?.value || settings.gradient1 || '#6366f1'))
-        : (useSaved ? (settings.colorDark || '#1e293b') : (document.getElementById('qrColorDark')?.value || settings.colorDark || '#1e293b'));
+        ? (document.getElementById('qrGradient1')?.value || '#6366f1')
+        : (document.getElementById('qrColorDark')?.value || '#1e293b');
       
       const cornerDotColor = colorMode === 'gradient'
-        ? (useSaved ? (settings.gradient2 || '#8b5cf6') : (document.getElementById('qrGradient2')?.value || settings.gradient2 || '#8b5cf6'))
+        ? (document.getElementById('qrGradient2')?.value || '#8b5cf6')
+        : cornerColor;
+      
+      return {
+        width: size || 180,
+        height: size || 180,
+        type: 'canvas',
+        data: data,
+        dotsOptions: dotsOptions,
+        cornersSquareOptions: {
+          type: cornerStyle,
+          color: cornerColor
+        },
+        cornersDotOptions: {
+          type: cornerStyle === 'square' ? 'square' : 'dot',
+          color: cornerDotColor
+        },
+        backgroundOptions: {
+          color: bgColor
+        },
+        qrOptions: {
+          errorCorrectionLevel: 'H'
+        }
+      };
+    }
+    
+    // 获取二维码配置（使用保存的设置，用于生成）
+    function getQROptions(data, size, useSettings = true) {
+      // 如果不使用保存的设置，从DOM读取
+      if (!useSettings) {
+        return getQROptionsFromDOM(data, size);
+      }
+      
+      const colorMode = settings.colorMode || 'solid';
+      const dotStyle = settings.dotStyle || 'rounded';
+      const cornerStyle = settings.cornerStyle || 'dot';
+      
+      let dotsOptions = { type: dotStyle };
+      
+      if (colorMode === 'gradient') {
+        const gradient1 = settings.gradient1 || '#6366f1';
+        const gradient2 = settings.gradient2 || '#8b5cf6';
+        const gradientType = settings.gradientType || 'linear';
+        
+        dotsOptions.gradient = {
+          type: gradientType,
+          rotation: gradientType === 'linear' ? Math.PI / 4 : 0,
+          colorStops: [
+            { offset: 0, color: gradient1 },
+            { offset: 1, color: gradient2 }
+          ]
+        };
+      } else {
+        dotsOptions.color = settings.colorDark || '#1e293b';
+      }
+      
+      const bgColor = colorMode === 'gradient' 
+        ? (settings.gradientBg || '#ffffff')
+        : (settings.colorLight || '#ffffff');
+      
+      const cornerColor = colorMode === 'gradient' 
+        ? (settings.gradient1 || '#6366f1')
+        : (settings.colorDark || '#1e293b');
+      
+      const cornerDotColor = colorMode === 'gradient'
+        ? (settings.gradient2 || '#8b5cf6')
         : cornerColor;
       
       return {
@@ -2915,16 +2978,31 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       const config = TemplatePresets.apply(id);
       if (!config) return toast('预设不存在');
       
-      // 应用配置
-      if (document.getElementById('pageStyle')) document.getElementById('pageStyle').value = config.pageStyle || 'default';
-      if (document.getElementById('adEnabled')) document.getElementById('adEnabled').checked = config.adEnabled || false;
-      if (document.getElementById('adText')) document.getElementById('adText').value = config.adText || '';
-      if (document.getElementById('adDuration')) document.getElementById('adDuration').value = config.adDuration || '3';
-      if (document.getElementById('adSettings')) document.getElementById('adSettings').style.display = config.adEnabled ? 'block' : 'none';
+      // 使用新的applyConfig方法应用所有配置
+      TemplatePresets.applyConfig(config);
       
-      // 应用增强功能配置
-      if (config.qrBorder && window.QRBorderStyles) QRBorderStyles.apply(config.qrBorder);
-      if (config.bgEffect && window.DynamicBackground) DynamicBackground.apply(config.bgEffect);
+      // 更新全局settings变量
+      settings = {
+        colorDark: config.qrColorDark || '#1e293b',
+        colorLight: config.qrColorLight || '#ffffff',
+        size: parseInt(config.qrSize) || 180,
+        dotStyle: config.qrDotStyle || 'square',
+        cornerStyle: config.qrCornerStyle || 'square',
+        colorMode: config.qrColorMode || 'solid',
+        gradient1: config.qrGradient1 || '#6366f1',
+        gradient2: config.qrGradient2 || '#8b5cf6',
+        gradientType: config.qrGradientType || 'linear',
+        gradientBg: config.qrGradientBg || '#ffffff'
+      };
+      localStorage.setItem('qrSettings', JSON.stringify(settings));
+      
+      // 保存表单设置
+      saveFormSettings();
+      
+      // 刷新二维码预览
+      setTimeout(() => {
+        previewQRStyle();
+      }, 100);
       
       toast('已应用预设');
     }
@@ -3051,6 +3129,10 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         dfaTree = buildDFATree(getAllBannedWords());
         console.log(`敏感词系统就绪，共 ${getAllBannedWords().length} 个词`);
       });
+      
+      // 导出全局函数供外部调用
+      window.previewQRStyle = previewQRStyle;
+      window.settings = settings;
     });
     
     // ==================== 表单设置保存/加载 ====================

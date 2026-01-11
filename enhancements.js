@@ -818,50 +818,93 @@ const TemplatePresets = {
   presets: [],
   
   init() {
-    this.presets = JSON.parse(localStorage.getItem('templatePresets') || '[]');
+    const saved = localStorage.getItem('templatePresets');
+    if (saved) {
+      try {
+        this.presets = JSON.parse(saved);
+        // 检查并更新旧预设的结构（添加缺失的字段）
+        this.presets = this.presets.map(p => ({
+          ...p,
+          config: this.mergeWithDefaults(p.config)
+        }));
+        this.save();
+      } catch (e) {
+        this.presets = [];
+      }
+    }
     
     // 添加默认预设
     if (this.presets.length === 0) {
-      this.presets = [
-        {
-          id: 'default',
-          name: '默认配置',
-          config: {
-            pageStyle: 'default',
-            adEnabled: false,
-            adText: '',
-            adDuration: '3',
-            qrBorder: 'none',
-            bgEffect: 'none'
-          }
-        },
-        {
-          id: 'promo',
-          name: '推广模式',
-          config: {
-            pageStyle: 'gradient',
-            adEnabled: true,
-            adText: '正在为您跳转...',
-            adDuration: '3',
-            qrBorder: 'gradient',
-            bgEffect: 'particles'
-          }
-        },
-        {
-          id: 'minimal',
-          name: '极简模式',
-          config: {
-            pageStyle: 'minimal',
-            adEnabled: false,
-            adText: '',
-            adDuration: '2',
-            qrBorder: 'simple',
-            bgEffect: 'none'
-          }
-        }
-      ];
+      this.presets = this.getDefaultPresets();
       this.save();
     }
+  },
+  
+  // 默认配置
+  getDefaultConfig() {
+    return {
+      pageStyle: 'default',
+      groupTag: '',
+      adEnabled: false,
+      adText: '正在为您跳转...',
+      adDuration: '2',
+      qrBorder: 'none',
+      bgEffect: 'none',
+      qrDotStyle: 'square',
+      qrCornerStyle: 'square',
+      qrColorMode: 'solid',
+      qrColorDark: '#1e293b',
+      qrColorLight: '#ffffff',
+      qrGradient1: '#6366f1',
+      qrGradient2: '#8b5cf6',
+      qrGradientType: 'linear',
+      qrGradientBg: '#ffffff',
+      qrSize: '180'
+    };
+  },
+  
+  // 合并配置，补充缺失字段
+  mergeWithDefaults(config) {
+    return { ...this.getDefaultConfig(), ...config };
+  },
+  
+  // 默认预设列表
+  getDefaultPresets() {
+    return [
+      {
+        id: 'default',
+        name: '默认配置',
+        config: this.getDefaultConfig()
+      },
+      {
+        id: 'promo',
+        name: '推广模式',
+        config: {
+          ...this.getDefaultConfig(),
+          pageStyle: 'gradient',
+          adEnabled: true,
+          adText: '正在为您跳转...',
+          adDuration: '3',
+          qrBorder: 'gradient',
+          bgEffect: 'particles',
+          qrDotStyle: 'rounded',
+          qrCornerStyle: 'extra-rounded',
+          qrColorMode: 'gradient'
+        }
+      },
+      {
+        id: 'minimal',
+        name: '极简模式',
+        config: {
+          ...this.getDefaultConfig(),
+          pageStyle: 'minimal',
+          adEnabled: false,
+          adText: '',
+          qrBorder: 'simple',
+          qrColorDark: '#000000'
+        }
+      }
+    ];
   },
   
   save() {
@@ -870,7 +913,7 @@ const TemplatePresets = {
   
   add(name, config) {
     const id = 'preset_' + Date.now();
-    this.presets.push({ id, name, config });
+    this.presets.push({ id, name, config: this.mergeWithDefaults(config) });
     this.save();
     return id;
   },
@@ -879,7 +922,7 @@ const TemplatePresets = {
     const preset = this.presets.find(p => p.id === id);
     if (preset) {
       preset.name = name;
-      preset.config = config;
+      preset.config = this.mergeWithDefaults(config);
       this.save();
     }
   },
@@ -897,30 +940,151 @@ const TemplatePresets = {
   
   getCurrentConfig() {
     return {
+      // 基础设置
       pageStyle: document.getElementById('pageStyle')?.value || 'default',
+      groupTag: document.getElementById('groupTag')?.value || '',
+      // 广告设置
       adEnabled: document.getElementById('adEnabled')?.checked || false,
-      adText: document.getElementById('adText')?.value || '',
-      adDuration: document.getElementById('adDuration')?.value || '3',
-      qrBorder: QRBorderStyles.current,
-      bgEffect: DynamicBackground.current
+      adText: document.getElementById('adText')?.value || '正在为您跳转...',
+      adDuration: document.getElementById('adDuration')?.value || '2',
+      // 边框和背景
+      qrBorder: QRBorderStyles?.current || 'none',
+      bgEffect: DynamicBackground?.current || 'none',
+      // 二维码样式
+      qrDotStyle: document.getElementById('qrDotStyle')?.value || 'square',
+      qrCornerStyle: document.getElementById('qrCornerStyle')?.value || 'square',
+      qrColorMode: document.getElementById('qrColorMode')?.value || 'solid',
+      qrColorDark: document.getElementById('qrColorDark')?.value || '#1e293b',
+      qrColorLight: document.getElementById('qrColorLight')?.value || '#ffffff',
+      qrGradient1: document.getElementById('qrGradient1')?.value || '#6366f1',
+      qrGradient2: document.getElementById('qrGradient2')?.value || '#8b5cf6',
+      qrGradientType: document.getElementById('qrGradientType')?.value || 'linear',
+      qrGradientBg: document.getElementById('qrGradientBg')?.value || '#ffffff',
+      qrSize: document.getElementById('qrSize')?.value || '180'
     };
   },
   
+  applyConfig(config) {
+    // 基础设置
+    const pageStyle = document.getElementById('pageStyle');
+    if (pageStyle && config.pageStyle) pageStyle.value = config.pageStyle;
+    
+    const groupTag = document.getElementById('groupTag');
+    if (groupTag && config.groupTag !== undefined) groupTag.value = config.groupTag;
+    
+    // 广告设置
+    const adEnabled = document.getElementById('adEnabled');
+    const adSettings = document.getElementById('adSettings');
+    if (adEnabled) {
+      adEnabled.checked = config.adEnabled || false;
+      if (adSettings) adSettings.style.display = config.adEnabled ? 'block' : 'none';
+    }
+    
+    const adText = document.getElementById('adText');
+    if (adText && config.adText !== undefined) adText.value = config.adText;
+    
+    const adDuration = document.getElementById('adDuration');
+    if (adDuration && config.adDuration) adDuration.value = config.adDuration;
+    
+    // 边框和背景
+    if (typeof QRBorderStyles !== 'undefined' && config.qrBorder) {
+      QRBorderStyles.apply(config.qrBorder);
+      const borderSelect = document.getElementById('qrBorderStyle');
+      if (borderSelect) borderSelect.value = config.qrBorder;
+    }
+    
+    if (typeof DynamicBackground !== 'undefined' && config.bgEffect) {
+      DynamicBackground.apply(config.bgEffect);
+      const bgSelect = document.getElementById('bgEffect');
+      if (bgSelect) bgSelect.value = config.bgEffect;
+    }
+    
+    // 二维码样式 - 更新表单
+    const qrFields = ['qrDotStyle', 'qrCornerStyle', 'qrColorMode', 'qrColorDark', 'qrColorLight', 
+                      'qrGradient1', 'qrGradient2', 'qrGradientType', 'qrGradientBg', 'qrSize'];
+    qrFields.forEach(field => {
+      const el = document.getElementById(field);
+      if (el && config[field] !== undefined) el.value = config[field];
+    });
+    
+    // 切换颜色模式显示
+    const colorMode = config.qrColorMode || 'solid';
+    const solidSettings = document.getElementById('solidColorSettings');
+    const gradientSettings = document.getElementById('gradientColorSettings');
+    if (solidSettings) solidSettings.style.display = colorMode === 'solid' ? 'grid' : 'none';
+    if (gradientSettings) gradientSettings.style.display = colorMode === 'gradient' ? 'grid' : 'none';
+    
+    // 更新全局 settings 变量并保存到 localStorage
+    if (typeof window.settings !== 'undefined') {
+      window.settings = {
+        colorDark: config.qrColorDark || '#1e293b',
+        colorLight: config.qrColorLight || '#ffffff',
+        size: parseInt(config.qrSize) || 180,
+        dotStyle: config.qrDotStyle || 'square',
+        cornerStyle: config.qrCornerStyle || 'square',
+        colorMode: config.qrColorMode || 'solid',
+        gradient1: config.qrGradient1 || '#6366f1',
+        gradient2: config.qrGradient2 || '#8b5cf6',
+        gradientType: config.qrGradientType || 'linear',
+        gradientBg: config.qrGradientBg || '#ffffff'
+      };
+      localStorage.setItem('qrSettings', JSON.stringify(window.settings));
+    }
+    
+    // 刷新二维码预览
+    if (typeof previewQRStyle === 'function') {
+      setTimeout(previewQRStyle, 100);
+    }
+  },
+  
   getPresetsHTML() {
-    return this.presets.map(p => `
-      <div class="preset-card" data-id="${p.id}" style="background:var(--bg);padding:14px;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
-        <div>
+    return this.presets.map(p => {
+      const c = p.config || {};
+      
+      // 构建详细信息
+      const details = [];
+      details.push(`风格: ${c.pageStyle || 'default'}`);
+      if (c.groupTag) details.push(`分组: ${c.groupTag}`);
+      details.push(`广告: ${c.adEnabled ? '开' : '关'}${c.adEnabled && c.adDuration ? ` (${c.adDuration}秒)` : ''}`);
+      if (c.adEnabled && c.adText) details.push(`广告词: "${c.adText.substring(0, 10)}${c.adText.length > 10 ? '...' : ''}"`);
+      
+      // 二维码样式
+      const qrInfo = [];
+      qrInfo.push(c.qrDotStyle || 'square');
+      if (c.qrColorMode === 'gradient') qrInfo.push('渐变');
+      details.push(`二维码: ${qrInfo.join(' ')}`);
+      
+      // 边框和背景
+      if (c.qrBorder && c.qrBorder !== 'none') details.push(`边框: ${c.qrBorder}`);
+      if (c.bgEffect && c.bgEffect !== 'none') details.push(`背景: ${c.bgEffect}`);
+      
+      return `
+      <div class="preset-card" data-id="${p.id}" style="background:var(--bg);padding:14px;border-radius:12px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <div style="font-weight:600;font-size:14px;">${p.name}</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:4px;">
-            风格: ${p.config.pageStyle} · 广告: ${p.config.adEnabled ? '开' : '关'}
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-primary btn-sm" onclick="applyPreset('${p.id}')">应用</button>
+            ${p.id.startsWith('preset_') ? `<button class="btn btn-secondary btn-sm" onclick="deletePreset('${p.id}')">删除</button>` : ''}
           </div>
         </div>
-        <div style="display:flex;gap:6px;">
-          <button class="btn btn-primary btn-sm" onclick="applyPreset('${p.id}')">应用</button>
-          ${p.id.startsWith('preset_') ? `<button class="btn btn-secondary btn-sm" onclick="deletePreset('${p.id}')">删除</button>` : ''}
+        <div style="font-size:11px;color:var(--text3);line-height:1.6;">
+          ${details.join(' · ')}
         </div>
+        ${c.qrColorMode === 'gradient' ? `
+        <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+          <span style="font-size:10px;color:var(--text3);">颜色:</span>
+          <span style="width:16px;height:16px;border-radius:4px;background:${c.qrGradient1 || '#6366f1'};border:1px solid var(--border);"></span>
+          <span style="font-size:10px;color:var(--text3);">→</span>
+          <span style="width:16px;height:16px;border-radius:4px;background:${c.qrGradient2 || '#8b5cf6'};border:1px solid var(--border);"></span>
+        </div>
+        ` : `
+        <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+          <span style="font-size:10px;color:var(--text3);">颜色:</span>
+          <span style="width:16px;height:16px;border-radius:4px;background:${c.qrColorDark || '#1e293b'};border:1px solid var(--border);"></span>
+        </div>
+        `}
       </div>
-    `).join('');
+    `}).join('');
   }
 };
 
