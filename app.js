@@ -186,18 +186,33 @@ const DISK_CONFIG = {
 };
 
 /**
- * 根据URL识别网盘类型
+ * 根据URL识别网盘类型 - 优化版本
  */
 function detectDiskType(url) {
   if (!url) return DISK_CONFIG.default;
+  
+  // 缓存检测结果
+  if (!detectDiskType.cache) {
+    detectDiskType.cache = new Map();
+  }
+  
+  if (detectDiskType.cache.has(url)) {
+    return detectDiskType.cache.get(url);
+  }
+  
   const lowerUrl = url.toLowerCase();
   for (const [key, config] of Object.entries(DISK_CONFIG)) {
     if (key === 'default') continue;
     if (config.keywords.some(keyword => lowerUrl.includes(keyword))) {
-      return { ...config, type: key };
+      const result = { ...config, type: key };
+      detectDiskType.cache.set(url, result);
+      return result;
     }
   }
-  return { ...DISK_CONFIG.default, type: 'default' };
+  
+  const result = { ...DISK_CONFIG.default, type: 'default' };
+  detectDiskType.cache.set(url, result);
+  return result;
 }
 
 // ==================== URL处理模块 ====================
@@ -287,22 +302,24 @@ const UrlHandler = {
   }
 };
 
-// ==================== 设备检测模块 ====================
+// ==================== 设备检测模块 - 优化版 ====================
 
 const DeviceDetector = {
+  // 缓存结果
+  _isMobileCache: null,
+  
   isMobile() {
-    const ua = navigator.userAgent.toLowerCase();
-    const isTablet = /ipad|android(?!.*mobile)|tablet/i.test(ua);
-    if (isTablet) return false;
-    const mobileKeywords = ['iphone', 'android.*mobile', 'mobile', 'phone', 'ipod'];
-    return mobileKeywords.some(keyword => new RegExp(keyword, 'i').test(ua));
+    if (this._isMobileCache !== null) return this._isMobileCache;
+    
+    // 使用更高效的方法检测移动设备
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    this._isMobileCache = isMobile;
+    return isMobile;
   },
   
   getDeviceType() {
-    const ua = navigator.userAgent.toLowerCase();
-    if (/ipad/i.test(ua)) return 'tablet';
-    if (/android/i.test(ua) && !/mobile/i.test(ua)) return 'tablet';
-    if (/tablet/i.test(ua)) return 'tablet';
+    // 使用更高效的方法检测设备类型
+    if (/iPad|Android.*tablet|playbook|silk/i.test(navigator.userAgent)) return 'tablet';
     if (this.isMobile()) return 'mobile';
     return 'desktop';
   }
@@ -316,13 +333,15 @@ const QRCodeGenerator = {
   generate(url, container) {
     try {
       container.innerHTML = '';
+      // 使用更高效的二维码配置
       this.qrInstance = new QRCode(container, {
         text: url,
         width: 160,
         height: 160,
         colorDark: '#000000',
         colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.H
+        correctLevel: QRCode.CorrectLevel.M, // 使用中等纠错级别提升生成速度
+        quietZone: 1 // 减少静默区域
       });
     } catch (e) {
       console.error('二维码生成失败:', e);
@@ -380,6 +399,19 @@ const PageRenderer = {
 // ==================== 主程序入口 ====================
 
 function init() {
+  // 使用requestIdleCallback优化执行时机
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(() => {
+      processInit();
+    });
+  } else {
+    setTimeout(() => {
+      processInit();
+    }, 1);
+  }
+}
+
+function processInit() {
   const params = UrlHandler.parseParams();
   if (!params.isValid) {
     PageRenderer.renderErrorPage('链接无效');
@@ -425,22 +457,30 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
   }
   
   // 🚀 预加载目标页面 - 在广告显示期间提前加载
-  const preloadLink = document.createElement('link');
-  preloadLink.rel = 'preconnect';
-  preloadLink.href = new URL(targetUrl).origin;
-  document.head.appendChild(preloadLink);
-  
-  // DNS预解析
-  const dnsLink = document.createElement('link');
-  dnsLink.rel = 'dns-prefetch';
-  dnsLink.href = new URL(targetUrl).origin;
-  document.head.appendChild(dnsLink);
-  
-  // 预加载页面（使用隐藏iframe）
-  const preloadFrame = document.createElement('iframe');
-  preloadFrame.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;';
-  preloadFrame.src = targetUrl;
-  document.body.appendChild(preloadFrame);
+  try {
+    const targetOrigin = new URL(targetUrl).origin;
+    
+    // 预连接到目标域
+    const preloadLink = document.createElement('link');
+    preloadLink.rel = 'preconnect';
+    preloadLink.href = targetOrigin;
+    document.head.appendChild(preloadLink);
+    
+    // DNS预解析
+    const dnsLink = document.createElement('link');
+    dnsLink.rel = 'dns-prefetch';
+    dnsLink.href = targetOrigin;
+    document.head.appendChild(dnsLink);
+    
+    // 预加载页面（使用隐藏iframe）
+    const preloadFrame = document.createElement('iframe');
+    preloadFrame.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;';
+    preloadFrame.src = targetUrl;
+    preloadFrame.loading = 'lazy'; // 使用懒加载属性
+    document.body.appendChild(preloadFrame);
+  } catch (e) {
+    console.warn('预加载失败:', e);
+  }
   
   // 设置广告文字（保留换行格式）
   textEl.innerHTML = adText.replace(/\n/g, '<br>');
