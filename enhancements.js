@@ -1091,16 +1091,19 @@ const TemplatePresets = {
 // ==================== 初始化所有增强功能 ====================
 function initEnhancements() {
   QRBorderStyles.init();
-  DynamicBackground.init();
   DarkModeEnhanced.init();
   ShortLinkGenerator.init();
-  DragSortable.addStyles();
   TemplatePresets.init();
   
-  console.log('✨ 增强功能已加载');
+  requestIdleCallback ? requestIdleCallback(() => {
+    DynamicBackground.init();
+    DragSortable.addStyles();
+  }) : setTimeout(() => {
+    DynamicBackground.init();
+    DragSortable.addStyles();
+  }, 100);
 }
 
-// 页面加载完成后初始化
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initEnhancements);
 } else {

@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>链接生成器</title>
-  <!-- 基础防护 -->
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="preconnect" href="//cdn.jsdelivr.net" crossorigin>
   <script>
     document.addEventListener('contextmenu',function(e){e.preventDefault();});
     document.addEventListener('keydown',function(e){
@@ -13,12 +14,8 @@
       }
     });
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="enhancements.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js" defer></script>
   <style>
     :root { --bg:#f8fafc; --card:#fff; --text:#1e293b; --text2:#475569; --text3:#94a3b8; --border:#e2e8f0; --primary:#6366f1; --primary-light:#818cf8; }
     [data-theme="dark"] { --bg:#0f172a; --card:#1e293b; --text:#f1f5f9; --text2:#cbd5e1; --text3:#64748b; --border:#334155; --primary:#818cf8; --primary-light:#a5b4fc; }
@@ -3061,80 +3058,69 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     }
 
     // ==================== 初始化 ====================
-    document.addEventListener('DOMContentLoaded', async () => {
-      // 加载主题
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-      
-      // 从localStorage加载保存的设置
-      const savedSettings = localStorage.getItem('qrSettings');
-      if (savedSettings) {
-        try {
-          settings = JSON.parse(savedSettings);
-        } catch (e) {
-          console.warn('加载设置失败，使用默认值');
+      document.addEventListener('DOMContentLoaded', async () => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        
+        const savedSettings = localStorage.getItem('qrSettings');
+        if (savedSettings) {
+          try {
+            settings = JSON.parse(savedSettings);
+          } catch (e) {}
         }
-      }
-      
-      // 加载表单设置
-      loadFormSettings();
-      
-      // 初始化分组选择器
-      renderGroups();
-      
-      // 初始化网盘筛选器
-      const filterDisk = document.getElementById('filterDisk');
-      filterDisk.innerHTML = '<option value="">全部网盘</option>' + 
-        Object.entries(DISK_CONFIG).filter(([k]) => k !== 'default').map(([k, v]) => `<option value="${k}">${v.name}</option>`).join('');
-      
-      // 广告开关事件
-      const adEnabled = document.getElementById('adEnabled');
-      const adSettings = document.getElementById('adSettings');
-      adEnabled?.addEventListener('change', () => {
-        adSettings.style.display = adEnabled.checked ? 'block' : 'none';
-        saveFormSettings();
+        
+        loadFormSettings();
+        renderGroups();
+        
+        const filterDisk = document.getElementById('filterDisk');
+        filterDisk.innerHTML = '<option value="">全部网盘</option>' + 
+          Object.entries(DISK_CONFIG).filter(([k]) => k !== 'default').map(([k, v]) => `<option value="${k}">${v.name}</option>`).join('');
+        
+        const adEnabled = document.getElementById('adEnabled');
+        const adSettings = document.getElementById('adSettings');
+        adEnabled?.addEventListener('change', () => {
+          adSettings.style.display = adEnabled.checked ? 'block' : 'none';
+          saveFormSettings();
+        });
+        
+        const batchAdEnabled = document.getElementById('batchAdEnabled');
+        const batchAdSettings = document.getElementById('batchAdSettings');
+        batchAdEnabled?.addEventListener('change', () => {
+          batchAdSettings.style.display = batchAdEnabled.checked ? 'block' : 'none';
+        });
+        
+        const uploadAdEnabled = document.getElementById('uploadAdEnabled');
+        const uploadAdSettings = document.getElementById('uploadAdSettings');
+        uploadAdEnabled?.addEventListener('change', () => {
+          uploadAdSettings.style.display = uploadAdEnabled.checked ? 'block' : 'none';
+        });
+        
+        setupFormAutoSave();
+        
+        if (window.QRBorderStyles) {
+          const borderSelect = document.getElementById('qrBorderStyle');
+          if (borderSelect) borderSelect.value = QRBorderStyles.current;
+        }
+        if (window.DynamicBackground) {
+          const bgSelect = document.getElementById('bgEffect');
+          if (bgSelect) bgSelect.value = DynamicBackground.current;
+        }
+        
+        requestIdleCallback ? requestIdleCallback(() => generateSidebarAdQR()) : setTimeout(generateSidebarAdQR, 200);
+        
+        requestIdleCallback ? requestIdleCallback(() => {
+          loadRemoteBannedWords().then(() => {
+            dfaTree = buildDFATree(getAllBannedWords());
+          });
+        }, { timeout: 3000 }) : setTimeout(() => {
+          loadRemoteBannedWords().then(() => {
+            dfaTree = buildDFATree(getAllBannedWords());
+          });
+        }, 1000);
+        
+        window.previewQRStyle = previewQRStyle;
+        window.settings = settings;
       });
-      
-      // 批量生成广告开关事件
-      const batchAdEnabled = document.getElementById('batchAdEnabled');
-      const batchAdSettings = document.getElementById('batchAdSettings');
-      batchAdEnabled?.addEventListener('change', () => {
-        batchAdSettings.style.display = batchAdEnabled.checked ? 'block' : 'none';
-      });
-      
-      // 表格导入广告开关事件
-      const uploadAdEnabled = document.getElementById('uploadAdEnabled');
-      const uploadAdSettings = document.getElementById('uploadAdSettings');
-      uploadAdEnabled?.addEventListener('change', () => {
-        uploadAdSettings.style.display = uploadAdEnabled.checked ? 'block' : 'none';
-      });
-      
-      // 监听表单变化自动保存
-      setupFormAutoSave();
-      
-      // 初始化增强功能设置
-      if (window.QRBorderStyles) {
-        const borderSelect = document.getElementById('qrBorderStyle');
-        if (borderSelect) borderSelect.value = QRBorderStyles.current;
-      }
-      if (window.DynamicBackground) {
-        const bgSelect = document.getElementById('bgEffect');
-        if (bgSelect) bgSelect.value = DynamicBackground.current;
-      }
-      
-      // 生成侧边栏广告二维码
-      generateSidebarAdQR();
-      
-      // 异步加载远程敏感词库
-      loadRemoteBannedWords().then(() => {
-        dfaTree = buildDFATree(getAllBannedWords());
-        console.log(`敏感词系统就绪，共 ${getAllBannedWords().length} 个词`);
-      });
-      
-      // 导出全局函数供外部调用
-      window.previewQRStyle = previewQRStyle;
-      window.settings = settings;
-    });
     
     // ==================== 表单设置保存/加载 ====================
     function saveFormSettings() {
@@ -3320,12 +3306,55 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     }
   </script>
 
-  <!-- 免责声明 -->
-  <div class="disclaimer" style="max-width:1200px;margin:40px auto 20px;padding:20px 24px;background:var(--bg);border:1px solid var(--border);border-radius:12px;font-size:11px;color:var(--text3);line-height:1.8;text-align:center;">
-    <strong style="color:var(--text2);">⚠️ 免责声明</strong><br>
-    本工具仅提供链接生成服务，不存储任何资源文件。所有资源均由第三方网盘托管，本站不对资源内容的合法性、准确性、安全性负责。<br>
-    用户应自行判断资源的合法性，因使用本服务产生的任何法律责任由用户自行承担。如有侵权，请联系资源分享者删除。<br>
-    本工具生成的链接仅供个人学习交流使用，严禁用于任何商业用途或传播违法违规内容。
-  </div>
+    <!-- 免责声明 -->
+    <div class="disclaimer" style="max-width:1200px;margin:40px auto 20px;padding:20px 24px;background:var(--bg);border:1px solid var(--border);border-radius:12px;font-size:11px;color:var(--text3);line-height:1.8;text-align:center;">
+      <strong style="color:var(--text2);">⚠️ 免责声明</strong><br>
+      本工具仅提供链接生成服务，不存储任何资源文件。所有资源均由第三方网盘托管，本站不对资源内容的合法性、准确性、安全性负责。<br>
+      用户应自行判断资源的合法性，因使用本服务产生的任何法律责任由用户自行承担。如有侵权，请联系资源分享者删除。<br>
+      本工具生成的链接仅供个人学习交流使用，严禁用于任何商业用途或传播违法违规内容。
+    </div>
+    
+    <script src="enhancements.js" defer></script>
+    <script>
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+    window._lazyLibs = {
+      html2canvas: null,
+      jszip: null,
+      xlsx: null
+    };
+    async function ensureLib(name) {
+      if (window._lazyLibs[name]) return;
+      const urls = {
+        html2canvas: 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js',
+        jszip: 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
+        xlsx: 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
+      };
+      await loadScript(urls[name]);
+      window._lazyLibs[name] = true;
+    }
+    const _origExportAllQR = window.exportAllQR;
+    window.exportAllQR = async function() {
+      await ensureLib('jszip');
+      if (typeof _origExportAllQR === 'function') return _origExportAllQR();
+    };
+    const _origHandleFileUpload = window.handleFileUpload;
+    window.handleFileUpload = async function(e) {
+      await ensureLib('xlsx');
+      if (typeof _origHandleFileUpload === 'function') return _origHandleFileUpload(e);
+    };
+    const _origShowPosterModal = window.showPosterModal;
+    window.showPosterModal = async function() {
+      await ensureLib('html2canvas');
+      if (typeof _origShowPosterModal === 'function') return _origShowPosterModal();
+    };
+    </script>
 </body>
 </html>

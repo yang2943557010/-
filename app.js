@@ -399,15 +399,12 @@ const PageRenderer = {
 // ==================== 主程序入口 ====================
 
 function init() {
-  // 使用requestIdleCallback优化执行时机
   if ('requestIdleCallback' in window) {
     requestIdleCallback(() => {
       processInit();
     });
   } else {
-    setTimeout(() => {
-      processInit();
-    }, 1);
+    processInit();
   }
 }
 
