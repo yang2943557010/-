@@ -302,7 +302,7 @@
         <div class="ad-desc">首单免费在线打印<br>满1.9元包邮</div>
         <span class="ad-highlight">🔥 首单免费</span>
         <div class="ad-qr zoomable-qr" id="printAdQr" ondblclick="zoomQR(this, '打印拉新')">
-          <img src="print-qr.png" alt="刺猬云印小程序码" style="width:100px;height:100px;display:block;">
+          <img src="print-qr.png" alt="刺猬云印小程序码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
         </div>
        <div class="ad-tip">双击放大 · 扫码打印资源</div>
         <div class="ad-features">
@@ -720,7 +720,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         <div class="ad-title" style="font-size:14px;">微信号</div>
         <div style="background:var(--bg);padding:8px 12px;border-radius:8px;margin:8px 0;font-size:13px;font-weight:600;color:var(--primary);user-select:all;cursor:pointer;" onclick="copyWechatId()">cxks25180</div>
         <div class="ad-qr zoomable-qr" id="wechatQr" ondblclick="zoomQR(this, '微信二维码')">
-          <img src="wechat-qr.png" alt="微信二维码" style="width:100px;height:100px;display:block;">
+          <img src="wechat-qr.png" alt="微信二维码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
         </div>
         <div class="ad-tip">双击放大 · 扫码添加好友</div>
       </div>
@@ -731,7 +731,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         <div class="ad-title" style="font-size:14px;">感谢支持</div>
         <div class="ad-desc" style="font-size:11px;">如果觉得有用<br>请作者喝杯咖啡☕</div>
         <div class="ad-qr zoomable-qr" id="donateQr" ondblclick="zoomQR(this, '打赏二维码')">
-          <img src="donate-qr.png" alt="打赏二维码" style="width:100px;height:100px;display:block;">
+          <img src="donate-qr.png" alt="打赏二维码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
         </div>
         <div class="ad-tip">扫码打赏</div>
       </div>
@@ -957,11 +957,13 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     };
 
     let history = JSON.parse(localStorage.getItem('linkHistory') || '[]');
+    let historyDirty = false;
     let groups = JSON.parse(localStorage.getItem('linkGroups') || '["默认","学习","娱乐","工作"]');
     let settings = JSON.parse(localStorage.getItem('qrSettings') || '{"colorDark":"#1e293b","colorLight":"#ffffff","size":180,"dotStyle":"rounded","cornerStyle":"dot","colorMode":"solid","gradient1":"#6366f1","gradient2":"#8b5cf6","gradientType":"linear"}');
     let currentData = null;
     let selectedPosterStyle = 'elegant';
     let currentQRCode = null;
+    let batchGeneratedResults = [];
 
     // ==================== 加密工具 ====================
     // XOR加密
@@ -1096,7 +1098,6 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       '尼玛', '你麻痹', '你妈逼', '你妈b', '你妈死了',
       '卧槽', '我操', '我草', '我艹', '我靠', '我擦', '握草',
       '靠北', '靠腰', '靠夭', '他奶奶', '奶奶的',
-      '去你的', '去你妈', '去你大爷', '滚你妈',
       '特么', '特喵', '尼玛', '泥马', '你马', '妮玛',
       '卧艹', '卧草', '窝草', '我曹', '我槽',
       '擦', '靠', '我去', '我了个去', '我勒个去',
@@ -1479,7 +1480,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         .trim();
     }
     
-    // 清理文本（移除违禁词和网址）
+    // 清理文本（移除违禁内容）
     function cleanText(text, preserveNewlines = false) {
       if (!text) return text;
       
@@ -1752,164 +1753,117 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       const batchAdText = document.getElementById('batchAdText')?.value || '';
       const batchAdDuration = document.getElementById('batchAdDuration')?.value || '2';
       
-      const lines = input.split('\n').filter(l => l.trim());
-      const container = document.getElementById('batchResult');
-      container.innerHTML = '';
-      
+      const batchLinesArray = input.split('\n').map(line => line.trim()).filter(Boolean);
+      const batchTotalCount = batchLinesArray.length;
+      const batchResultContainer = document.getElementById('batchResult');
+      batchResultContainer.innerHTML = '';
+      batchGeneratedResults = [];
+
+      const maxRenderCount = 200;
+      const chunkSize = 200;
+
+      const progressWrapElement = document.createElement('div');
+      progressWrapElement.style.cssText = 'padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--bg);margin-bottom:12px;';
+      progressWrapElement.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <div style="font-size:12px;color:var(--text2);">正在处理批量数据...</div>
+          <div style="font-size:11px;color:var(--text3);" id="batchProgressText">0 / ${batchTotalCount}</div>
+        </div>
+        <div style="height:8px;background:rgba(0,0,0,0.06);border-radius:999px;overflow:hidden;margin-top:10px;">
+          <div id="batchProgressBar" style="height:100%;width:0%;background:var(--primary);transition:width .2s;"></div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:10px;" id="batchProgressHint">批量很大时仅展示前 ${maxRenderCount} 条结果</div>
+      `;
+      batchResultContainer.appendChild(progressWrapElement);
+
+      const batchRenderContainer = document.createElement('div');
+      batchResultContainer.appendChild(batchRenderContainer);
+
+      let batchIndex = 0;
       let successCount = 0;
       let errorCount = 0;
       let filteredCount = 0;
       const errors = [];
-      
-      lines.forEach((line, i) => {
-        const parts = line.split('|').map(p => p.trim());
-        const url = parts[0];
-        if (!url) return;
-        
-        const match = url.match(/[?&](pwd|password|code)=([^&]+)/i);
-        let name = parts[1] || '资源' + (i + 1);
-        // 提取码只保留字母数字
-        let code = parts[2] || (match ? match[2] : '');
-        code = code.replace(/[^a-zA-Z0-9]/g, '');
-        const group = parts[3] || '';
-        let remark = parts[4] || '';
-        
-        // 输入验证（URL和提取码格式）
-        const validation = validateInput(url, name, remark, '', code);
-        if (!validation.valid) {
-          errorCount++;
-          errors.push(`第${i + 1}行: ${validation.error}`);
-          return;
+
+      const updateBatchProgress = () => {
+        const progressTextElement = document.getElementById('batchProgressText');
+        const progressBarElement = document.getElementById('batchProgressBar');
+        if (progressTextElement) progressTextElement.textContent = `${batchIndex} / ${batchTotalCount}`;
+        if (progressBarElement) progressBarElement.style.width = batchTotalCount ? (Math.min(100, (batchIndex / batchTotalCount) * 100) + '%') : '0%';
+      };
+
+      const finalizeBatch = () => {
+        flushHistory();
+
+        const hintElement = document.getElementById('batchProgressHint');
+        if (hintElement) {
+          hintElement.textContent = `完成：成功 ${successCount} 条，失败 ${errorCount} 条${filteredCount > 0 ? `，已过滤 ${filteredCount} 条` : ''}`;
         }
-        
-        // 自动清理违禁内容
-        const sanitized = sanitizeInputData({ name, remark, adText: '' });
-        name = sanitized.name || '资源' + (i + 1);
-        remark = sanitized.remark;
-        if (sanitized.hasFiltered) filteredCount++;
-        
-        // 使用批量广告设置生成链接
-        const link = generateLinkWithAd(url, name, code, remark, batchAdEnabled, batchAdText, batchAdDuration);
-        const disk = detectDiskType(url);
-        
-        saveToHistory({ url, name, code, link, disk, group, remark, time: Date.now() });
-        
-        const qrId = 'qr-batch-' + i + '-' + Date.now();
-        const card = document.createElement('div');
-        card.className = 'result-card';
-        card.innerHTML = `
-          <div class="qr" id="${qrId}" style="width:56px;height:56px;"></div>
-          <div class="info">
-            <div class="name">${name} <span class="tag" style="background:${disk.color}">${disk.name}</span></div>
-            <div class="link">${link}</div>
-            ${remark ? `<div class="remark">📝 ${remark}</div>` : ''}
-          </div>
-          <div class="actions">
-            <button class="btn btn-secondary btn-sm" onclick="copyLink('${link}')">复制</button>
-          </div>
-        `;
-        container.appendChild(card);
-        
-        // 生成小二维码（使用设置中的样式）
-        ((qId, targetUrl) => {
-          setTimeout(() => {
-            const qrContainer = document.getElementById(qId);
-            if (qrContainer) {
-              generateStyledQR(targetUrl, qrContainer, 56);
-            }
-          }, 50 + i * 20);
-        })(qrId, url);
-        
-        successCount++;
-      });
-      
-      let msg = `已生成 ${successCount} 个链接`;
-      if (filteredCount > 0) msg += `（${filteredCount} 个已过滤违禁内容）`;
-      if (errorCount > 0) msg = `成功 ${successCount} 个，失败 ${errorCount} 个`;
-      toast(msg, 3000);
-      if (errors.length) console.warn('批量生成错误:', errors);
-    }
 
-    function clearBatch() {
-      document.getElementById('batchInput').value = '';
-      document.getElementById('batchResult').innerHTML = '';
-    }
+        if (batchGeneratedResults.length) {
+          const exportBarElement = document.createElement('div');
+          exportBarElement.style.cssText = 'display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0;padding:12px;background:var(--bg);border-radius:10px;';
+          exportBarElement.innerHTML = `
+            <button class="btn btn-success btn-sm" onclick="exportBatchResultsCSV()">📤 导出CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyAllBatchLinks()">📋 复制全部链接</button>
+          `;
+          batchResultContainer.insertBefore(exportBarElement, batchRenderContainer);
+        }
 
-    // ==================== 表格导入 ====================
-    // 存储导入生成的结果
-    let uploadGeneratedResults = [];
-    
-    function handleFileUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      
-      // 清空之前的结果
-      uploadGeneratedResults = [];
-      
-      // 获取表格导入广告设置
-      const uploadAdEnabled = document.getElementById('uploadAdEnabled')?.checked || false;
-      const uploadAdText = document.getElementById('uploadAdText')?.value || '';
-      const uploadAdDuration = document.getElementById('uploadAdDuration')?.value || '2';
-      
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        try {
-          const data = new Uint8Array(evt.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const sheet = workbook.Sheets[workbook.SheetNames[0]];
-          const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-          
-          const container = document.getElementById('uploadResult');
-          container.innerHTML = '';
-          let successCount = 0;
-          let errorCount = 0;
-          let filteredCount = 0;
-          const errors = [];
-          
-          json.forEach((row, i) => {
-            if (i === 0 && row[0]?.toString().includes('链接')) return; // 跳过表头
-            const url = row[0]?.toString().trim();
-            if (!url || !url.startsWith('http')) return;
-            
-            let name = row[1]?.toString().trim() || '资源' + (successCount + 1);
-            // 提取码只保留字母数字
-            let code = row[2]?.toString().trim() || '';
-            code = code.replace(/[^a-zA-Z0-9]/g, '');
-            const group = row[3]?.toString().trim() || '';
-            let remark = row[4]?.toString().trim() || '';
-            
-            // 输入验证（URL和提取码格式）
-            const validation = validateInput(url, name, remark, '', code);
-            if (!validation.valid) {
-              errorCount++;
-              errors.push(`第${i + 1}行: ${validation.error}`);
-              return;
-            }
-            
-            // 自动清理违禁内容
-            const sanitized = sanitizeInputData({ name, remark, adText: '' });
-            name = sanitized.name || '资源' + (successCount + 1);
-            remark = sanitized.remark;
-            if (sanitized.hasFiltered) filteredCount++;
-            
-            // 使用表格导入广告设置生成链接
-            const link = generateLinkWithAd(url, name, code, remark, uploadAdEnabled, uploadAdText, uploadAdDuration);
-            const disk = detectDiskType(url);
-            
-            saveToHistory({ url, name, code, link, disk, group, remark, time: Date.now() });
-            
-            // 保存到导入结果数组
-            uploadGeneratedResults.push({
-              url,
-              name,
-              code,
-              group,
-              remark,
-              link,
-              diskName: disk.name
-            });
-            
-            const qrId = 'qr-upload-' + i + '-' + Date.now();
+        let msg = `已生成 ${successCount} 条链接`;
+        if (filteredCount > 0) msg += `（${filteredCount} 条已过滤违禁内容）`;
+        if (errorCount > 0) msg = `成功 ${successCount} 条，失败 ${errorCount} 条`;
+        toast(msg, 3000);
+        if (errors.length) console.warn('批量生成错误:', errors);
+      };
+
+      const scheduleNextChunk = () => {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(processChunk, { timeout: 200 });
+        } else {
+          setTimeout(processChunk, 0);
+        }
+      };
+
+      const processChunk = () => {
+        const chunkEndIndex = Math.min(batchTotalCount, batchIndex + chunkSize);
+        const fragment = document.createDocumentFragment();
+
+        for (; batchIndex < chunkEndIndex; batchIndex++) {
+          const rawLine = batchLinesArray[batchIndex];
+          const parts = rawLine.split('|').map(p => p.trim());
+          const url = parts[0];
+          if (!url) continue;
+
+          const match = url.match(/[?&](pwd|password|code)=([^&]+)/i);
+          let name = parts[1] || '资源' + (batchIndex + 1);
+          // 提取码只保留字母数字
+          let code = parts[2] || (match ? match[2] : '');
+          code = code.replace(/[^a-zA-Z0-9]/g, '');
+          const group = parts[3] || '';
+          let remark = parts[4] || '';
+
+          const validation = validateInput(url, name, remark, '', code);
+          if (!validation.valid) {
+            errorCount++;
+            errors.push(`第${batchIndex + 1}行: ${validation.error}`);
+            continue;
+          }
+
+          const sanitized = sanitizeInputData({ name, remark, adText: '' });
+          name = sanitized.name || '资源' + (batchIndex + 1);
+          remark = sanitized.remark;
+          if (sanitized.hasFiltered) filteredCount++;
+
+          const link = generateLinkWithAd(url, name, code, remark, batchAdEnabled, batchAdText, batchAdDuration);
+          const disk = detectDiskType(url);
+          const time = Date.now();
+
+          batchGeneratedResults.push({ url, name, code, group, remark, link, diskName: disk.name, time });
+          saveToHistory({ url, name, code, link, disk, group, remark, time }, { deferSave: true });
+
+          if (successCount < maxRenderCount) {
+            const qrId = 'qr-batch-' + batchIndex + '-' + time;
             const card = document.createElement('div');
             card.className = 'result-card';
             card.innerHTML = `
@@ -1923,93 +1877,92 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
                 <button class="btn btn-secondary btn-sm" onclick="copyLink('${link}')">复制</button>
               </div>
             `;
-            container.appendChild(card);
-            
-            // 生成小二维码（使用设置中的样式）
+            fragment.appendChild(card);
+
             ((qId, targetUrl) => {
               setTimeout(() => {
                 const qrContainer = document.getElementById(qId);
                 if (qrContainer) {
                   generateStyledQR(targetUrl, qrContainer, 56);
                 }
-              }, 50 + successCount * 20);
+              }, 0);
             })(qrId, url);
-            
-            successCount++;
-          });
-          
-          // 如果有成功导入的记录，显示导出按钮
-          if (successCount > 0) {
-            const exportBar = document.createElement('div');
-            exportBar.style.cssText = 'display:flex;gap:10px;justify-content:center;margin-top:16px;padding:16px;background:var(--bg);border-radius:10px;';
-            exportBar.innerHTML = `
-              <span style="font-size:13px;color:var(--text2);display:flex;align-items:center;">✅ 成功生成 ${successCount} 条链接</span>
-              <button class="btn btn-success btn-sm" onclick="exportUploadResults()">📤 导出为表格</button>
-              <button class="btn btn-secondary btn-sm" onclick="copyAllUploadLinks()">📋 复制全部链接</button>
-            `;
-            container.insertBefore(exportBar, container.firstChild);
           }
-          
-          let msg = `已导入 ${successCount} 条记录`;
-          if (filteredCount > 0) msg += `（${filteredCount} 条已过滤违禁内容）`;
-          if (errorCount > 0) msg = `成功 ${successCount} 条，失败 ${errorCount} 条`;
-          toast(msg, 3000);
-          if (errors.length) console.warn('导入错误:', errors);
-        } catch (err) {
-          toast('文件解析失败：' + err.message);
+
+          successCount++;
         }
+
+        if (fragment.childNodes.length) batchRenderContainer.appendChild(fragment);
+        updateBatchProgress();
+
+        if (batchIndex < batchTotalCount) {
+          scheduleNextChunk();
+          return;
+        }
+
+        finalizeBatch();
       };
-      reader.readAsArrayBuffer(file);
+
+      updateBatchProgress();
+      scheduleNextChunk();
     }
-    
-    // 导出导入生成的结果为表格
-    function exportUploadResults() {
-      if (!uploadGeneratedResults.length) return toast('暂无可导出的数据');
-      
-      const data = uploadGeneratedResults.map(item => ({
-        '原始链接': item.url,
-        '名称': item.name,
-        '提取码': item.code || '',
-        '分组': item.group || '',
-        '备注': item.remark || '',
-        '生成链接': item.link,
-        '网盘类型': item.diskName
-      }));
-      
-      const ws = XLSX.utils.json_to_sheet(data);
-      // 设置列宽
-      ws['!cols'] = [
-        { wch: 50 }, // 原始链接
-        { wch: 20 }, // 名称
-        { wch: 10 }, // 提取码
-        { wch: 10 }, // 分组
-        { wch: 20 }, // 备注
-        { wch: 60 }, // 生成链接
-        { wch: 12 }  // 网盘类型
-      ];
-      
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, '生成结果');
-      XLSX.writeFile(wb, '链接生成结果_' + new Date().toLocaleDateString() + '.xlsx');
-      toast('导出成功');
+
+    function clearBatch() {
+      document.getElementById('batchInput').value = '';
+      document.getElementById('batchResult').innerHTML = '';
+      batchGeneratedResults = [];
     }
-    
-    // 复制全部导入生成的链接
-    function copyAllUploadLinks() {
-      if (!uploadGeneratedResults.length) return toast('暂无可复制的链接');
-      
-      const links = uploadGeneratedResults.map(item => item.link).join('\n');
-      navigator.clipboard.writeText(links).then(() => {
-        toast('已复制 ' + uploadGeneratedResults.length + ' 条链接');
+
+    function exportBatchResultsCSV() {
+      if (!batchGeneratedResults || !batchGeneratedResults.length) return toast('暂无可导出的数据');
+      const headers = ['原始链接', '名称', '提取码', '分组', '备注', '生成链接', '网盘类型'];
+      const escapeCell = (val) => {
+        const str = (val ?? '').toString();
+        const escaped = str.replace(/"/g, '""');
+        return /[\n\r,\"]/.test(escaped) ? `"${escaped}"` : escaped;
+      };
+      const headerLine = headers.join(',') + '\n';
+      const parts = [headerLine];
+      for (const item of batchGeneratedResults) {
+        const row = [
+          escapeCell(item.url),
+          escapeCell(item.name),
+          escapeCell(item.code || ''),
+          escapeCell(item.group || ''),
+          escapeCell(item.remark || ''),
+          escapeCell(item.link),
+          escapeCell(item.diskName || '')
+        ].join(',');
+        parts.push(row + '\n');
+      }
+      const blob = new Blob(parts, { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      a.href = url;
+      a.download = '批量生成结果_' + new Date().toLocaleDateString() + '.csv';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast('导出完成');
+    }
+
+    function copyAllBatchLinks() {
+      if (!batchGeneratedResults || !batchGeneratedResults.length) return toast('暂无可复制的链接');
+      const linksText = batchGeneratedResults.map(item => item.link).join('\n');
+      navigator.clipboard.writeText(linksText).then(() => {
+        toast('已复制 ' + batchGeneratedResults.length + ' 条链接');
       }).catch(() => {
         toast('复制失败');
       });
     }
 
-    function downloadTemplate() {
+    let uploadGeneratedResults = [];
+
+    async function downloadTemplate() {
+      if (typeof ensureLib === 'function') await ensureLib('xlsx');
+      if (!window.XLSX) return toast('依赖加载失败，请稍后重试');
       const ws = XLSX.utils.aoa_to_sheet([
-        ['链接', '名称', '提取码', '分组', '备注'],
-        ['https://pan.quark.cn/s/xxx?pwd=1234', '示例资源', '1234', '默认', '这是备注']
+        ['链接（必填）', '名称', '提取码', '分组', '备注'],
+        ['https://pan.quark.cn/s/xxx?pwd=1234', '电影资源', '1234', '娱乐', '高清版本']
       ]);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, '链接模板');
@@ -2031,10 +1984,20 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     });
 
     // ==================== 历史记录 ====================
-    function saveToHistory(item) {
+    function saveToHistory(item, options = {}) {
       history.unshift(item);
       if (history.length > 100) history.pop();
+      if (options.deferSave) {
+        historyDirty = true;
+        return;
+      }
       localStorage.setItem('linkHistory', JSON.stringify(history));
+    }
+
+    function flushHistory() {
+      if (!historyDirty) return;
+      localStorage.setItem('linkHistory', JSON.stringify(history));
+      historyDirty = false;
     }
 
     function renderHistory() {
@@ -2058,7 +2021,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       container.innerHTML = filtered.map((item, i) => `
         <div class="history-card">
           <div class="icon" style="background:${item.disk?.color || '#6366f1'}20">
-            ${item.disk?.logo ? `<img src="${item.disk.logo}" alt="">` : '🔗'}
+            ${item.disk?.logo ? `<img src="${item.disk.logo}" alt="" loading="lazy" decoding="async">` : '🔗'}
           </div>
           <div class="info">
             <div class="name">${item.name}</div>
@@ -3133,21 +3096,24 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       await loadScript(urls[name]);
       window._lazyLibs[name] = true;
     }
-    const _origExportAllQR = window.exportAllQR;
-    window.exportAllQR = async function() {
-      await ensureLib('jszip');
-      if (typeof _origExportAllQR === 'function') return _origExportAllQR();
-    };
-    const _origHandleFileUpload = window.handleFileUpload;
-    window.handleFileUpload = async function(e) {
-      await ensureLib('xlsx');
-      if (typeof _origHandleFileUpload === 'function') return _origHandleFileUpload(e);
-    };
-    const _origShowPosterModal = window.showPosterModal;
-    window.showPosterModal = async function() {
-      await ensureLib('html2canvas');
-      if (typeof _origShowPosterModal === 'function') return _origShowPosterModal();
-    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const _origExportAllQR = window.exportAllQR;
+      window.exportAllQR = async function() {
+        await ensureLib('jszip');
+        if (typeof _origExportAllQR === 'function') return _origExportAllQR();
+      };
+      const _origHandleFileUpload = window.handleFileUpload;
+      window.handleFileUpload = async function(e) {
+        await ensureLib('xlsx');
+        if (typeof _origHandleFileUpload === 'function') return _origHandleFileUpload(e);
+      };
+      const _origShowPosterModal = window.showPosterModal;
+      window.showPosterModal = async function() {
+        await ensureLib('html2canvas');
+        if (typeof _origShowPosterModal === 'function') return _origShowPosterModal();
+      };
+    });
     </script>
 </body>
 </html>

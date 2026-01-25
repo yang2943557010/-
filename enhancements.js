@@ -52,9 +52,24 @@ const DynamicBackground = {
   canvas: null,
   ctx: null,
   animationId: null,
+  resizeHandler: null,
+  visibilityHandler: null,
   
   init() {
     this.current = localStorage.getItem('bgEffect') || 'none';
+    if (!this.visibilityHandler) {
+      this.visibilityHandler = () => {
+        if (document.visibilityState === 'hidden') {
+          this.stop();
+          return;
+        }
+        if (this.current !== 'none' && this.canvas && this.ctx && !this.animationId) {
+          this.resize();
+          this.effects[this.current]?.init();
+        }
+      };
+      document.addEventListener('visibilitychange', this.visibilityHandler);
+    }
     if (this.current !== 'none') {
       this.apply(this.current);
     }
@@ -82,7 +97,10 @@ const DynamicBackground = {
     document.body.prepend(this.canvas);
     this.ctx = this.canvas.getContext('2d');
     this.resize();
-    window.addEventListener('resize', () => this.resize());
+    if (!this.resizeHandler) {
+      this.resizeHandler = () => this.resize();
+    }
+    window.addEventListener('resize', this.resizeHandler);
   },
   
   removeCanvas() {
@@ -90,6 +108,10 @@ const DynamicBackground = {
       this.canvas.remove();
       this.canvas = null;
       this.ctx = null;
+    }
+
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
     }
   },
   

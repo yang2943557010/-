@@ -374,7 +374,7 @@ const PageRenderer = {
     
     const guideRight = document.getElementById('guideRight');
     if (diskConfig.guide) {
-      guideRight.innerHTML = `<img src="${diskConfig.guide}" alt="引导图" class="guide-img">`;
+      guideRight.innerHTML = `<img src="${diskConfig.guide}" alt="引导图" class="guide-img" loading="lazy" decoding="async">`;
     }
     
     const qrContainer = document.getElementById('qrContainer');
