@@ -444,8 +444,6 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
   const countdownEl = document.getElementById('adCountdown');
   const progressBar = document.getElementById('adProgressBar');
   const skipBtn = document.getElementById('adSkipBtn');
-  const resourceInfo = document.getElementById('adResourceInfo');
-  const resourceName = document.getElementById('adResourceName');
   const diskLogo = document.getElementById('adDiskLogo');
   const diskName = document.getElementById('adDiskName');
   const adIcon = document.getElementById('adIcon');
@@ -495,21 +493,17 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
   countdownEl.textContent = duration;
   progressBar.style.width = '100%';
   
-  // 设置资源信息
-  if (params.resourceName) {
-    resourceName.textContent = params.resourceName;
-    resourceInfo.style.display = 'block';
-  }
-  
   // 设置网盘信息
   const diskConfig = detectDiskType(targetUrl);
-  if (diskConfig.logo) {
-    diskLogo.src = diskConfig.logo;
-    diskLogo.style.display = 'inline';
-  } else {
-    diskLogo.style.display = 'none';
+  if (diskLogo) {
+    if (diskConfig.logo) {
+      diskLogo.src = diskConfig.logo;
+      diskLogo.style.display = 'inline';
+    } else {
+      diskLogo.style.display = 'none';
+    }
   }
-  diskName.textContent = diskConfig.name;
+  if (diskName) diskName.textContent = diskConfig.name;
   
   // 根据网盘类型设置图标
   const iconMap = {
@@ -522,7 +516,7 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
     'tianyi': '☁️',
     'default': '🚀'
   };
-  adIcon.textContent = iconMap[diskConfig.type] || '🚀';
+  if (adIcon) adIcon.textContent = iconMap[diskConfig.type] || '🚀';
   
   // 根据页面模板设置主题
   const themeMap = {
