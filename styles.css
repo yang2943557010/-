@@ -2,7 +2,6 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  contain-intrinsic-size: auto;
 }
 
 body {
@@ -10,10 +9,6 @@ body {
   background: #e8f4fc;
   min-height: 100vh;
   color: #333;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  contain: layout style;
 }
 
 /* 头部样式 */
@@ -59,9 +54,6 @@ body {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   text-align: center;
   width: 340px;
-  contain: layout style paint;
-  transform: translateZ(0);
-  will-change: transform;
 }
 
 .resource-name {
@@ -95,9 +87,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  contain: layout style paint;
-  transform: translateZ(0);
-  will-change: transform;
 }
 
 .qr-container canvas,

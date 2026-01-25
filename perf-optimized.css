@@ -207,34 +207,6 @@
   }
 }
 
-/* 高性能动画优化 */
-.ad-overlay {
-  will-change: transform;
-}
-
-.ad-icon {
-  will-change: transform;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-.ad-countdown-num {
-  will-change: transform;
-  animation: countPulse 1s ease-in-out infinite;
-}
-
-/* 优化过渡效果 */
-.card-promo a,
-.error-promo-btn,
-.page-promo-btn {
-  will-change: transform;
-}
-
-/* 减少重绘 */
-.ad-progress-bar {
-  will-change: transform;
-  transform-origin: 0 0;
-}
-
 /* 超小屏幕优化 */
 @media (max-width: 380px) {
   body {
@@ -290,28 +262,6 @@
   }
 }
 
-/* 高性能阴影和边框 */
-.card {
-  contain: layout style paint;
-}
-
-.ad-card {
-  contain: layout style paint;
-}
-
-/* 优化渐变背景 */
-.ad-overlay.theme-gradient,
-.page-promo {
-  background-attachment: fixed;
-}
-
-/* 减少字体重排 */
-body {
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 /* iOS安全区域适配 */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   body {
@@ -321,39 +271,6 @@ body {
   .page-promo {
     padding-bottom: calc(14px + env(safe-area-inset-bottom));
   }
-}
-
-/* 优化图片渲染 */
-.qr img,
-.qr canvas,
-.ad-icon,
-.guide-img {
-  will-change: transform;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-}
-
-/* 优化滚动性能 */
-body {
-  -webkit-overflow-scrolling: touch;
-}
-
-/* 减少回流和重绘 */
-.ad-overlay,
-.card {
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-}
-
-/* 优化透明度动画 */
-.ad-overlay {
-  opacity: 1;
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.ad-overlay.fade-out {
-  opacity: 0;
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 引导图区域 */

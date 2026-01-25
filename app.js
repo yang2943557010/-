@@ -118,22 +118,6 @@ const CryptoUtil = {
 
 // ==================== 网盘配置 ====================
 
-// 预加载常用网盘logo
-const PRELOAD_LOGOS = [
-  'https://testlink11.oss-cn-beijing.aliyuncs.com/baidu-logo.png',
-  'https://testlink11.oss-cn-beijing.aliyuncs.com/quark-logo.png',
-  'https://img.alicdn.com/imgextra/i1/O1CN01JDQCi21Hp8ASbOY1a_!!6000000000806-2-tps-512-512.png',
-  'https://pan.xunlei.com/favicon.ico',
-  'https://115.com/favicon.ico',
-  'https://www.lanzou.com/favicon.ico',
-  'https://cloud.189.cn/favicon.ico'
-];
-
-// 如果缓存管理器可用，预加载资源
-if (window.CacheManager) {
-  window.CacheManager.preloadResources(PRELOAD_LOGOS);
-}
-
 const DISK_CONFIG = {
   baidu: {
     name: '百度网盘',
@@ -207,22 +191,13 @@ const DISK_CONFIG = {
 function detectDiskType(url) {
   if (!url) return DISK_CONFIG.default;
   
-  // 使用更高效的缓存键
-  const cacheKey = DeviceDetector.getCacheKey(`disk_${url}`);
-  
-  // 尝试从内存缓存获取
+  // 缓存检测结果
   if (!detectDiskType.cache) {
     detectDiskType.cache = new Map();
   }
   
-  if (detectDiskType.cache.has(cacheKey)) {
-    return detectDiskType.cache.get(cacheKey);
-  }
-  
-  // 如果有缓存管理器，也尝试从那里获取
-  if (window.CacheManager && window.CacheManager.isCached) {
-    // 此处不使用异步操作，因为函数不是异步的
-    // 我们只使用内存缓存
+  if (detectDiskType.cache.has(url)) {
+    return detectDiskType.cache.get(url);
   }
   
   const lowerUrl = url.toLowerCase();
@@ -230,35 +205,13 @@ function detectDiskType(url) {
     if (key === 'default') continue;
     if (config.keywords.some(keyword => lowerUrl.includes(keyword))) {
       const result = { ...config, type: key };
-      detectDiskType.cache.set(cacheKey, result);
-      
-      // 同时存储到缓存管理器
-      if (window.CacheManager && window.CacheManager.preloadResource) {
-        try {
-          const blob = new Blob([JSON.stringify(result)], { type: 'application/json' });
-          window.CacheManager.preloadResource(URL.createObjectURL(blob));
-        } catch (e) {
-          console.debug('Could not cache disk detection result:', e);
-        }
-      }
-      
+      detectDiskType.cache.set(url, result);
       return result;
     }
   }
   
   const result = { ...DISK_CONFIG.default, type: 'default' };
-  detectDiskType.cache.set(cacheKey, result);
-  
-  // 同时存储到缓存管理器
-  if (window.CacheManager && window.CacheManager.preloadResource) {
-    try {
-      const blob = new Blob([JSON.stringify(result)], { type: 'application/json' });
-      window.CacheManager.preloadResource(URL.createObjectURL(blob));
-    } catch (e) {
-      console.debug('Could not cache disk detection result:', e);
-    }
-  }
-  
+  detectDiskType.cache.set(url, result);
   return result;
 }
 
@@ -354,46 +307,21 @@ const UrlHandler = {
 const DeviceDetector = {
   // 缓存结果
   _isMobileCache: null,
-  _deviceTypeCache: null,
-  
-  // 预编译正则表达式，提高匹配效率
-  _mobileRegex: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i,
-  _tabletRegex: /iPad|Android.*tablet|playbook|silk/i,
   
   isMobile() {
     if (this._isMobileCache !== null) return this._isMobileCache;
     
-    // 使用预编译的正则表达式
-    const isMobile = this._mobileRegex.test(navigator.userAgent);
+    // 使用更高效的方法检测移动设备
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     this._isMobileCache = isMobile;
     return isMobile;
   },
   
   getDeviceType() {
-    if (this._deviceTypeCache !== null) return this._deviceTypeCache;
-    
-    // 使用预编译的正则表达式
-    if (this._tabletRegex.test(navigator.userAgent)) {
-      this._deviceTypeCache = 'tablet';
-      return 'tablet';
-    }
-    if (this.isMobile()) {
-      this._deviceTypeCache = 'mobile';
-      return 'mobile';
-    }
-    this._deviceTypeCache = 'desktop';
+    // 使用更高效的方法检测设备类型
+    if (/iPad|Android.*tablet|playbook|silk/i.test(navigator.userAgent)) return 'tablet';
+    if (this.isMobile()) return 'mobile';
     return 'desktop';
-  },
-  
-  // 重置缓存
-  resetCache() {
-    this._isMobileCache = null;
-    this._deviceTypeCache = null;
-  },
-  
-  // 获取设备特定的缓存键
-  getCacheKey(suffix = '') {
-    return `${navigator.userAgent}_${suffix}`;
   }
 };
 
@@ -402,19 +330,8 @@ const DeviceDetector = {
 const QRCodeGenerator = {
   qrInstance: null,
   
-  // 缓存已生成的二维码
-  cache: new Map(),
-  
   generate(url, container) {
     try {
-      // 检查缓存
-      const cached = this.cache.get(url);
-      if (cached) {
-        container.innerHTML = '';
-        container.appendChild(cached.cloneNode(true));
-        return;
-      }
-      
       container.innerHTML = '';
       // 使用更高效的二维码配置
       this.qrInstance = new QRCode(container, {
@@ -426,28 +343,10 @@ const QRCodeGenerator = {
         correctLevel: QRCode.CorrectLevel.M, // 使用中等纠错级别提升生成速度
         quietZone: 1 // 减少静默区域
       });
-      
-      // 缓存生成的二维码
-      setTimeout(() => {
-        const qrElement = container.querySelector('canvas') || container.querySelector('img');
-        if (qrElement) {
-          this.cache.set(url, qrElement);
-          // 限制缓存大小
-          if (this.cache.size > 10) {
-            const firstKey = this.cache.keys().next().value;
-            this.cache.delete(firstKey);
-          }
-        }
-      }, 100);
     } catch (e) {
       console.error('二维码生成失败:', e);
       container.innerHTML = `<a href="${url}" style="word-break: break-all; color: #1890ff;">${url}</a>`;
     }
-  },
-  
-  // 清除缓存
-  clearCache() {
-    this.cache.clear();
   }
 };
 
@@ -458,64 +357,54 @@ const PageRenderer = {
     const { targetUrl, resourceName, extractCode } = params;
     const diskConfig = detectDiskType(targetUrl);
     
-    // 使用requestAnimationFrame批量更新DOM
-    requestAnimationFrame(() => {
-      document.title = diskConfig.name;
-      
-      const siteLogo = document.getElementById('siteLogo');
-      const siteName = document.getElementById('siteName');
-      if (diskConfig.logo) {
-        siteLogo.src = diskConfig.logo;
-        siteLogo.style.display = 'inline-block';
-      }
-      siteName.textContent = diskConfig.name;
-      
-      document.getElementById('resourceName').textContent = `资源名称：${resourceName}`;
-      document.getElementById('extractCode').textContent = extractCode;
-      document.getElementById('scanTip').innerHTML = `打开 <span class="app-name">${diskConfig.appName}</span> - 点击搜索框相机 - 扫码`;
-      document.getElementById('bottomAppName').textContent = diskConfig.appName;
-      
-      const guideRight = document.getElementById('guideRight');
-      if (diskConfig.guide) {
-        guideRight.innerHTML = `<img src="${diskConfig.guide}" alt="引导图" class="guide-img" loading="lazy">`;
-      }
-      
-      const qrContainer = document.getElementById('qrContainer');
-      QRCodeGenerator.generate(targetUrl, qrContainer);
-      
-      document.getElementById('qrCard').style.display = 'block';
-      document.getElementById('errorContainer').style.display = 'none';
-    });
+    document.title = diskConfig.name;
+    
+    const siteLogo = document.getElementById('siteLogo');
+    const siteName = document.getElementById('siteName');
+    if (diskConfig.logo) {
+      siteLogo.src = diskConfig.logo;
+      siteLogo.style.display = 'inline-block';
+    }
+    siteName.textContent = diskConfig.name;
+    
+    document.getElementById('resourceName').textContent = `资源名称：${resourceName}`;
+    document.getElementById('extractCode').textContent = extractCode;
+    document.getElementById('scanTip').innerHTML = `打开 <span class="app-name">${diskConfig.appName}</span> - 点击搜索框相机 - 扫码`;
+    document.getElementById('bottomAppName').textContent = diskConfig.appName;
+    
+    const guideRight = document.getElementById('guideRight');
+    if (diskConfig.guide) {
+      guideRight.innerHTML = `<img src="${diskConfig.guide}" alt="引导图" class="guide-img">`;
+    }
+    
+    const qrContainer = document.getElementById('qrContainer');
+    QRCodeGenerator.generate(targetUrl, qrContainer);
+    
+    document.getElementById('qrCard').style.display = 'block';
+    document.getElementById('errorContainer').style.display = 'none';
   },
   
   renderErrorPage(message = '链接无效') {
-    requestAnimationFrame(() => {
-      document.getElementById('qrCard').style.display = 'none';
-      document.getElementById('guideRight').style.display = 'none';
-      document.getElementById('errorContainer').style.display = 'block';
-      document.querySelector('.error-container h2').textContent = message;
-    });
+    document.getElementById('qrCard').style.display = 'none';
+    document.getElementById('guideRight').style.display = 'none';
+    document.getElementById('errorContainer').style.display = 'block';
+    document.querySelector('.error-container h2').textContent = message;
   },
   
   redirect(url) {
-    // 使用更快的重定向方法
-    window.location.replace(url);
+    window.location.href = url;
   }
 };
 
 // ==================== 主程序入口 ====================
 
 function init() {
-  // 性能监控
-  window.performance && performance.mark && performance.mark('init-start');
-  
   // 使用requestIdleCallback优化执行时机
   if ('requestIdleCallback' in window) {
     requestIdleCallback(() => {
       processInit();
-    }, { timeout: 1000 });
+    });
   } else {
-    // 使用setTimeout并指定更合理的延迟
     setTimeout(() => {
       processInit();
     }, 1);
@@ -523,8 +412,6 @@ function init() {
 }
 
 function processInit() {
-  window.performance && performance.mark && performance.mark('process-init-start');
-  
   const params = UrlHandler.parseParams();
   if (!params.isValid) {
     PageRenderer.renderErrorPage('链接无效');
@@ -534,26 +421,20 @@ function processInit() {
   // 应用模板样式
   applyTemplate(params.template);
   
-  // 使用requestAnimationFrame优化DOM操作
-  requestAnimationFrame(() => {
-    const isMobile = DeviceDetector.isMobile();
-    if (isMobile) {
-      // 检查是否有广告设置
-      if (params.adText) {
-        showAdAndRedirect(params.targetUrl, params.adText, params.adDuration, {
-          resourceName: params.resourceName,
-          template: params.template
-        });
-      } else {
-        PageRenderer.redirect(params.targetUrl);
-      }
+  const isMobile = DeviceDetector.isMobile();
+  if (isMobile) {
+    // 检查是否有广告设置
+    if (params.adText) {
+      showAdAndRedirect(params.targetUrl, params.adText, params.adDuration, {
+        resourceName: params.resourceName,
+        template: params.template
+      });
     } else {
-      PageRenderer.renderQRPage(params);
+      PageRenderer.redirect(params.targetUrl);
     }
-    
-    window.performance && performance.mark && performance.mark('process-init-end');
-    window.performance && performance.measure && performance.measure('process-init', 'process-init-start', 'process-init-end');
-  });
+  } else {
+    PageRenderer.renderQRPage(params);
+  }
 }
 
 // 显示广告并跳转 - 增强版（带预加载）
@@ -583,7 +464,6 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
     const preloadLink = document.createElement('link');
     preloadLink.rel = 'preconnect';
     preloadLink.href = targetOrigin;
-    preloadLink.crossOrigin = 'anonymous';
     document.head.appendChild(preloadLink);
     
     // DNS预解析
@@ -594,17 +474,13 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
     
     // 预加载页面（使用隐藏iframe）
     const preloadFrame = document.createElement('iframe');
-    preloadFrame.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;visibility:hidden;pointer-events:none;';
+    preloadFrame.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;';
     preloadFrame.src = targetUrl;
-    preloadFrame.loading = 'eager'; // 使用eager加载以更快预加载
-    preloadFrame.sandbox = 'allow-scripts allow-same-origin'; // 安全沙箱
+    preloadFrame.loading = 'lazy'; // 使用懒加载属性
     document.body.appendChild(preloadFrame);
   } catch (e) {
     console.warn('预加载失败:', e);
   }
-  
-  // 使用DocumentFragment优化DOM操作
-  const fragment = document.createDocumentFragment();
   
   // 设置广告文字（保留换行格式）
   textEl.innerHTML = adText.replace(/\n/g, '<br>');
@@ -666,11 +542,11 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
   // 显示广告
   overlay.style.display = 'flex';
   
-  // 跳过按钮逻辑（更快显示）
+  // 跳过按钮逻辑（1秒后显示，加快体验）
   skipBtn.classList.remove('visible');
-  requestAnimationFrame(() => {
+  setTimeout(() => {
     skipBtn.classList.add('visible');
-  });
+  }, 1000);
   
   // 保存跳转目标供跳过按钮使用
   window._adTargetUrl = targetUrl;
@@ -680,10 +556,8 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
   const startTime = Date.now();
   const totalMs = duration * 1000;
   
-  // 使用requestAnimationFrame优化动画更新
-  let frameId;
-  
-  function updateProgress() {
+  // 更新进度条和倒计时
+  const updateInterval = setInterval(() => {
     const elapsed = Date.now() - startTime;
     const progress = Math.max(0, 100 - (elapsed / totalMs * 100));
     progressBar.style.width = progress + '%';
@@ -695,22 +569,17 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
       
       // 倒计时动画
       countdownEl.style.transform = 'scale(1.2)';
-      requestAnimationFrame(() => {
-        countdownEl.style.transform = 'scale(1)';
-      });
+      setTimeout(() => countdownEl.style.transform = 'scale(1)', 150);
     }
-    
-    if (elapsed < totalMs) {
-      frameId = requestAnimationFrame(updateProgress);
-    } else {
-      doRedirect(targetUrl);
-    }
-  }
+  }, 50);
   
-  frameId = requestAnimationFrame(updateProgress);
+  // 倒计时结束后跳转
+  window._adTimeout = setTimeout(() => {
+    clearInterval(updateInterval);
+    doRedirect(targetUrl);
+  }, totalMs);
   
-  // 保存引用以供清理
-  window._adFrameId = frameId;
+  window._adInterval = updateInterval;
 }
 
 // 执行跳转（快速版）
@@ -735,7 +604,6 @@ function doRedirect(targetUrl) {
 function skipAd() {
   if (window._adTimeout) clearTimeout(window._adTimeout);
   if (window._adInterval) clearInterval(window._adInterval);
-  if (window._adFrameId) cancelAnimationFrame(window._adFrameId);
   
   doRedirect(window._adTargetUrl);
 }
