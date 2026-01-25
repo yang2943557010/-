@@ -418,7 +418,10 @@ function processInit() {
   // 应用模板样式
   applyTemplate(params.template);
   
-  const isMobile = DeviceDetector.isMobile();
+  const previewDevice = new URLSearchParams(window.location.search).get('previewDevice');
+  const isMobile = previewDevice === 'mobile'
+    ? true
+    : (previewDevice === 'desktop' ? false : DeviceDetector.isMobile());
   if (isMobile) {
     // 检查是否有广告设置
     if (params.adText) {
@@ -452,31 +455,39 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
     PageRenderer.redirect(targetUrl);
     return;
   }
+
+  const previewDevice = new URLSearchParams(window.location.search).get('previewDevice');
+  const isPreviewMode = previewDevice === 'mobile' || previewDevice === 'desktop';
+  const isInIFrame = window.self !== window.top;
+  const shouldManualOpen = isPreviewMode && isInIFrame;
   
   // 🚀 预加载目标页面 - 在广告显示期间提前加载
-  try {
-    const targetOrigin = new URL(targetUrl).origin;
-    
-    // 预连接到目标域
-    const preloadLink = document.createElement('link');
-    preloadLink.rel = 'preconnect';
-    preloadLink.href = targetOrigin;
-    document.head.appendChild(preloadLink);
-    
-    // DNS预解析
-    const dnsLink = document.createElement('link');
-    dnsLink.rel = 'dns-prefetch';
-    dnsLink.href = targetOrigin;
-    document.head.appendChild(dnsLink);
-    
-    // 预加载页面（使用隐藏iframe）
-    const preloadFrame = document.createElement('iframe');
-    preloadFrame.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;';
-    preloadFrame.src = targetUrl;
-    preloadFrame.loading = 'lazy'; // 使用懒加载属性
-    document.body.appendChild(preloadFrame);
-  } catch (e) {
-    console.warn('预加载失败:', e);
+  let preloadFrame = null;
+  if (!shouldManualOpen) {
+    try {
+      const targetOrigin = new URL(targetUrl).origin;
+      
+      // 预连接到目标域
+      const preloadLink = document.createElement('link');
+      preloadLink.rel = 'preconnect';
+      preloadLink.href = targetOrigin;
+      document.head.appendChild(preloadLink);
+      
+      // DNS预解析
+      const dnsLink = document.createElement('link');
+      dnsLink.rel = 'dns-prefetch';
+      dnsLink.href = targetOrigin;
+      document.head.appendChild(dnsLink);
+      
+      // 预加载页面（使用隐藏iframe）
+      preloadFrame = document.createElement('iframe');
+      preloadFrame.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;';
+      preloadFrame.src = targetUrl;
+      preloadFrame.loading = 'lazy'; // 使用懒加载属性
+      document.body.appendChild(preloadFrame);
+    } catch (e) {
+      console.warn('预加载失败:', e);
+    }
   }
   
   // 设置广告文字（保留换行格式）
@@ -538,6 +549,25 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
   
   // 显示广告
   overlay.style.display = 'flex';
+
+  if (shouldManualOpen) {
+    progressBar.style.width = '0%';
+    countdownEl.textContent = '0';
+    if (skipBtn) {
+      const skipBtnSpans = skipBtn.querySelectorAll('span');
+      if (skipBtnSpans && skipBtnSpans[1]) skipBtnSpans[1].textContent = '打开链接';
+      skipBtn.classList.add('visible');
+    }
+    if (adHint) adHint.textContent = '预览模式下目标站点禁止在弹窗打开，手机端正常自己跳转，电脑端需要点击按钮在新标签页打开';
+    window._adTargetUrl = targetUrl;
+    window._preloadFrame = preloadFrame;
+    return;
+  }
+
+  if (skipBtn) {
+    const skipBtnSpans = skipBtn.querySelectorAll('span');
+    if (skipBtnSpans && skipBtnSpans[1]) skipBtnSpans[1].textContent = '跳过';
+  }
   
   // 跳过按钮逻辑（1秒后显示，加快体验）
   skipBtn.classList.remove('visible');
@@ -582,6 +612,22 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
 // 执行跳转（快速版）
 function doRedirect(targetUrl) {
   const overlay = document.getElementById('adOverlay');
+
+  const previewDevice = new URLSearchParams(window.location.search).get('previewDevice');
+  const isPreviewMode = previewDevice === 'mobile' || previewDevice === 'desktop';
+  const isInIFrame = window.self !== window.top;
+  if (isPreviewMode && isInIFrame) {
+    const skipBtn = document.getElementById('adSkipBtn');
+    const adHint = document.getElementById('adHint');
+    if (adHint) adHint.textContent = '预览模式下目标站点禁止iframe打开，请点击按钮在新标签页打开';
+    if (skipBtn) {
+      const skipBtnSpans = skipBtn.querySelectorAll('span');
+      if (skipBtnSpans && skipBtnSpans[1]) skipBtnSpans[1].textContent = '打开链接';
+      skipBtn.classList.add('visible');
+    }
+    window._adTargetUrl = targetUrl;
+    return;
+  }
   
   // 清理预加载iframe
   if (window._preloadFrame) {
@@ -601,7 +647,22 @@ function doRedirect(targetUrl) {
 function skipAd() {
   if (window._adTimeout) clearTimeout(window._adTimeout);
   if (window._adInterval) clearInterval(window._adInterval);
-  
+
+  const previewDevice = new URLSearchParams(window.location.search).get('previewDevice');
+  const isPreviewMode = previewDevice === 'mobile' || previewDevice === 'desktop';
+  const isInIFrame = window.self !== window.top;
+  if (isPreviewMode && isInIFrame && window._adTargetUrl) {
+    const openedWindow = window.open(window._adTargetUrl, '_blank', 'noopener');
+    if (!openedWindow) {
+      try {
+        window.top.location.href = window._adTargetUrl;
+      } catch (e) {
+        window.location.href = window._adTargetUrl;
+      }
+    }
+    return;
+  }
+
   doRedirect(window._adTargetUrl);
 }
 

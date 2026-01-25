@@ -269,146 +269,8 @@
     .switch input { opacity:0; width:0; height:0; }
     .switch .slider { position:absolute; cursor:pointer; inset:0; background:var(--border); transition:.3s; border-radius:24px; }
     .switch .slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px; background:#fff; transition:.3s; border-radius:50%; box-shadow:0 2px 4px rgba(0,0,0,.1); }
-.switch input:checked + .slider { background:var(--primary); }
-      .switch input:checked + .slider:before { transform:translateX(20px); }
-      
-      /* 移动端预览切换器 */
-      .device-switcher {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 9999;
-        display: flex;
-        gap: 6px;
-        background: var(--card);
-        padding: 8px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        border: 1px solid var(--border);
-      }
-      .device-btn {
-        width: 40px;
-        height: 40px;
-        border: none;
-        border-radius: 8px;
-        background: transparent;
-        cursor: pointer;
-        font-size: 18px;
-        color: var(--text2);
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .device-btn:hover { background: var(--bg); }
-      .device-btn.active { background: var(--primary); color: #fff; }
-      .device-btn[title]:hover::after {
-        content: attr(title);
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 4px 8px;
-        background: var(--text);
-        color: var(--bg);
-        font-size: 11px;
-        border-radius: 4px;
-        white-space: nowrap;
-        margin-bottom: 6px;
-      }
-      
-      /* 移动端预览模式 */
-      body.mobile-preview-mode {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        background: #1a1a2e;
-        min-height: 100vh;
-        padding: 20px;
-      }
-      body.mobile-preview-mode .mobile-frame {
-        width: 375px;
-        min-height: 667px;
-        background: var(--bg);
-        border-radius: 40px;
-        box-shadow: 0 0 0 12px #1f1f1f, 0 0 0 14px #3a3a3a, 0 20px 60px rgba(0,0,0,0.5);
-        overflow: hidden;
-        position: relative;
-      }
-      body.mobile-preview-mode .mobile-frame::before {
-        content: '';
-        position: absolute;
-        top: 12px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80px;
-        height: 24px;
-        background: #1f1f1f;
-        border-radius: 12px;
-        z-index: 10;
-      }
-      body.mobile-preview-mode .mobile-frame-content {
-        height: 100%;
-        overflow-y: auto;
-        padding-top: 48px;
-      }
-      body.mobile-preview-mode .page-layout,
-      body.mobile-preview-mode .sidebar-ad {
-        display: none !important;
-      }
-      body.mobile-preview-mode .main-content {
-        display: block !important;
-        padding: 16px;
-      }
-      body.mobile-preview-mode .device-switcher {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-      }
-      body.mobile-preview-mode .header { flex-direction: column; gap: 12px; align-items: flex-start; }
-      body.mobile-preview-mode .header h1 { font-size: 18px; }
-      body.mobile-preview-mode .form-grid { grid-template-columns: 1fr; }
-      body.mobile-preview-mode .form-grid.three { grid-template-columns: 1fr; }
-      body.mobile-preview-mode .tabs { flex-wrap: wrap; }
-      body.mobile-preview-mode .tab { font-size: 12px; padding: 8px 10px; }
-      
-      /* 平板预览模式 */
-      body.tablet-preview-mode {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        background: #1a1a2e;
-        min-height: 100vh;
-        padding: 20px;
-      }
-      body.tablet-preview-mode .tablet-frame {
-        width: 768px;
-        min-height: 1024px;
-        background: var(--bg);
-        border-radius: 24px;
-        box-shadow: 0 0 0 10px #2a2a2a, 0 0 0 12px #3a3a3a, 0 20px 60px rgba(0,0,0,0.5);
-        overflow: hidden;
-        position: relative;
-      }
-      body.tablet-preview-mode .tablet-frame::before {
-        content: '';
-        position: absolute;
-        top: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 8px;
-        height: 8px;
-        background: #3a3a3a;
-        border-radius: 50%;
-        z-index: 10;
-      }
-      body.tablet-preview-mode .tablet-frame-content {
-        height: 100%;
-        overflow-y: auto;
-        padding-top: 30px;
-      }
-      body.tablet-preview-mode .sidebar-ad { display: none !important; }
-      body.tablet-preview-mode .page-layout { display: block !important; padding: 16px; }
+    .switch input:checked + .slider { background:var(--primary); }
+    .switch input:checked + .slider:before { transform:translateX(20px); }
 </style>
 </head>
 <body>
@@ -913,10 +775,20 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
   <div class="modal" id="previewModal">
     <div class="modal-box" style="max-width:900px;height:85vh;">
       <div class="modal-header">
-        <h3>页面预览</h3>
+        <div class="preview-header-left">
+          <h3>页面预览</h3>
+          <div class="preview-device-switch">
+            <button class="btn btn-secondary preview-device-btn" id="previewDeviceDesktopBtn" onclick="setPreviewDevice('desktop')">桌面</button>
+            <button class="btn btn-secondary preview-device-btn" id="previewDeviceMobileBtn" onclick="setPreviewDevice('mobile')">手机</button>
+          </div>
+        </div>
         <button class="modal-close" onclick="closePreview()">×</button>
       </div>
-      <iframe id="previewFrame" style="width:100%;height:calc(100% - 60px);border:none;border-radius:12px;background:#fff;"></iframe>
+      <div class="preview-stage" id="previewStage">
+        <div class="preview-viewport" id="previewViewport">
+          <iframe id="previewFrame" style="width:100%;height:100%;border:none;background:#fff;"></iframe>
+        </div>
+      </div>
     </div>
   </div>
   
@@ -990,280 +862,21 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     .modal-header h3 { font-size:16px; font-weight:600; }
     .modal-close { width:32px; height:32px; border:none; background:var(--bg); border-radius:8px; cursor:pointer; font-size:18px; color:var(--text2); transition:all .2s; }
     .modal-close:hover { background:var(--primary); color:#fff; }
-    
+
+    #previewModal .modal-box { display:flex; flex-direction:column; }
+    #previewModal .preview-header-left { display:flex; align-items:center; gap:12px; min-width:0; }
+    #previewModal .preview-device-switch { display:flex; gap:8px; }
+    #previewModal .preview-device-btn { padding:8px 12px; font-size:12px; border-radius:10px; }
+    #previewModal .preview-stage { flex:1; min-height:0; display:flex; justify-content:center; }
+    #previewModal .preview-viewport { width:100%; height:100%; border-radius:12px; overflow:hidden; background:#fff; }
+    #previewModal[data-device="mobile"] .preview-viewport { width:390px; max-width:100%; border:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,.15); }
+
     .poster-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; }
     .poster-item { cursor:pointer; border:3px solid transparent; border-radius:16px; overflow:hidden; transition:all .2s; }
     .poster-item:hover { transform:translateY(-4px); box-shadow:0 8px 24px rgba(0,0,0,.12); }
     .poster-item.selected { border-color:var(--primary); }
-    
-    .group-chip { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; background:var(--bg); border-radius:8px; font-size:12px; }
-    .group-chip .del { cursor:pointer; opacity:.5; }
-    .group-chip .del:hover { opacity:1; color:#ef4444; }
-    
-    @media(max-width:640px) {
-      .form-grid { grid-template-columns:1fr; }
-      .form-grid.three { grid-template-columns:1fr; }
-      .poster-grid { grid-template-columns:1fr 1fr; }
-    }
-    
-    /* ==================== 移动端优化 ==================== */
+
     @media (max-width: 768px) {
-      body { padding: 12px; }
-      .container { padding: 0; }
-      
-      /* 头部优化 */
-      .header { margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-      .header h1 { font-size: 18px; }
-      .header-actions { gap: 6px; }
-      .icon-btn { 
-        width: 44px; 
-        height: 44px; 
-        font-size: 18px;
-        /* 增大触摸区域 */
-        -webkit-tap-highlight-color: transparent;
-      }
-      
-      /* Tab优化 - 增大点击区域 */
-      .tabs { 
-        padding: 4px; 
-        border-radius: 12px; 
-        margin-bottom: 16px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-      }
-      .tabs::-webkit-scrollbar { display: none; }
-      .tab { 
-        padding: 14px 12px; 
-        font-size: 13px; 
-        white-space: nowrap;
-        min-width: 60px;
-        border-radius: 8px;
-        -webkit-tap-highlight-color: transparent;
-      }
-      
-      /* 面板优化 */
-      .panel { padding: 16px; border-radius: 12px; }
-      
-      /* 表单优化 - 增大输入区域 */
-      .form-group label { font-size: 13px; margin-bottom: 4px; }
-      .form-group input, 
-      .form-group select, 
-      .form-group textarea { 
-        padding: 14px 16px; 
-        font-size: 16px; /* 防止iOS缩放 */
-        border-radius: 12px;
-        min-height: 48px;
-        -webkit-appearance: none;
-        appearance: none;
-      }
-      .form-group select {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 14px center;
-        padding-right: 36px;
-      }
-      .form-group textarea { 
-        min-height: 100px; 
-        line-height: 1.5;
-      }
-      
-      /* 按钮优化 - 增大点击区域 */
-      .btn { 
-        padding: 14px 20px; 
-        font-size: 15px; 
-        border-radius: 12px;
-        min-height: 48px;
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
-      }
-      .btn-sm { 
-        padding: 12px 16px; 
-        font-size: 14px;
-        min-height: 44px;
-      }
-      .btn-group { 
-        flex-direction: column; 
-        gap: 10px; 
-        margin-top: 16px;
-      }
-      .btn-group .btn { width: 100%; }
-      
-      /* 上传区域优化 */
-      .upload-zone { 
-        padding: 40px 20px; 
-        border-radius: 16px;
-        min-height: 160px;
-      }
-      .upload-zone .icon { font-size: 40px; }
-      .upload-zone .text { font-size: 15px; }
-      
-      /* 开关优化 - 增大触摸区域 */
-      .switch { 
-        width: 52px; 
-        height: 28px;
-        -webkit-tap-highlight-color: transparent;
-      }
-      .switch .slider:before { 
-        height: 22px; 
-        width: 22px; 
-        left: 3px; 
-        bottom: 3px; 
-      }
-      .switch input:checked + .slider:before { transform: translateX(24px); }
-      
-      /* 结果卡片优化 */
-      .result-card { 
-        flex-direction: column; 
-        align-items: flex-start; 
-        gap: 12px; 
-        padding: 16px;
-      }
-      .result-card .qr { 
-        width: 80px; 
-        height: 80px; 
-        align-self: center;
-        margin-bottom: 8px;
-      }
-      .result-card .info { width: 100%; }
-      .result-card .name { font-size: 15px; flex-wrap: wrap; }
-      .result-card .link { 
-        font-size: 12px; 
-        word-break: break-all;
-        padding: 8px;
-        background: var(--bg);
-        border-radius: 8px;
-        margin-top: 8px;
-      }
-      .result-card .actions { 
-        width: 100%; 
-        justify-content: stretch;
-        gap: 8px;
-        margin-top: 8px;
-      }
-      .result-card .actions .btn { flex: 1; }
-      
-      /* 历史卡片优化 */
-      .history-card { 
-        flex-direction: column; 
-        align-items: flex-start; 
-        gap: 12px;
-        padding: 16px;
-      }
-      .history-card .icon { 
-        width: 48px; 
-        height: 48px; 
-      }
-      .history-card .info { width: 100%; }
-      .history-card .name { font-size: 15px; }
-      .history-card .link { 
-        font-size: 12px;
-        padding: 8px;
-        background: var(--bg);
-        border-radius: 8px;
-        margin-top: 8px;
-      }
-      .history-card .actions { 
-        width: 100%; 
-        display: flex;
-        gap: 8px;
-        margin-top: 8px;
-      }
-      .history-card .actions .btn { flex: 1; }
-      
-      /* 历史记录筛选优化 */
-      #panel-history > div:first-child {
-        flex-direction: column;
-        gap: 8px;
-      }
-      #panel-history > div:first-child input,
-      #panel-history > div:first-child select {
-        width: 100%;
-        min-width: unset;
-        padding: 14px 16px;
-        font-size: 16px;
-        min-height: 48px;
-      }
-      #panel-history > div:first-child .btn {
-        flex: 1;
-        min-width: calc(50% - 4px);
-      }
-      
-      /* 弹窗优化 */
-      .modal { padding: 12px; align-items: flex-end; }
-      .modal-box { 
-        border-radius: 20px 20px 0 0; 
-        padding: 20px 16px 32px;
-        max-height: 90vh;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      .modal-header { margin-bottom: 16px; }
-      .modal-header h3 { font-size: 18px; }
-      .modal-close { 
-        width: 40px; 
-        height: 40px; 
-        font-size: 22px;
-      }
-      
-      /* 二维码弹窗优化 */
-      #qrModal .modal-box { max-width: 100%; }
-      #modalQr { padding: 16px; }
-      #qrModal .modal-box > div:last-child {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-      }
-      #qrModal .modal-box > div:last-child .btn {
-        padding: 12px 8px;
-        font-size: 13px;
-      }
-      
-      /* 海报弹窗优化 */
-      #posterModal .modal-box { max-width: 100%; }
-      .poster-grid { 
-        grid-template-columns: 1fr; 
-        gap: 12px;
-        max-height: 50vh;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      .poster-item { border-width: 2px; }
-      
-      /* 预览弹窗优化 */
-      #previewModal .modal-box { 
-        height: 80vh; 
-        max-width: 100%;
-      }
-      #previewFrame { 
-        height: calc(100% - 50px); 
-        border-radius: 8px;
-      }
-      
-      /* 设置页面优化 */
-      #panel-settings .form-grid.three { grid-template-columns: 1fr 1fr; }
-      #panel-settings input[type="color"] { 
-        height: 48px; 
-        padding: 6px;
-        border-radius: 12px;
-      }
-      
-      /* 分组标签优化 */
-      .group-chip { 
-        padding: 10px 14px; 
-        font-size: 14px;
-        border-radius: 10px;
-      }
-      .group-chip .del { 
-        font-size: 18px; 
-        padding: 4px;
-        margin-left: 4px;
-      }
-      
-      /* 广告设置区域优化 */
-      .form-group.full > div[style*="padding:16px"] {
-        padding: 14px !important;
-      }
       .form-group.full > div[style*="padding:16px"] > div[style*="grid-template-columns"] {
         grid-template-columns: 1fr !important;
         gap: 12px !important;
@@ -1298,7 +911,12 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       .tab { padding: 12px 8px; font-size: 12px; min-width: 50px; }
       .panel { padding: 14px; }
       .btn { padding: 12px 16px; font-size: 14px; }
-      .result-card .qr { width: 70px; height: 70px; }
+      .result-card .qr { 
+        width: 70px; 
+        height: 70px; 
+        align-self: center;
+        margin-bottom: 8px;
+      }
       .poster-grid { grid-template-columns: 1fr; }
     }
     
@@ -1333,7 +951,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       aliyun: { name: '阿里云盘', keywords: ['aliyundrive.com', 'alipan.com'], logo: 'https://img.alicdn.com/imgextra/i1/O1CN01JDQCi21Hp8ASbOY1a_!!6000000000806-2-tps-512-512.png', color: '#ff6a00' },
       xunlei: { name: '迅雷云盘', keywords: ['pan.xunlei.com'], logo: 'https://pan.xunlei.com/favicon.ico', color: '#0078d4' },
       '115': { name: '115网盘', keywords: ['115.com'], logo: 'https://115.com/favicon.ico', color: '#2b579a' },
-      lanzou: { name: '蓝奏云', keywords: ['lanzou', 'lanzoui', 'lanzoux'], logo: 'https://www.lanzou.com/favicon.ico', color: '#0099ff' },
+      lanzou: { name: '蓝奏云', keywords: ['lanzou', 'lanzoui', 'lanzoux', 'lanzouv', 'lanzouy'], logo: 'https://www.lanzou.com/favicon.ico', color: '#0099ff' },
       tianyi: { name: '天翼云盘', keywords: ['cloud.189.cn', 'e.189.cn'], logo: 'https://cloud.189.cn/favicon.ico', color: '#21a9e1' },
       default: { name: '资源分享', keywords: [], logo: '', color: '#6366f1' }
     };
@@ -3001,10 +2619,47 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       const link = generateLink(url, name, code, '');
       
       document.getElementById('previewFrame').src = link;
+      setPreviewDevice(localStorage.getItem('previewDeviceMode') || 'desktop');
       document.getElementById('previewModal').classList.add('show');
     }
 
     function closePreview() { document.getElementById('previewModal').classList.remove('show'); }
+
+    function setPreviewDevice(deviceType) {
+      const previewModalElement = document.getElementById('previewModal');
+      if (!previewModalElement) return;
+
+      const normalizedDeviceType = deviceType === 'mobile' ? 'mobile' : 'desktop';
+      previewModalElement.setAttribute('data-device', normalizedDeviceType);
+      localStorage.setItem('previewDeviceMode', normalizedDeviceType);
+
+      const previewDeviceDesktopBtnElement = document.getElementById('previewDeviceDesktopBtn');
+      const previewDeviceMobileBtnElement = document.getElementById('previewDeviceMobileBtn');
+      if (!previewDeviceDesktopBtnElement || !previewDeviceMobileBtnElement) return;
+
+      const isDesktop = normalizedDeviceType === 'desktop';
+      previewDeviceDesktopBtnElement.classList.toggle('btn-primary', isDesktop);
+      previewDeviceDesktopBtnElement.classList.toggle('btn-secondary', !isDesktop);
+      previewDeviceMobileBtnElement.classList.toggle('btn-primary', !isDesktop);
+      previewDeviceMobileBtnElement.classList.toggle('btn-secondary', isDesktop);
+
+      const previewFrameElement = document.getElementById('previewFrame');
+      if (!previewFrameElement || !previewFrameElement.src) return;
+
+      try {
+        const previewFrameUrl = new URL(previewFrameElement.src);
+        if (normalizedDeviceType === 'mobile') {
+          previewFrameUrl.searchParams.set('previewDevice', 'mobile');
+        } else {
+          previewFrameUrl.searchParams.set('previewDevice', 'desktop');
+        }
+        if (previewFrameElement.src !== previewFrameUrl.toString()) {
+          previewFrameElement.src = previewFrameUrl.toString();
+        }
+      } catch (e) {
+        // 如果链接不是标准URL（极少见），则不处理
+      }
+    }
 
     // ==================== 批量导出二维码 ====================
     async function exportAllQR() {
@@ -3493,74 +3148,6 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       await ensureLib('html2canvas');
       if (typeof _origShowPosterModal === 'function') return _origShowPosterModal();
     };
-    </script>
-    
-    <!-- 设备预览切换器 -->
-    <div class="device-switcher" id="deviceSwitcher">
-      <button class="device-btn active" onclick="switchDevice('desktop')" title="桌面端">🖥️</button>
-      <button class="device-btn" onclick="switchDevice('tablet')" title="平板">📱</button>
-      <button class="device-btn" onclick="switchDevice('mobile')" title="手机">📲</button>
-    </div>
-    
-    <script>
-    let currentDevice = 'desktop';
-    let originalContent = null;
-    
-    function switchDevice(device) {
-      if (device === currentDevice) return;
-      
-      document.querySelectorAll('.device-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-      
-      const body = document.body;
-      const existingFrame = document.querySelector('.mobile-frame, .tablet-frame');
-      
-      body.classList.remove('mobile-preview-mode', 'tablet-preview-mode');
-      
-      if (existingFrame) {
-        const content = existingFrame.querySelector('.mobile-frame-content, .tablet-frame-content');
-        if (content && originalContent) {
-          while (content.firstChild) {
-            body.appendChild(content.firstChild);
-          }
-        }
-        existingFrame.remove();
-      }
-      
-      if (device === 'desktop') {
-        currentDevice = 'desktop';
-        return;
-      }
-      
-      if (!originalContent) {
-        originalContent = [];
-        const children = Array.from(body.children).filter(el => 
-          !el.classList.contains('device-switcher') && 
-          el.id !== 'deviceSwitcher'
-        );
-        children.forEach(child => originalContent.push(child));
-      }
-      
-      const frame = document.createElement('div');
-      frame.className = device === 'mobile' ? 'mobile-frame' : 'tablet-frame';
-      
-      const frameContent = document.createElement('div');
-      frameContent.className = device === 'mobile' ? 'mobile-frame-content' : 'tablet-frame-content';
-      
-      const children = Array.from(body.children).filter(el => 
-        !el.classList.contains('device-switcher') && 
-        el.id !== 'deviceSwitcher' &&
-        !el.classList.contains('mobile-frame') &&
-        !el.classList.contains('tablet-frame')
-      );
-      
-      children.forEach(child => frameContent.appendChild(child));
-      frame.appendChild(frameContent);
-      body.insertBefore(frame, body.firstChild);
-      
-      body.classList.add(device === 'mobile' ? 'mobile-preview-mode' : 'tablet-preview-mode');
-      currentDevice = device;
-    }
     </script>
 </body>
 </html>
