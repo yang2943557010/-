@@ -269,8 +269,146 @@
     .switch input { opacity:0; width:0; height:0; }
     .switch .slider { position:absolute; cursor:pointer; inset:0; background:var(--border); transition:.3s; border-radius:24px; }
     .switch .slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px; background:#fff; transition:.3s; border-radius:50%; box-shadow:0 2px 4px rgba(0,0,0,.1); }
-    .switch input:checked + .slider { background:var(--primary); }
-    .switch input:checked + .slider:before { transform:translateX(20px); }
+.switch input:checked + .slider { background:var(--primary); }
+      .switch input:checked + .slider:before { transform:translateX(20px); }
+      
+      /* 移动端预览切换器 */
+      .device-switcher {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        display: flex;
+        gap: 6px;
+        background: var(--card);
+        padding: 8px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        border: 1px solid var(--border);
+      }
+      .device-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        cursor: pointer;
+        font-size: 18px;
+        color: var(--text2);
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .device-btn:hover { background: var(--bg); }
+      .device-btn.active { background: var(--primary); color: #fff; }
+      .device-btn[title]:hover::after {
+        content: attr(title);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 4px 8px;
+        background: var(--text);
+        color: var(--bg);
+        font-size: 11px;
+        border-radius: 4px;
+        white-space: nowrap;
+        margin-bottom: 6px;
+      }
+      
+      /* 移动端预览模式 */
+      body.mobile-preview-mode {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        background: #1a1a2e;
+        min-height: 100vh;
+        padding: 20px;
+      }
+      body.mobile-preview-mode .mobile-frame {
+        width: 375px;
+        min-height: 667px;
+        background: var(--bg);
+        border-radius: 40px;
+        box-shadow: 0 0 0 12px #1f1f1f, 0 0 0 14px #3a3a3a, 0 20px 60px rgba(0,0,0,0.5);
+        overflow: hidden;
+        position: relative;
+      }
+      body.mobile-preview-mode .mobile-frame::before {
+        content: '';
+        position: absolute;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 24px;
+        background: #1f1f1f;
+        border-radius: 12px;
+        z-index: 10;
+      }
+      body.mobile-preview-mode .mobile-frame-content {
+        height: 100%;
+        overflow-y: auto;
+        padding-top: 48px;
+      }
+      body.mobile-preview-mode .page-layout,
+      body.mobile-preview-mode .sidebar-ad {
+        display: none !important;
+      }
+      body.mobile-preview-mode .main-content {
+        display: block !important;
+        padding: 16px;
+      }
+      body.mobile-preview-mode .device-switcher {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+      }
+      body.mobile-preview-mode .header { flex-direction: column; gap: 12px; align-items: flex-start; }
+      body.mobile-preview-mode .header h1 { font-size: 18px; }
+      body.mobile-preview-mode .form-grid { grid-template-columns: 1fr; }
+      body.mobile-preview-mode .form-grid.three { grid-template-columns: 1fr; }
+      body.mobile-preview-mode .tabs { flex-wrap: wrap; }
+      body.mobile-preview-mode .tab { font-size: 12px; padding: 8px 10px; }
+      
+      /* 平板预览模式 */
+      body.tablet-preview-mode {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        background: #1a1a2e;
+        min-height: 100vh;
+        padding: 20px;
+      }
+      body.tablet-preview-mode .tablet-frame {
+        width: 768px;
+        min-height: 1024px;
+        background: var(--bg);
+        border-radius: 24px;
+        box-shadow: 0 0 0 10px #2a2a2a, 0 0 0 12px #3a3a3a, 0 20px 60px rgba(0,0,0,0.5);
+        overflow: hidden;
+        position: relative;
+      }
+      body.tablet-preview-mode .tablet-frame::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 8px;
+        background: #3a3a3a;
+        border-radius: 50%;
+        z-index: 10;
+      }
+      body.tablet-preview-mode .tablet-frame-content {
+        height: 100%;
+        overflow-y: auto;
+        padding-top: 30px;
+      }
+      body.tablet-preview-mode .sidebar-ad { display: none !important; }
+      body.tablet-preview-mode .page-layout { display: block !important; padding: 16px; }
 </style>
 </head>
 <body>
@@ -3355,6 +3493,74 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       await ensureLib('html2canvas');
       if (typeof _origShowPosterModal === 'function') return _origShowPosterModal();
     };
+    </script>
+    
+    <!-- 设备预览切换器 -->
+    <div class="device-switcher" id="deviceSwitcher">
+      <button class="device-btn active" onclick="switchDevice('desktop')" title="桌面端">🖥️</button>
+      <button class="device-btn" onclick="switchDevice('tablet')" title="平板">📱</button>
+      <button class="device-btn" onclick="switchDevice('mobile')" title="手机">📲</button>
+    </div>
+    
+    <script>
+    let currentDevice = 'desktop';
+    let originalContent = null;
+    
+    function switchDevice(device) {
+      if (device === currentDevice) return;
+      
+      document.querySelectorAll('.device-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      const body = document.body;
+      const existingFrame = document.querySelector('.mobile-frame, .tablet-frame');
+      
+      body.classList.remove('mobile-preview-mode', 'tablet-preview-mode');
+      
+      if (existingFrame) {
+        const content = existingFrame.querySelector('.mobile-frame-content, .tablet-frame-content');
+        if (content && originalContent) {
+          while (content.firstChild) {
+            body.appendChild(content.firstChild);
+          }
+        }
+        existingFrame.remove();
+      }
+      
+      if (device === 'desktop') {
+        currentDevice = 'desktop';
+        return;
+      }
+      
+      if (!originalContent) {
+        originalContent = [];
+        const children = Array.from(body.children).filter(el => 
+          !el.classList.contains('device-switcher') && 
+          el.id !== 'deviceSwitcher'
+        );
+        children.forEach(child => originalContent.push(child));
+      }
+      
+      const frame = document.createElement('div');
+      frame.className = device === 'mobile' ? 'mobile-frame' : 'tablet-frame';
+      
+      const frameContent = document.createElement('div');
+      frameContent.className = device === 'mobile' ? 'mobile-frame-content' : 'tablet-frame-content';
+      
+      const children = Array.from(body.children).filter(el => 
+        !el.classList.contains('device-switcher') && 
+        el.id !== 'deviceSwitcher' &&
+        !el.classList.contains('mobile-frame') &&
+        !el.classList.contains('tablet-frame')
+      );
+      
+      children.forEach(child => frameContent.appendChild(child));
+      frame.appendChild(frameContent);
+      body.insertBefore(frame, body.firstChild);
+      
+      body.classList.add(device === 'mobile' ? 'mobile-preview-mode' : 'tablet-preview-mode');
+      currentDevice = device;
+    }
     </script>
 </body>
 </html>
