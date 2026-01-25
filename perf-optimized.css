@@ -395,7 +395,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 72px;
+  width: 140px;
   height: 40px;
   padding: 0;
   border-radius: 14px;
@@ -406,13 +406,174 @@
 
  .ad-disk img {
   display: block;
-  width: 144px;
+  width: 130px;
   height: 40px;
   object-fit: cover;
   object-position: right center;
   transform: translateX(0);
   border-radius: 0;
  }
+
+/* 底部推广链接 */
+.promo-link {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+.promo-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.9);
+  text-decoration: none;
+  font-size: 13px;
+  padding: 12px 24px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 25px;
+  transition: all 0.3s;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.promo-link a:hover {
+  background: rgba(255,255,255,0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* 装饰元素 */
+.ad-decoration {
+  position: absolute;
+  pointer-events: none;
+}
+
+.ad-decoration.sparkle {
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.ad-decoration.sparkle:nth-child(1) { top: 20%; left: 15%; animation-delay: 0s; }
+.ad-decoration.sparkle:nth-child(2) { top: 30%; right: 20%; animation-delay: 0.5s; }
+.ad-decoration.sparkle:nth-child(3) { bottom: 25%; left: 25%; animation-delay: 1s; }
+.ad-decoration.sparkle:nth-child(4) { bottom: 35%; right: 15%; animation-delay: 1.5s; }
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+/* 分享页底部推广 */
+.page-promo {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.page-promo-text {
+  color: rgba(255,255,255,0.9);
+  font-size: 13px;
+}
+
+.page-promo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  color: #764ba2;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 20px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.page-promo-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+/* 错误页推广 */
+.error-promo {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.error-promo-text {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+
+.error-promo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 24px;
+  border-radius: 10px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+}
+
+.error-promo-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102,126,234,0.4);
+}
+
+/* 卡片内推广 */
+.card-promo {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed #e5e7eb;
+  text-align: center;
+}
+
+.card-promo a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #6366f1;
+  text-decoration: none;
+  font-size: 12px;
+  padding: 6px 14px;
+  background: #f0f0ff;
+  border-radius: 16px;
+  transition: all 0.2s;
+}
+
+.card-promo a:hover {
+  background: #e0e0ff;
+}
+
+@media (max-width: 1000px) {
+  .page-promo {
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 16px;
+  }
+  
+  .page-promo-text {
+    font-size: 12px;
+  }
+}
+
 
 /* 广告弹窗移动端优化 */
 @media (max-width: 768px) {
@@ -475,7 +636,7 @@
   }
 
   .ad-disk {
-    width: 72px;
+    width: 140px;
     height: 40px;
     border-radius: 16px;
     background: #f8fafc;
@@ -483,7 +644,7 @@
   }
 
   .ad-disk img {
-    width: 144px;
+    width: 130px;
     height: 40px;
     transform: translateX(0);
     object-position: right center;
