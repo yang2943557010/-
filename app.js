@@ -1081,12 +1081,12 @@ function loadWxArticles(wxIds) {
           } else {
             renderMultiItemFallback(list.children[i], url);
           }
-          // 用第一篇更新顶部账号
-          if (i === 0 && data.account) {
+          // 用第一篇更新顶部账号（固定显示"更多资源"，不用 Worker 返回的账号名覆盖）
+          if (i === 0) {
             const bar = document.getElementById('wxAccountBar');
             if (bar) {
-              bar.querySelector('.wx-account-avatar').textContent = data.account.charAt(0);
-              bar.querySelector('.wx-account-name').textContent = data.account;
+              bar.querySelector('.wx-account-avatar').textContent = '更';
+              bar.querySelector('.wx-account-name').textContent = '更多资源';
             }
           }
         });
@@ -1198,17 +1198,10 @@ function renderArticleInto(card, data) {
   bar.className = 'wx-account-bar';
   const avatar = document.createElement('div');
   avatar.className = 'wx-account-avatar';
-  if (data.accountAvatar) {
-    const img = document.createElement('img');
-    img.src = data.accountAvatar;
-    img.referrerPolicy = 'no-referrer';
-    avatar.appendChild(img);
-  } else {
-    avatar.textContent = (data.account || '公').charAt(0);
-  }
+  avatar.textContent = '更';
   const name = document.createElement('span');
   name.className = 'wx-account-name';
-  name.textContent = data.account || '更多资源';
+  name.textContent = '更多资源';
   const follow = document.createElement('span');
   follow.className = 'wx-follow-btn';
   follow.textContent = '+ 关注';
