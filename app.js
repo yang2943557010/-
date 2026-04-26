@@ -123,127 +123,127 @@ const DISK_CONFIG = {
   baidu: {
     name: '百度网盘',
     keywords: ['pan.baidu.com', 'yun.baidu.com'],
-    logo: 'https://testlink11.oss-cn-beijing.aliyuncs.com/baidu-logo.png',
-    guide: 'https://testlink11.oss-cn-beijing.aliyuncs.com/baidu-guide.png',
+    logo: 'assets/logos/baidu.png',
+    guide: 'assets/images/guides/baidu-guide.png',
     appName: '百度网盘APP',
     color: '#06a7ff'
   },
   quark: {
     name: '夸克网盘',
     keywords: ['pan.quark.cn', 'quark.cn'],
-    logo: 'https://testlink11.oss-cn-beijing.aliyuncs.com/quark-logo.png',
-    guide: 'https://testlink11.oss-cn-beijing.aliyuncs.com/quark-guide.png',
+    logo: 'assets/logos/quark.png',
+    guide: 'assets/images/guides/quark-guide.png',
     appName: '夸克APP',
     color: '#1890ff'
   },
   aliyun: {
     name: '阿里云盘',
     keywords: ['aliyundrive.com', 'alipan.com'],
-    logo: 'https://img.alicdn.com/imgextra/i1/O1CN01JDQCi21Hp8ASbOY1a_!!6000000000806-2-tps-512-512.png',
-    guide: '',
+    logo: 'assets/logos/aliyun.ico',
+    guide: 'assets/images/guides/aliyun-guide.svg',
     appName: '阿里云盘APP',
     color: '#ff6a00'
   },
   xunlei: {
     name: '迅雷云盘',
     keywords: ['pan.xunlei.com', 'xl.xunlei.com'],
-    logo: 'https://pan.xunlei.com/favicon.ico',
-    guide: '',
+    logo: 'assets/logos/xunlei.ico',
+    guide: 'assets/images/guides/xunlei-guide.svg',
     appName: '迅雷APP',
     color: '#0078d4'
   },
   '115': {
     name: '115网盘',
     keywords: ['115.com', '115cdn.com'],
-    logo: 'https://115.com/favicon.ico',
-    guide: '',
+    logo: 'assets/logos/115.ico',
+    guide: 'assets/images/guides/115-guide.svg',
     appName: '115APP',
     color: '#2b579a'
   },
   lanzou: {
     name: '蓝奏云',
     keywords: ['lanzou', 'lanzoui', 'lanzoux', 'lanzoucloud'],
-    logo: 'https://www.lanzou.com/favicon.ico',
-    guide: '',
+    logo: 'assets/logos/lanzou.ico',
+    guide: 'assets/images/guides/lanzou-guide.svg',
     appName: '手机浏览器',
     color: '#0099ff'
   },
   tianyi: {
     name: '天翼云盘',
     keywords: ['cloud.189.cn', 'e.189.cn', 'b.189.cn'],
-    logo: 'https://cloud.189.cn/favicon.ico',
-    guide: '',
+    logo: 'assets/logos/tianyi.ico',
+    guide: 'assets/images/guides/tianyi-guide.svg',
     appName: '天翼云盘APP',
     color: '#21a9e1'
   },
   weiyun: {
     name: '腾讯微云',
     keywords: ['weiyun.com', 'share.weiyun.com'],
-    logo: 'https://www.weiyun.com/favicon.ico',
-    guide: '',
+    logo: 'assets/logos/weiyun.ico',
+    guide: 'assets/images/guides/weiyun-guide.svg',
     appName: '微云APP',
     color: '#07c160'
   },
   jianguoyun: {
     name: '坚果云',
     keywords: ['jianguoyun.com', 'nutstore.net'],
-    logo: 'https://www.jianguoyun.com/favicon.ico',
-    guide: '',
+    logo: 'assets/logos/jianguoyun.ico',
+    guide: 'assets/images/guides/jianguoyun-guide.svg',
     appName: '坚果云APP',
     color: '#f5a623'
   },
   caiyun: {
     name: '中国移动云盘',
     keywords: ['caiyun.139.com', 'yun.139.com', '139.com/w'],
-    logo: 'https://caiyun.139.com/favicon.ico',
-    guide: '',
+    logo: 'assets/logos/caiyun.ico',
+    guide: 'assets/images/guides/caiyun-guide.svg',
     appName: '中国移动云盘APP',
     color: '#00a0e9'
   },
   wocloud: {
     name: '联通云盘',
     keywords: ['pan.wo.cn', 'cloud.wo.cn', 'wo.cn/pan'],
-    logo: 'https://pan.wo.cn/favicon.ico',
-    guide: '',
+    logo: 'assets/logos/wocloud.ico',
+    guide: 'assets/images/guides/wocloud-guide.svg',
     appName: '联通云盘APP',
     color: '#e60012'
   },
   ctyun: {
     name: '天翼企业云盘',
     keywords: ['ctyun.cn', 'oos.ctyun.cn'],
-    logo: 'https://www.ctyun.cn/favicon.ico',
-    guide: '',
+    logo: 'assets/logos/tianyi.ico',
+    guide: 'assets/images/guides/tianyi-guide.svg',
     appName: '手机浏览器',
     color: '#0066cc'
   },
   uc: {
     name: 'UC网盘',
     keywords: ['drive.uc.cn', 'uc.cn/pan'],
-    logo: 'https://drive.uc.cn/favicon.ico',
-    guide: '',
+    logo: 'assets/logos/uc.ico',
+    guide: 'assets/images/guides/uc-guide.svg',
     appName: 'UC浏览器',
     color: '#ff6600'
   },
   pikpak: {
     name: 'PikPak',
     keywords: ['mypikpak.com', 'pikpak.com'],
-    logo: 'https://mypikpak.com/favicon.ico',
-    guide: '',
+    logo: 'assets/logos/pikpak.ico',
+    guide: 'assets/images/guides/pikpak-guide.svg',
     appName: 'PikPak APP',
     color: '#7c3aed'
   },
   '123pan': {
     name: '123云盘',
     keywords: ['123pan.com', '123684.com', '123865.com'],
-    logo: 'https://www.123pan.com/favicon.ico',
-    guide: '',
+    logo: 'assets/logos/123pan.ico',
+    guide: 'assets/images/guides/123pan-guide.svg',
     appName: '123云盘APP',
     color: '#ff4d4f'
   },
   ctfile: {
     name: '城通网盘',
     keywords: ['ctfile.com', 'u.ctfile.com'],
-    logo: 'https://ctfile.com/favicon.ico',
+    logo: 'assets/logos/ctfile.ico',
     guide: '',
     appName: '手机浏览器',
     color: '#1677ff'
@@ -251,7 +251,7 @@ const DISK_CONFIG = {
   feijipan: {
     name: '飞机盘',
     keywords: ['feijipan.com'],
-    logo: 'https://www.feijipan.com/favicon.ico',
+    logo: '',
     guide: '',
     appName: '手机浏览器',
     color: '#1890ff'
@@ -259,7 +259,7 @@ const DISK_CONFIG = {
   kuaizipan: {
     name: '快资盘',
     keywords: ['kuaizipan.com'],
-    logo: 'https://www.kuaizipan.com/favicon.ico',
+    logo: '',
     guide: '',
     appName: '手机浏览器',
     color: '#ff7a00'
@@ -268,39 +268,39 @@ const DISK_CONFIG = {
   onedrive: {
     name: 'OneDrive',
     keywords: ['onedrive.live.com', '1drv.ms', 'sharepoint.com'],
-    logo: 'https://res.cdn.office.net/files/fabric-cdn-prod_20230815.002/assets/brand-icons/product/svg/onedrive_48x1.svg',
-    guide: '',
+    logo: 'assets/logos/onedrive.png',
+    guide: 'assets/images/guides/onedrive-guide.svg',
     appName: 'OneDrive APP',
     color: '#0078d4'
   },
   googledrive: {
     name: 'Google Drive',
     keywords: ['drive.google.com', 'docs.google.com', 'photos.google.com'],
-    logo: 'https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_48dp.png',
-    guide: '',
+    logo: 'assets/logos/googledrive.png',
+    guide: 'assets/images/guides/googledrive-guide.svg',
     appName: 'Google Drive APP',
     color: '#4285f4'
   },
   dropbox: {
     name: 'Dropbox',
     keywords: ['dropbox.com', 'db.tt'],
-    logo: 'https://cfl.dropboxstatic.com/static/images/favicon-vfl8lUR9B.ico',
-    guide: '',
+    logo: 'assets/logos/dropbox.ico',
+    guide: 'assets/images/guides/dropbox-guide.svg',
     appName: 'Dropbox APP',
     color: '#0061ff'
   },
   mega: {
     name: 'MEGA',
     keywords: ['mega.nz', 'mega.co.nz'],
-    logo: 'https://mega.nz/favicon.ico',
-    guide: '',
+    logo: 'assets/logos/mega.ico',
+    guide: 'assets/images/guides/mega-guide.svg',
     appName: 'MEGA APP',
     color: '#d9272e'
   },
   mediafire: {
     name: 'MediaFire',
     keywords: ['mediafire.com'],
-    logo: 'https://www.mediafire.com/favicon.ico',
+    logo: 'assets/logos/mediafire.ico',
     guide: '',
     appName: '手机浏览器',
     color: '#1d6fa4'
@@ -308,7 +308,7 @@ const DISK_CONFIG = {
   box: {
     name: 'Box',
     keywords: ['box.com', 'app.box.com'],
-    logo: 'https://www.box.com/favicon.ico',
+    logo: 'assets/logos/box.ico',
     guide: '',
     appName: 'Box APP',
     color: '#0061d5'
@@ -316,7 +316,7 @@ const DISK_CONFIG = {
   icloud: {
     name: 'iCloud',
     keywords: ['icloud.com'],
-    logo: 'https://www.icloud.com/favicon.ico',
+    logo: 'assets/logos/icloud.ico',
     guide: '',
     appName: '手机浏览器',
     color: '#3478f6'
@@ -324,7 +324,7 @@ const DISK_CONFIG = {
   pcloud: {
     name: 'pCloud',
     keywords: ['pcloud.com', 'u.pcloud.com'],
-    logo: 'https://www.pcloud.com/favicon.ico',
+    logo: 'assets/logos/pcloud.ico',
     guide: '',
     appName: '手机浏览器',
     color: '#20b2aa'

@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>123云盘</title>
+    <meta name="description" content="123云盘，安全高速的云存储与分享服务，支持多端同步与大文件传输。">
+    <meta name="keywords" content="123云盘,网盘,文件分享,备份,同步">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="white">
+    <meta name="baidu-site-verification" content="codeva-jYX8FmAmMu" />
+
+    <!-- 配置元数据 -->
+    <meta name="script-src" content="https://statics.123pan.com/static">
+    <meta name="umeng-app-key" content="canaryB">
+
+    <!-- PWA -->
+    <meta name="theme-color" content="#2A82E4">
+    <meta name="apple-mobile-web-app-title" content="123云盘">
+    <meta name="application-name" content="123云盘">
+    <meta name="msapplication-TileColor" content="#2A82E4">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+
+    <!-- PWA -->
+    <link rel="manifest" href="/sw/manifest.json">
+
+    <!-- 图标链接 -->
+    <link rel="shortcut icon" type="image/x-icon" href="https://statics.123pan.com/static/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="192x192" href="https://statics.123pan.com/static/pwa-icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://statics.123pan.com/static/pwa-icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://statics.123pan.com/static/pwa-icon-512.png">
+    <link rel="stylesheet" href="https://statics.123pan.com/static/css/inline-styles.css">
+
+    <script src="//static.mediav.com/js/ssp_ad_sdk.js"></script>
+    <!-- 关键脚本 - 需要同步加载 -->
+    <script>
+      window.AliyunCaptchaConfig = {
+        region: "cn",
+        prefix: "1gkapk",
+      };
+    </script>
+    <script
+            type="text/javascript"
+            src="https://o.alicdn.com/captcha-frontend/aliyunCaptcha/AliyunCaptcha.js"
+    ></script>
+    <script src="https://statics.123pan.com/static-by-custom/utils-prod/getLogin.js"></script>
+
+    <!-- 浏览器检测 - 需要尽早执行 -->
+    <script src="https://statics.123pan.com/static/js/browser-check.js" defer></script>
+
+    <!-- Title监听 -->
+    <script src="https://statics.123pan.com/static/js/title-observer.js" defer></script>
+
+    <style id="antd-styles"></style>
+<link href="https://statics.123pan.com/dist/vendors-28783526.0412d6ec9033b262b5fb.1777030661.css" rel="stylesheet"><link href="https://statics.123pan.com/dist/app-43dd7041.99e03e88fc63a8a0c84c.1777030661.css" rel="stylesheet"><link href="https://statics.123pan.com/dist/app-7bd12dde.99240d80391bc379bac9.1777030661.css" rel="stylesheet"></head>
+
+<body class="mfy-antd">
+<div id="app"></div>
+
+<!-- 滑块验证UI -->
+<div id="sliderMask" style="width: 100%;height: 100vh;z-index: 9999;overflow: hidden;display: none;flex-direction: row;align-items: center;justify-content: center;position:fixed;left: 0;top:0;background: #ccc;opacity: 0.3;"></div>
+<div id="sliderSpan"
+     style="background: #fff;width: 352px;height: 348px;position:fixed;left:50%;top:50%;transform: translate(-50%, -50%);display: none;flex-direction: column;z-index:9999991;padding: 24px;box-shadow: 0px 4px 60px 0px rgba(0,0,0,0.1);border-radius: 20px 20px 20px 20px;">
+    <div style="display: flex;flex-direction: row;align-items: center;justify-content: space-between">
+        <span style="font-family: Microsoft YaHei UI, Microsoft YaHei UI;font-weight: bold;font-size: 18px;color: #1B1F35;line-height: 26px;">滑块验证</span>
+        <div id="sliderSpanClose">
+            <svg class="icon" aria-hidden="true" style="font-size: 16px;color: #1B1F35;cursor: pointer">
+                <use xlink:href="#general_close_16_1"></use>
+            </svg>
+        </div>
+    </div>
+    <div style="display: flex;flex-direction: column;align-items: center;justify-content: center;margin-top: 20px;gap: 24px">
+        <div>
+            <img style="width: 352px;height: 218px" src="https://statics.123pan.com/static/slideraliv2.png" alt="">
+        </div>
+        <div id="nc"></div>
+    </div>
+</div>
+
+<script src="https://g.alicdn.com/jssdk/u-link/index.min.js" async></script>
+<!-- 图标字体 -->
+<script src="https://statics.123pan.com/static/iconfont/app.js" async></script>
+<script src="https://statics.123pan.com/static/iconfont/web.js" async></script>
+<script src="https://statics.123pan.com/static/iconfont/pc.js" async></script>
+<script src="https://statics.123pan.com/static/iconfont/pan_pc_ui_2025.js" async></script>
+
+<!-- 功能脚本 - 延迟加载 -->
+<script src="https://statics.123pan.com/static/js/slider-handler.js" defer></script>
+<script src="https://statics.123pan.com/static/js/service-worker-register.js" defer></script>
+<script src="https://statics.123pan.com/static/js/video-loader.js" defer></script>
+
+<!-- 初始化 -->
+<script>
+    window.slotbydup = window.slotbydup || []
+    window.aplus_queue = window.aplus_queue || []
+</script>
+
+<!-- 埋点脚本 - 首屏渲染后再加载，避免阻塞 -->
+<script>
+    // 等待首屏渲染完成后再加载埋点脚本
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => {
+        loadAnalytics()
+      }, { timeout: 3000 })
+    } else {
+      // 降级方案：等待 load 事件后 1 秒加载
+      window.addEventListener('load', () => {
+        setTimeout(loadAnalytics, 1000)
+      })
+    }
+
+    function loadAnalytics() {
+      const scripts = [
+    'https://statics.123pan.com/static/js/analytics.js',
+    'https://statics.123pan.com/static/js/aplus-config.js',
+  ]
+      scripts.forEach(src => {
+        const script = document.createElement('script')
+        script.src = src
+        script.async = true
+        document.body.appendChild(script)
+      })
+    }
+</script>
+<script defer src="https://statics.123pan.com/dist/runtime.7683112a971f5a453fc3.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/react.2d1cb29cea6ff0a3129b.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/vendors-bd447df2.3f1833831c88637a41c1.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/vendors-e7200ea8.f96a3098c2cb3711e203.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/vendors-6575d636.ea571b0b00fce4d52657.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/vendors-c30f4496.429cd01c10e966a5ad34.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/vendors-41e50878.9eaf67866cd14d55ffdc.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/vendors-eb977c6f.4d3e19abafb7b7591de3.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/vendors-72e1f408.15532cc59b67d7b72d58.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/vendors-5ba34dbf.57eeba18cc32775c733b.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/vendors-0d659241.cf7b70ad019c39ee2b05.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/vendors-4c3bcec0.3dee7bc5519e6571b2d6.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/vendors-9ebd23ae.4a984c7dec4d0e255b58.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/app-43dd7041.7898db03c57b016aa9f1.1777030661.js"></script><script defer src="https://statics.123pan.com/dist/app-7bd12dde.531fce95fb3a6bf88eae.1777030661.js"></script></body>
+
+</html>

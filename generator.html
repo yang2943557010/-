@@ -302,7 +302,7 @@
         <div class="ad-desc">首单免费在线打印<br>满1.9元包邮</div>
         <span class="ad-highlight">🔥 首单免费</span>
         <div class="ad-qr zoomable-qr" id="printAdQr" ondblclick="zoomQR(this, '打印拉新')">
-          <img src="print-qr.png" alt="刺猬云印小程序码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
+          <img src="assets/images/qrcodes/print-qr.png" alt="刺猬云印小程序码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
         </div>
        <div class="ad-tip">双击放大 · 扫码打印资源</div>
         <div class="ad-features">
@@ -720,7 +720,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         <div class="ad-title" style="font-size:14px;">微信号</div>
         <div style="background:var(--bg);padding:8px 12px;border-radius:8px;margin:8px 0;font-size:13px;font-weight:600;color:var(--primary);user-select:all;cursor:pointer;" onclick="copyWechatId()">cxks25180</div>
         <div class="ad-qr zoomable-qr" id="wechatQr" ondblclick="zoomQR(this, '微信二维码')">
-          <img src="wechat-qr.png" alt="微信二维码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
+          <img src="assets/images/qrcodes/wechat-qr.png" alt="微信二维码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
         </div>
         <div class="ad-tip">双击放大 · 扫码添加好友</div>
       </div>
@@ -731,7 +731,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         <div class="ad-title" style="font-size:14px;">感谢支持</div>
         <div class="ad-desc" style="font-size:11px;">如果觉得有用<br>请作者喝杯咖啡☕</div>
         <div class="ad-qr zoomable-qr" id="donateQr" ondblclick="zoomQR(this, '打赏二维码')">
-          <img src="donate-qr.png" alt="打赏二维码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
+          <img src="assets/images/qrcodes/donate-qr.png" alt="打赏二维码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
         </div>
         <div class="ad-tip">扫码打赏</div>
       </div>
@@ -947,31 +947,31 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     
     const DISK_CONFIG = {
       // ===== 国内主流网盘 =====
-      baidu: { name: '百度网盘', keywords: ['pan.baidu.com', 'yun.baidu.com'], logo: 'https://testlink11.oss-cn-beijing.aliyuncs.com/baidu-logo.png', color: '#06a7ff' },
-      quark: { name: '夸克网盘', keywords: ['pan.quark.cn', 'quark.cn'], logo: 'https://testlink11.oss-cn-beijing.aliyuncs.com/quark-logo.png', color: '#1890ff' },
-      aliyun: { name: '阿里云盘', keywords: ['aliyundrive.com', 'alipan.com'], logo: 'https://img.alicdn.com/imgextra/i1/O1CN01JDQCi21Hp8ASbOY1a_!!6000000000806-2-tps-512-512.png', color: '#ff6a00' },
-      xunlei: { name: '迅雷云盘', keywords: ['pan.xunlei.com', 'xl.xunlei.com'], logo: 'https://pan.xunlei.com/favicon.ico', color: '#0078d4' },
-      '115': { name: '115网盘', keywords: ['115.com', '115cdn.com'], logo: 'https://115.com/favicon.ico', color: '#2b579a' },
-      lanzou: { name: '蓝奏云', keywords: ['lanzou', 'lanzoui', 'lanzoux', 'lanzouv', 'lanzouy', 'lanzoucloud'], logo: 'https://www.lanzou.com/favicon.ico', color: '#0099ff' },
-      tianyi: { name: '天翼云盘', keywords: ['cloud.189.cn', 'e.189.cn', 'b.189.cn'], logo: 'https://cloud.189.cn/favicon.ico', color: '#21a9e1' },
-      weiyun: { name: '腾讯微云', keywords: ['weiyun.com', 'share.weiyun.com'], logo: 'https://www.weiyun.com/favicon.ico', color: '#07c160' },
-      jianguoyun: { name: '坚果云', keywords: ['jianguoyun.com', 'nutstore.net'], logo: 'https://www.jianguoyun.com/favicon.ico', color: '#f5a623' },
-      caiyun: { name: '中国移动云盘', keywords: ['caiyun.139.com', 'yun.139.com', '139.com/w'], logo: 'https://caiyun.139.com/favicon.ico', color: '#00a0e9' },
-      wocloud: { name: '联通云盘', keywords: ['pan.wo.cn', 'cloud.wo.cn', 'wo.cn/pan'], logo: 'https://pan.wo.cn/favicon.ico', color: '#e60012' },
-      uc: { name: 'UC网盘', keywords: ['drive.uc.cn', 'uc.cn/pan'], logo: 'https://drive.uc.cn/favicon.ico', color: '#ff6600' },
-      pikpak: { name: 'PikPak', keywords: ['mypikpak.com', 'pikpak.com'], logo: 'https://mypikpak.com/favicon.ico', color: '#7c3aed' },
-      '123pan': { name: '123云盘', keywords: ['123pan.com', '123684.com', '123865.com'], logo: 'https://www.123pan.com/favicon.ico', color: '#ff4d4f' },
-      ctfile: { name: '城通网盘', keywords: ['ctfile.com', 'u.ctfile.com'], logo: 'https://ctfile.com/favicon.ico', color: '#1677ff' },
-      feijipan: { name: '飞机盘', keywords: ['feijipan.com'], logo: 'https://www.feijipan.com/favicon.ico', color: '#1890ff' },
+      baidu: { name: '百度网盘', keywords: ['pan.baidu.com', 'yun.baidu.com'], logo: 'assets/logos/baidu.png', color: '#06a7ff' },
+      quark: { name: '夸克网盘', keywords: ['pan.quark.cn', 'quark.cn'], logo: 'assets/logos/quark.png', color: '#1890ff' },
+      aliyun: { name: '阿里云盘', keywords: ['aliyundrive.com', 'alipan.com'], logo: 'assets/logos/aliyun.ico', color: '#ff6a00' },
+      xunlei: { name: '迅雷云盘', keywords: ['pan.xunlei.com', 'xl.xunlei.com'], logo: 'assets/logos/xunlei.ico', color: '#0078d4' },
+      '115': { name: '115网盘', keywords: ['115.com', '115cdn.com'], logo: 'assets/logos/115.ico', color: '#2b579a' },
+      lanzou: { name: '蓝奏云', keywords: ['lanzou', 'lanzoui', 'lanzoux', 'lanzouv', 'lanzouy', 'lanzoucloud'], logo: 'assets/logos/lanzou.ico', color: '#0099ff' },
+      tianyi: { name: '天翼云盘', keywords: ['cloud.189.cn', 'e.189.cn', 'b.189.cn'], logo: 'assets/logos/tianyi.ico', color: '#21a9e1' },
+      weiyun: { name: '腾讯微云', keywords: ['weiyun.com', 'share.weiyun.com'], logo: 'assets/logos/weiyun.ico', color: '#07c160' },
+      jianguoyun: { name: '坚果云', keywords: ['jianguoyun.com', 'nutstore.net'], logo: 'assets/logos/jianguoyun.ico', color: '#f5a623' },
+      caiyun: { name: '中国移动云盘', keywords: ['caiyun.139.com', 'yun.139.com', '139.com/w'], logo: 'assets/logos/caiyun.ico', color: '#00a0e9' },
+      wocloud: { name: '联通云盘', keywords: ['pan.wo.cn', 'cloud.wo.cn', 'wo.cn/pan'], logo: 'assets/logos/wocloud.ico', color: '#e60012' },
+      uc: { name: 'UC网盘', keywords: ['drive.uc.cn', 'uc.cn/pan'], logo: 'assets/logos/uc.ico', color: '#ff6600' },
+      pikpak: { name: 'PikPak', keywords: ['mypikpak.com', 'pikpak.com'], logo: 'assets/logos/pikpak.ico', color: '#7c3aed' },
+      '123pan': { name: '123云盘', keywords: ['123pan.com', '123684.com', '123865.com'], logo: 'assets/logos/123pan.ico', color: '#ff4d4f' },
+      ctfile: { name: '城通网盘', keywords: ['ctfile.com', 'u.ctfile.com'], logo: 'assets/logos/ctfile.ico', color: '#1677ff' },
+      feijipan: { name: '飞机盘', keywords: ['feijipan.com'], logo: '', color: '#1890ff' },
       // ===== 国际主流网盘 =====
-      onedrive: { name: 'OneDrive', keywords: ['onedrive.live.com', '1drv.ms', 'sharepoint.com'], logo: 'https://res.cdn.office.net/files/fabric-cdn-prod_20230815.002/assets/brand-icons/product/svg/onedrive_48x1.svg', color: '#0078d4' },
-      googledrive: { name: 'Google Drive', keywords: ['drive.google.com', 'docs.google.com', 'photos.google.com'], logo: 'https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_48dp.png', color: '#4285f4' },
-      dropbox: { name: 'Dropbox', keywords: ['dropbox.com', 'db.tt'], logo: 'https://cfl.dropboxstatic.com/static/images/favicon-vfl8lUR9B.ico', color: '#0061ff' },
-      mega: { name: 'MEGA', keywords: ['mega.nz', 'mega.co.nz'], logo: 'https://mega.nz/favicon.ico', color: '#d9272e' },
-      mediafire: { name: 'MediaFire', keywords: ['mediafire.com'], logo: 'https://www.mediafire.com/favicon.ico', color: '#1d6fa4' },
-      box: { name: 'Box', keywords: ['box.com', 'app.box.com'], logo: 'https://www.box.com/favicon.ico', color: '#0061d5' },
-      icloud: { name: 'iCloud', keywords: ['icloud.com'], logo: 'https://www.icloud.com/favicon.ico', color: '#3478f6' },
-      pcloud: { name: 'pCloud', keywords: ['pcloud.com', 'u.pcloud.com'], logo: 'https://www.pcloud.com/favicon.ico', color: '#20b2aa' },
+      onedrive: { name: 'OneDrive', keywords: ['onedrive.live.com', '1drv.ms', 'sharepoint.com'], logo: 'assets/logos/onedrive.png', color: '#0078d4' },
+      googledrive: { name: 'Google Drive', keywords: ['drive.google.com', 'docs.google.com', 'photos.google.com'], logo: 'assets/logos/googledrive.png', color: '#4285f4' },
+      dropbox: { name: 'Dropbox', keywords: ['dropbox.com', 'db.tt'], logo: 'assets/logos/dropbox.ico', color: '#0061ff' },
+      mega: { name: 'MEGA', keywords: ['mega.nz', 'mega.co.nz'], logo: 'assets/logos/mega.ico', color: '#d9272e' },
+      mediafire: { name: 'MediaFire', keywords: ['mediafire.com'], logo: 'assets/logos/mediafire.ico', color: '#1d6fa4' },
+      box: { name: 'Box', keywords: ['box.com', 'app.box.com'], logo: 'assets/logos/box.ico', color: '#0061d5' },
+      icloud: { name: 'iCloud', keywords: ['icloud.com'], logo: 'assets/logos/icloud.ico', color: '#3478f6' },
+      pcloud: { name: 'pCloud', keywords: ['pcloud.com', 'u.pcloud.com'], logo: 'assets/logos/pcloud.ico', color: '#20b2aa' },
       default: { name: '资源分享', keywords: [], logo: '', color: '#6366f1' }
     };
 
