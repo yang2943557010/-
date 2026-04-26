@@ -119,6 +119,7 @@ const CryptoUtil = {
 // ==================== 网盘配置 ====================
 
 const DISK_CONFIG = {
+  // ===== 国内主流网盘 =====
   baidu: {
     name: '百度网盘',
     keywords: ['pan.baidu.com', 'yun.baidu.com'],
@@ -145,7 +146,7 @@ const DISK_CONFIG = {
   },
   xunlei: {
     name: '迅雷云盘',
-    keywords: ['pan.xunlei.com'],
+    keywords: ['pan.xunlei.com', 'xl.xunlei.com'],
     logo: 'https://pan.xunlei.com/favicon.ico',
     guide: '',
     appName: '迅雷APP',
@@ -153,7 +154,7 @@ const DISK_CONFIG = {
   },
   '115': {
     name: '115网盘',
-    keywords: ['115.com'],
+    keywords: ['115.com', '115cdn.com'],
     logo: 'https://115.com/favicon.ico',
     guide: '',
     appName: '115APP',
@@ -161,7 +162,7 @@ const DISK_CONFIG = {
   },
   lanzou: {
     name: '蓝奏云',
-    keywords: ['lanzou', 'lanzoui', 'lanzoux'],
+    keywords: ['lanzou', 'lanzoui', 'lanzoux', 'lanzoucloud'],
     logo: 'https://www.lanzou.com/favicon.ico',
     guide: '',
     appName: '手机浏览器',
@@ -169,11 +170,164 @@ const DISK_CONFIG = {
   },
   tianyi: {
     name: '天翼云盘',
-    keywords: ['cloud.189.cn', 'e.189.cn'],
+    keywords: ['cloud.189.cn', 'e.189.cn', 'b.189.cn'],
     logo: 'https://cloud.189.cn/favicon.ico',
     guide: '',
     appName: '天翼云盘APP',
     color: '#21a9e1'
+  },
+  weiyun: {
+    name: '腾讯微云',
+    keywords: ['weiyun.com', 'share.weiyun.com'],
+    logo: 'https://www.weiyun.com/favicon.ico',
+    guide: '',
+    appName: '微云APP',
+    color: '#07c160'
+  },
+  jianguoyun: {
+    name: '坚果云',
+    keywords: ['jianguoyun.com', 'nutstore.net'],
+    logo: 'https://www.jianguoyun.com/favicon.ico',
+    guide: '',
+    appName: '坚果云APP',
+    color: '#f5a623'
+  },
+  caiyun: {
+    name: '中国移动云盘',
+    keywords: ['caiyun.139.com', 'yun.139.com', '139.com/w'],
+    logo: 'https://caiyun.139.com/favicon.ico',
+    guide: '',
+    appName: '中国移动云盘APP',
+    color: '#00a0e9'
+  },
+  wocloud: {
+    name: '联通云盘',
+    keywords: ['pan.wo.cn', 'cloud.wo.cn', 'wo.cn/pan'],
+    logo: 'https://pan.wo.cn/favicon.ico',
+    guide: '',
+    appName: '联通云盘APP',
+    color: '#e60012'
+  },
+  ctyun: {
+    name: '天翼企业云盘',
+    keywords: ['ctyun.cn', 'oos.ctyun.cn'],
+    logo: 'https://www.ctyun.cn/favicon.ico',
+    guide: '',
+    appName: '手机浏览器',
+    color: '#0066cc'
+  },
+  uc: {
+    name: 'UC网盘',
+    keywords: ['drive.uc.cn', 'uc.cn/pan'],
+    logo: 'https://drive.uc.cn/favicon.ico',
+    guide: '',
+    appName: 'UC浏览器',
+    color: '#ff6600'
+  },
+  pikpak: {
+    name: 'PikPak',
+    keywords: ['mypikpak.com', 'pikpak.com'],
+    logo: 'https://mypikpak.com/favicon.ico',
+    guide: '',
+    appName: 'PikPak APP',
+    color: '#7c3aed'
+  },
+  '123pan': {
+    name: '123云盘',
+    keywords: ['123pan.com', '123684.com', '123865.com'],
+    logo: 'https://www.123pan.com/favicon.ico',
+    guide: '',
+    appName: '123云盘APP',
+    color: '#ff4d4f'
+  },
+  ctfile: {
+    name: '城通网盘',
+    keywords: ['ctfile.com', 'u.ctfile.com'],
+    logo: 'https://ctfile.com/favicon.ico',
+    guide: '',
+    appName: '手机浏览器',
+    color: '#1677ff'
+  },
+  feijipan: {
+    name: '飞机盘',
+    keywords: ['feijipan.com'],
+    logo: 'https://www.feijipan.com/favicon.ico',
+    guide: '',
+    appName: '手机浏览器',
+    color: '#1890ff'
+  },
+  kuaizipan: {
+    name: '快资盘',
+    keywords: ['kuaizipan.com'],
+    logo: 'https://www.kuaizipan.com/favicon.ico',
+    guide: '',
+    appName: '手机浏览器',
+    color: '#ff7a00'
+  },
+  // ===== 国际主流网盘 =====
+  onedrive: {
+    name: 'OneDrive',
+    keywords: ['onedrive.live.com', '1drv.ms', 'sharepoint.com'],
+    logo: 'https://res.cdn.office.net/files/fabric-cdn-prod_20230815.002/assets/brand-icons/product/svg/onedrive_48x1.svg',
+    guide: '',
+    appName: 'OneDrive APP',
+    color: '#0078d4'
+  },
+  googledrive: {
+    name: 'Google Drive',
+    keywords: ['drive.google.com', 'docs.google.com', 'photos.google.com'],
+    logo: 'https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_48dp.png',
+    guide: '',
+    appName: 'Google Drive APP',
+    color: '#4285f4'
+  },
+  dropbox: {
+    name: 'Dropbox',
+    keywords: ['dropbox.com', 'db.tt'],
+    logo: 'https://cfl.dropboxstatic.com/static/images/favicon-vfl8lUR9B.ico',
+    guide: '',
+    appName: 'Dropbox APP',
+    color: '#0061ff'
+  },
+  mega: {
+    name: 'MEGA',
+    keywords: ['mega.nz', 'mega.co.nz'],
+    logo: 'https://mega.nz/favicon.ico',
+    guide: '',
+    appName: 'MEGA APP',
+    color: '#d9272e'
+  },
+  mediafire: {
+    name: 'MediaFire',
+    keywords: ['mediafire.com'],
+    logo: 'https://www.mediafire.com/favicon.ico',
+    guide: '',
+    appName: '手机浏览器',
+    color: '#1d6fa4'
+  },
+  box: {
+    name: 'Box',
+    keywords: ['box.com', 'app.box.com'],
+    logo: 'https://www.box.com/favicon.ico',
+    guide: '',
+    appName: 'Box APP',
+    color: '#0061d5'
+  },
+  icloud: {
+    name: 'iCloud',
+    keywords: ['icloud.com'],
+    logo: 'https://www.icloud.com/favicon.ico',
+    guide: '',
+    appName: '手机浏览器',
+    color: '#3478f6'
+  },
+  pcloud: {
+    name: 'pCloud',
+    keywords: ['pcloud.com', 'u.pcloud.com'],
+    logo: 'https://www.pcloud.com/favicon.ico',
+    guide: '',
+    appName: '手机浏览器',
+    color: '#20b2aa'
   },
   default: {
     name: '资源分享',
@@ -514,6 +668,25 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
     '115': '📦',
     'lanzou': '🔵',
     'tianyi': '☁️',
+    'weiyun': '💚',
+    'jianguoyun': '🌰',
+    'caiyun': '📱',
+    'wocloud': '🔴',
+    'ctyun': '🏢',
+    'uc': '🟠',
+    'pikpak': '🟣',
+    '123pan': '🔢',
+    'ctfile': '📁',
+    'feijipan': '✈️',
+    'kuaizipan': '⚡',
+    'onedrive': '🔷',
+    'googledrive': '🌈',
+    'dropbox': '📦',
+    'mega': '🔴',
+    'mediafire': '🔥',
+    'box': '📦',
+    'icloud': '🍎',
+    'pcloud': '☁️',
     'default': '🚀'
   };
   if (adIcon) adIcon.textContent = iconMap[diskConfig.type] || '🚀';

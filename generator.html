@@ -343,7 +343,7 @@
       <div class="form-grid">
         <div class="form-group full">
           <label>目标链接</label>
-          <input type="url" id="targetUrl" placeholder="粘贴网盘链接，如 https://pan.quark.cn/s/xxx?pwd=1234" oninput="autoExtractCode()">
+          <input type="url" id="targetUrl" placeholder="粘贴网盘链接，支持百度、夸克、阿里、迅雷、OneDrive、Google Drive 等" oninput="autoExtractCode()">
         </div>
         <div class="form-group">
           <label>资源名称</label>
@@ -946,13 +946,32 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     const BASE_URL = window.location.origin + '/index.html';
     
     const DISK_CONFIG = {
+      // ===== 国内主流网盘 =====
       baidu: { name: '百度网盘', keywords: ['pan.baidu.com', 'yun.baidu.com'], logo: 'https://testlink11.oss-cn-beijing.aliyuncs.com/baidu-logo.png', color: '#06a7ff' },
       quark: { name: '夸克网盘', keywords: ['pan.quark.cn', 'quark.cn'], logo: 'https://testlink11.oss-cn-beijing.aliyuncs.com/quark-logo.png', color: '#1890ff' },
       aliyun: { name: '阿里云盘', keywords: ['aliyundrive.com', 'alipan.com'], logo: 'https://img.alicdn.com/imgextra/i1/O1CN01JDQCi21Hp8ASbOY1a_!!6000000000806-2-tps-512-512.png', color: '#ff6a00' },
-      xunlei: { name: '迅雷云盘', keywords: ['pan.xunlei.com'], logo: 'https://pan.xunlei.com/favicon.ico', color: '#0078d4' },
-      '115': { name: '115网盘', keywords: ['115.com'], logo: 'https://115.com/favicon.ico', color: '#2b579a' },
-      lanzou: { name: '蓝奏云', keywords: ['lanzou', 'lanzoui', 'lanzoux', 'lanzouv', 'lanzouy'], logo: 'https://www.lanzou.com/favicon.ico', color: '#0099ff' },
-      tianyi: { name: '天翼云盘', keywords: ['cloud.189.cn', 'e.189.cn'], logo: 'https://cloud.189.cn/favicon.ico', color: '#21a9e1' },
+      xunlei: { name: '迅雷云盘', keywords: ['pan.xunlei.com', 'xl.xunlei.com'], logo: 'https://pan.xunlei.com/favicon.ico', color: '#0078d4' },
+      '115': { name: '115网盘', keywords: ['115.com', '115cdn.com'], logo: 'https://115.com/favicon.ico', color: '#2b579a' },
+      lanzou: { name: '蓝奏云', keywords: ['lanzou', 'lanzoui', 'lanzoux', 'lanzouv', 'lanzouy', 'lanzoucloud'], logo: 'https://www.lanzou.com/favicon.ico', color: '#0099ff' },
+      tianyi: { name: '天翼云盘', keywords: ['cloud.189.cn', 'e.189.cn', 'b.189.cn'], logo: 'https://cloud.189.cn/favicon.ico', color: '#21a9e1' },
+      weiyun: { name: '腾讯微云', keywords: ['weiyun.com', 'share.weiyun.com'], logo: 'https://www.weiyun.com/favicon.ico', color: '#07c160' },
+      jianguoyun: { name: '坚果云', keywords: ['jianguoyun.com', 'nutstore.net'], logo: 'https://www.jianguoyun.com/favicon.ico', color: '#f5a623' },
+      caiyun: { name: '中国移动云盘', keywords: ['caiyun.139.com', 'yun.139.com', '139.com/w'], logo: 'https://caiyun.139.com/favicon.ico', color: '#00a0e9' },
+      wocloud: { name: '联通云盘', keywords: ['pan.wo.cn', 'cloud.wo.cn', 'wo.cn/pan'], logo: 'https://pan.wo.cn/favicon.ico', color: '#e60012' },
+      uc: { name: 'UC网盘', keywords: ['drive.uc.cn', 'uc.cn/pan'], logo: 'https://drive.uc.cn/favicon.ico', color: '#ff6600' },
+      pikpak: { name: 'PikPak', keywords: ['mypikpak.com', 'pikpak.com'], logo: 'https://mypikpak.com/favicon.ico', color: '#7c3aed' },
+      '123pan': { name: '123云盘', keywords: ['123pan.com', '123684.com', '123865.com'], logo: 'https://www.123pan.com/favicon.ico', color: '#ff4d4f' },
+      ctfile: { name: '城通网盘', keywords: ['ctfile.com', 'u.ctfile.com'], logo: 'https://ctfile.com/favicon.ico', color: '#1677ff' },
+      feijipan: { name: '飞机盘', keywords: ['feijipan.com'], logo: 'https://www.feijipan.com/favicon.ico', color: '#1890ff' },
+      // ===== 国际主流网盘 =====
+      onedrive: { name: 'OneDrive', keywords: ['onedrive.live.com', '1drv.ms', 'sharepoint.com'], logo: 'https://res.cdn.office.net/files/fabric-cdn-prod_20230815.002/assets/brand-icons/product/svg/onedrive_48x1.svg', color: '#0078d4' },
+      googledrive: { name: 'Google Drive', keywords: ['drive.google.com', 'docs.google.com', 'photos.google.com'], logo: 'https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_48dp.png', color: '#4285f4' },
+      dropbox: { name: 'Dropbox', keywords: ['dropbox.com', 'db.tt'], logo: 'https://cfl.dropboxstatic.com/static/images/favicon-vfl8lUR9B.ico', color: '#0061ff' },
+      mega: { name: 'MEGA', keywords: ['mega.nz', 'mega.co.nz'], logo: 'https://mega.nz/favicon.ico', color: '#d9272e' },
+      mediafire: { name: 'MediaFire', keywords: ['mediafire.com'], logo: 'https://www.mediafire.com/favicon.ico', color: '#1d6fa4' },
+      box: { name: 'Box', keywords: ['box.com', 'app.box.com'], logo: 'https://www.box.com/favicon.ico', color: '#0061d5' },
+      icloud: { name: 'iCloud', keywords: ['icloud.com'], logo: 'https://www.icloud.com/favicon.ico', color: '#3478f6' },
+      pcloud: { name: 'pCloud', keywords: ['pcloud.com', 'u.pcloud.com'], logo: 'https://www.pcloud.com/favicon.ico', color: '#20b2aa' },
       default: { name: '资源分享', keywords: [], logo: '', color: '#6366f1' }
     };
 
@@ -1012,19 +1031,58 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     // ==================== 输入验证 ====================
     // 支持的网盘域名
     const VALID_DOMAINS = [
+      // 百度网盘
       'pan.baidu.com', 'yun.baidu.com',
+      // 夸克网盘
       'pan.quark.cn', 'quark.cn',
+      // 阿里云盘
       'aliyundrive.com', 'alipan.com',
-      'pan.xunlei.com',
-      '115.com',
-      'lanzou.com', 'lanzoui.com', 'lanzoux.com', 'lanzouv.com', 'lanzouy.com',
-      'cloud.189.cn', 'e.189.cn',
-      'weiyun.com',
-      'ctfile.com',
+      // 迅雷云盘
+      'pan.xunlei.com', 'xl.xunlei.com',
+      // 115网盘
+      '115.com', '115cdn.com',
+      // 蓝奏云
+      'lanzou.com', 'lanzoui.com', 'lanzoux.com', 'lanzouv.com', 'lanzouy.com', 'lanzoucloud.com',
+      // 天翼云盘
+      'cloud.189.cn', 'e.189.cn', 'b.189.cn',
+      // 腾讯微云
+      'weiyun.com', 'share.weiyun.com',
+      // 坚果云
+      'jianguoyun.com', 'nutstore.net',
+      // 中国移动云盘
+      'caiyun.139.com', 'yun.139.com', '139.com',
+      // 联通云盘
+      'pan.wo.cn', 'cloud.wo.cn', 'wo.cn',
+      // UC网盘
+      'drive.uc.cn', 'uc.cn',
+      // PikPak
+      'mypikpak.com', 'pikpak.com',
+      // 123云盘
+      '123pan.com', '123684.com', '123865.com',
+      // 城通网盘
+      'ctfile.com', 'u.ctfile.com',
+      // 飞机盘
+      'feijipan.com',
+      // 奶牛快传
       'cowtransfer.com',
+      // 文叔叔
       'wenshushu.cn',
-      '123pan.com',
-      'uc.cn'
+      // OneDrive
+      'onedrive.live.com', '1drv.ms', 'sharepoint.com',
+      // Google Drive
+      'drive.google.com', 'docs.google.com', 'photos.google.com',
+      // Dropbox
+      'dropbox.com', 'db.tt',
+      // MEGA
+      'mega.nz', 'mega.co.nz',
+      // MediaFire
+      'mediafire.com',
+      // Box
+      'box.com', 'app.box.com',
+      // iCloud
+      'icloud.com',
+      // pCloud
+      'pcloud.com', 'u.pcloud.com',
     ];
     
     // ==================== 敏感词过滤系统 ====================
@@ -1359,7 +1417,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         if (!isValidDomain) {
           return { 
             valid: false, 
-            error: '仅支持主流网盘链接（百度、夸克、阿里云盘、迅雷、115、蓝奏云、天翼云盘等）' 
+            error: '仅支持网盘链接（百度、夸克、阿里云盘、迅雷、115、蓝奏云、天翼、微云、坚果云、移动云盘、联通云盘、UC、PikPak、123云盘、OneDrive、Google Drive、Dropbox、MEGA 等）' 
           };
         }
         
