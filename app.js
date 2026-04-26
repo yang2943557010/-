@@ -1017,7 +1017,7 @@ if (typeof window !== 'undefined') {
 
 // ==================== 微信文章加载 ====================
 
-const WX_PROXY_URL = 'https://frosty-boat-c2ef.yourenjia521.workers.dev';
+const WX_PROXY_URL = 'https://wx.251800.xyz';
 
 // 利用浏览器 DOM 彻底去除 HTML 标签，比正则更可靠
 function stripHtml(str) {
@@ -1265,10 +1265,11 @@ function renderArticleInto(card, data) {
 }
 
 function renderFallbackInto(card, url) {
+  // 降级时不显示紫色封面，只显示简洁的文字卡片
   card.innerHTML = `
-    <div class="wx-cover-placeholder">📰</div>
-    <div class="wx-article-content">
+    <div class="wx-article-content" style="padding:20px 16px;">
       <div class="wx-article-title">微信公众号文章</div>
+      <div class="wx-article-desc" style="margin:8px 0 12px;">点击阅读原文查看完整内容</div>
       <div class="wx-article-meta">
         <span>微信公众号</span>
         <a class="wx-read-btn" href="${url}" target="_blank" rel="noopener">阅读原文 →</a>

@@ -481,6 +481,28 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
           </div>
         </div>
       </div>
+
+      <!-- 批量生成微信文章 -->
+      <div style="margin-top:12px;padding:16px;background:var(--bg);border-radius:12px;">
+        <label style="font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+          💬 微信公众号文章
+          <span style="font-size:10px;color:var(--text3);font-weight:400;">（可选，最多3篇，电脑端右侧展示）</span>
+        </label>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:11px;color:var(--text3);width:20px;flex-shrink:0;">①</span>
+            <input type="text" id="batchWxId1" placeholder="粘贴第1篇微信文章链接" style="flex:1;font-size:12px;" oninput="autoExtractWxId(this)">
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:11px;color:var(--text3);width:20px;flex-shrink:0;">②</span>
+            <input type="text" id="batchWxId2" placeholder="粘贴第2篇（可选）" style="flex:1;font-size:12px;" oninput="autoExtractWxId(this)">
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:11px;color:var(--text3);width:20px;flex-shrink:0;">③</span>
+            <input type="text" id="batchWxId3" placeholder="粘贴第3篇（可选）" style="flex:1;font-size:12px;" oninput="autoExtractWxId(this)">
+          </div>
+        </div>
+      </div>
       
       <div class="btn-group">
         <button class="btn btn-primary" onclick="generateBatch()">批量生成</button>
@@ -540,6 +562,28 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
                 <option value="5">5秒</option>
               </select>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 表格导入微信文章 -->
+      <div style="margin-top:12px;padding:16px;background:var(--bg);border-radius:12px;">
+        <label style="font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+          💬 微信公众号文章
+          <span style="font-size:10px;color:var(--text3);font-weight:400;">（可选，最多3篇，电脑端右侧展示）</span>
+        </label>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:11px;color:var(--text3);width:20px;flex-shrink:0;">①</span>
+            <input type="text" id="uploadWxId1" placeholder="粘贴第1篇微信文章链接" style="flex:1;font-size:12px;" oninput="autoExtractWxId(this)">
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:11px;color:var(--text3);width:20px;flex-shrink:0;">②</span>
+            <input type="text" id="uploadWxId2" placeholder="粘贴第2篇（可选）" style="flex:1;font-size:12px;" oninput="autoExtractWxId(this)">
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:11px;color:var(--text3);width:20px;flex-shrink:0;">③</span>
+            <input type="text" id="uploadWxId3" placeholder="粘贴第3篇（可选）" style="flex:1;font-size:12px;" oninput="autoExtractWxId(this)">
           </div>
         </div>
       </div>
@@ -1790,22 +1834,31 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     }
     
     // 带自定义广告设置的链接生成函数（用于批量生成和表格导入）
-    function generateLinkWithAd(url, name, code, remark, adEnabled, adText, adDuration) {
+    // 带自定义广告设置的链接生成函数（用于批量生成和表格导入）
+    // wxPrefix: 'batchWxId' 或 'uploadWxId'，用于读取对应面板的微信文章ID
+    function generateLinkWithAd(url, name, code, remark, adEnabled, adText, adDuration, wxPrefix) {
       const pageStyle = document.getElementById('pageStyle')?.value || 'default';
-      
-      // 构建数据对象（使用短键名）
-      const data = { u: url };
+
+      // 读取微信文章ID
+      const wxIds = wxPrefix ? [1,2,3].map(i => {
+        const raw = (document.getElementById(`${wxPrefix}${i}`)?.value || '').trim();
+        const m = raw.match(/mp\.weixin\.qq\.com\/s\/([A-Za-z0-9_-]+)/);
+        return m ? m[1] : (/^[A-Za-z0-9_-]+$/.test(raw) ? raw : '');
+      }).filter(Boolean) : [];
+      const wxArticleId = wxIds.join(',');
+
+      const data = { u: url, c: code || '' };
       if (name && name !== '资源') data.n = name;
-      if (code) data.c = code;
       if (pageStyle !== 'default') data.t = pageStyle;
       if (adEnabled && adText && adText.trim()) {
         data.a = adText.trim();
         data.at = adDuration;
       }
-      
-      // 使用压缩加密生成短链接
+
       const encoded = encryptData(data);
-      return `${BASE_URL}?d=${encoded}`;
+      return wxArticleId
+        ? `${BASE_URL}?d=${encoded}&wx=${wxArticleId}`
+        : `${BASE_URL}?d=${encoded}`;
     }
 
     // ==================== Tab切换 ====================
@@ -2005,7 +2058,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
           remark = sanitized.remark;
           if (sanitized.hasFiltered) filteredCount++;
 
-          const link = generateLinkWithAd(url, name, code, remark, batchAdEnabled, batchAdText, batchAdDuration);
+          const link = generateLinkWithAd(url, name, code, remark, batchAdEnabled, batchAdText, batchAdDuration, 'batchWxId');
           const disk = detectDiskType(url);
           const time = Date.now();
 
@@ -2132,6 +2185,110 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         handleFileUpload({ target: { files: [file] } });
       }
     });
+
+    // ==================== 表格导入处理 ====================
+    async function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (typeof ensureLib === 'function') await ensureLib('xlsx');
+      if (!window.XLSX) return toast('XLSX 库加载失败，请刷新重试');
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const wb = XLSX.read(evt.target.result, { type: 'array' });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+          const uploadAdEnabled = document.getElementById('uploadAdEnabled')?.checked || false;
+          const uploadAdText = document.getElementById('uploadAdText')?.value || '';
+          const uploadAdDuration = document.getElementById('uploadAdDuration')?.value || '2';
+
+          const results = [];
+          let successCount = 0, errorCount = 0;
+
+          // 跳过标题行（如果第一行是标题）
+          const startRow = (rows[0] && typeof rows[0][0] === 'string' && rows[0][0].includes('链接')) ? 1 : 0;
+
+          for (let i = startRow; i < rows.length; i++) {
+            const row = rows[i];
+            const url = (row[0] || '').toString().trim();
+            if (!url || !url.startsWith('http')) continue;
+
+            const name = (row[1] || '资源' + (i + 1)).toString().trim();
+            let code = (row[2] || '').toString().trim().replace(/[^a-zA-Z0-9]/g, '');
+            const group = (row[3] || '').toString().trim();
+            const remark = (row[4] || '').toString().trim();
+
+            const validation = validateInput(url, name, remark, '', code);
+            if (!validation.valid) { errorCount++; continue; }
+
+            const sanitized = sanitizeInputData({ name, remark, adText: '' });
+            const link = generateLinkWithAd(url, sanitized.name || name, code, sanitized.remark || remark, uploadAdEnabled, uploadAdText, uploadAdDuration, 'uploadWxId');
+            const disk = detectDiskType(url);
+            const time = Date.now();
+
+            results.push({ url, name: sanitized.name || name, code, group, remark: sanitized.remark || remark, link, diskName: disk.name, time });
+            saveToHistory({ url, name: sanitized.name || name, code, link, disk, group, remark: sanitized.remark || remark, time }, { deferSave: true });
+            successCount++;
+          }
+
+          flushHistory();
+
+          const container = document.getElementById('uploadResult');
+          if (!results.length) {
+            container.innerHTML = `<div style="padding:16px;color:var(--text3);text-align:center;">未识别到有效数据，请检查表格格式</div>`;
+            return;
+          }
+
+          // 导出按钮
+          window._uploadResults = results;
+          let html = `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+            <button class="btn btn-success btn-sm" onclick="exportUploadResultsCSV()">📤 导出CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyAllUploadLinks()">📋 复制全部链接</button>
+          </div>`;
+
+          results.forEach(item => {
+            html += `<div class="result-card">
+              <div class="info">
+                <div class="name">${item.name} <span class="tag" style="background:${detectDiskType(item.url).color}">${item.diskName}</span></div>
+                <div class="link">${item.link}</div>
+              </div>
+              <div class="actions">
+                <button class="btn btn-secondary btn-sm" onclick="copyLink('${item.link}')">复制</button>
+              </div>
+            </div>`;
+          });
+
+          container.innerHTML = html;
+          toast(`导入完成：成功 ${successCount} 条${errorCount ? '，失败 ' + errorCount + ' 条' : ''}`);
+        } catch (err) {
+          toast('解析失败：' + err.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function exportUploadResultsCSV() {
+      const results = window._uploadResults;
+      if (!results?.length) return toast('暂无数据');
+      const headers = ['原始链接','名称','提取码','分组','备注','生成链接','网盘类型'];
+      const csv = [headers.join(','), ...results.map(r =>
+        [r.url, r.name, r.code||'', r.group||'', r.remark||'', r.link, r.diskName||''].map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')
+      )].join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+      a.download = '表格导入结果_' + new Date().toLocaleDateString() + '.csv';
+      a.click();
+    }
+
+    function copyAllUploadLinks() {
+      const results = window._uploadResults;
+      if (!results?.length) return toast('暂无数据');
+      navigator.clipboard.writeText(results.map(r => r.link).join('\n'))
+        .then(() => toast('已复制 ' + results.length + ' 条链接'))
+        .catch(() => toast('复制失败'));
+    }
 
     // ==================== 历史记录 ====================
     function saveToHistory(item, options = {}) {
@@ -3030,12 +3187,16 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     
     // ==================== 表单设置保存/加载 ====================
     function saveFormSettings() {
+      const getWxIds = (prefix) => [1,2,3].map(i => document.getElementById(`${prefix}${i}`)?.value || '');
       const formSettings = {
         pageStyle: document.getElementById('pageStyle')?.value || 'default',
         groupTag: document.getElementById('groupTag')?.value || '',
         adEnabled: document.getElementById('adEnabled')?.checked || false,
         adText: document.getElementById('adText')?.value || '正在为您跳转...',
-        adDuration: document.getElementById('adDuration')?.value || '2'
+        adDuration: document.getElementById('adDuration')?.value || '2',
+        wxIds: getWxIds('wxArticleId'),
+        batchWxIds: getWxIds('batchWxId'),
+        uploadWxIds: getWxIds('uploadWxId'),
       };
       localStorage.setItem('formSettings', JSON.stringify(formSettings));
     }
@@ -3045,59 +3206,55 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       if (!saved) return;
       
       try {
-        const formSettings = JSON.parse(saved);
+        const s = JSON.parse(saved);
         
-        // 页面风格
         const pageStyle = document.getElementById('pageStyle');
-        if (pageStyle && formSettings.pageStyle) {
-          pageStyle.value = formSettings.pageStyle;
-        }
+        if (pageStyle && s.pageStyle) pageStyle.value = s.pageStyle;
         
-        // 分组（需要在renderGroups之后设置）
         setTimeout(() => {
           const groupTag = document.getElementById('groupTag');
-          if (groupTag && formSettings.groupTag) {
-            groupTag.value = formSettings.groupTag;
-          }
+          if (groupTag && s.groupTag) groupTag.value = s.groupTag;
         }, 100);
         
-        // 广告设置
         const adEnabled = document.getElementById('adEnabled');
         const adSettings = document.getElementById('adSettings');
         const adText = document.getElementById('adText');
         const adDuration = document.getElementById('adDuration');
         
-        if (adEnabled && formSettings.adEnabled !== undefined) {
-          adEnabled.checked = formSettings.adEnabled;
-          if (adSettings) {
-            adSettings.style.display = formSettings.adEnabled ? 'block' : 'none';
-          }
+        if (adEnabled && s.adEnabled !== undefined) {
+          adEnabled.checked = s.adEnabled;
+          if (adSettings) adSettings.style.display = s.adEnabled ? 'block' : 'none';
         }
-        
-        if (adText && formSettings.adText) {
-          adText.value = formSettings.adText;
-        }
-        
-        if (adDuration && formSettings.adDuration) {
-          adDuration.value = formSettings.adDuration;
-        }
+        if (adText && s.adText) adText.value = s.adText;
+        if (adDuration && s.adDuration) adDuration.value = s.adDuration;
+
+        // 恢复微信文章ID
+        const restoreWxIds = (prefix, ids) => {
+          if (!ids) return;
+          ids.forEach((val, i) => {
+            const el = document.getElementById(`${prefix}${i+1}`);
+            if (el && val) { el.value = val; el.style.color = '#07c160'; }
+          });
+        };
+        restoreWxIds('wxArticleId', s.wxIds);
+        restoreWxIds('batchWxId', s.batchWxIds);
+        restoreWxIds('uploadWxId', s.uploadWxIds);
+
       } catch (e) {
         console.warn('加载表单设置失败:', e);
       }
     }
-    
     function setupFormAutoSave() {
-      // 监听页面风格变化
       document.getElementById('pageStyle')?.addEventListener('change', saveFormSettings);
-      
-      // 监听分组变化
       document.getElementById('groupTag')?.addEventListener('change', saveFormSettings);
-      
-      // 监听广告文字变化
       document.getElementById('adText')?.addEventListener('input', debounce(saveFormSettings, 500));
-      
-      // 监听广告时长变化
       document.getElementById('adDuration')?.addEventListener('change', saveFormSettings);
+      // 微信文章ID自动保存
+      [1,2,3].forEach(i => {
+        ['wxArticleId','batchWxId','uploadWxId'].forEach(prefix => {
+          document.getElementById(`${prefix}${i}`)?.addEventListener('input', debounce(saveFormSettings, 800));
+        });
+      });
     }
     
     // 防抖函数
