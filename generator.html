@@ -376,6 +376,16 @@
           <label>备注信息</label>
           <textarea id="remarkText" placeholder="添加备注，如资源说明、使用方法等（可选）"></textarea>
         </div>
+
+        <!-- 微信公众号文章 -->
+        <div class="form-group full">
+          <label style="display:flex;align-items:center;gap:6px;">
+            💬 微信公众号文章
+            <span style="font-size:10px;color:var(--text3);font-weight:400;">（可选，电脑端扫码页右侧展示）</span>
+          </label>
+          <input type="text" id="wxArticleId" placeholder="粘贴微信文章链接，如 https://mp.weixin.qq.com/s/0U9QKBCQodsCsYPsSiEbMA" oninput="autoExtractWxId(this)">
+          <span id="wxArticleHint" style="font-size:11px;color:var(--text3);margin-top:4px;display:block;">💡 支持粘贴完整链接或含链接的文字，自动提取文章ID</span>
+        </div>
         
         <!-- 广告设置 -->
         <div class="form-group full" style="margin-top:8px;padding:16px;background:var(--bg);border-radius:12px;">
@@ -1009,14 +1019,15 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     // 加密数据对象
     function encryptData(data) {
       try {
-        // 紧凑格式：u|n|c|t|a|at
+        // 紧凑格式：u|n|c|t|a|at|wx
         const parts = [
           data.u || '',
           data.n || '',
           data.c || '',
           data.t || '',
           data.a || '',
-          data.at || ''
+          data.at || '',
+          data.wx || ''
         ];
         while (parts.length > 1 && !parts[parts.length - 1]) parts.pop();
         const str = parts.join('|');
@@ -1676,12 +1687,42 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       }
     }
 
+    // 从任意文字中提取微信文章ID
+    function autoExtractWxId(input) {
+      const val = input.value;
+      // 匹配 mp.weixin.qq.com/s/XXXX 格式，提取ID部分
+      const m = val.match(/mp\.weixin\.qq\.com\/s\/([A-Za-z0-9_-]+)/);
+      const hint = document.getElementById('wxArticleHint');
+      if (m) {
+        input.value = m[1];
+        if (hint) {
+          hint.textContent = '✅ 已提取文章ID：' + m[1];
+          hint.style.color = '#07c160';
+        }
+      } else if (val.trim() && !/^[A-Za-z0-9_-]+$/.test(val.trim())) {
+        // 有内容但不是纯ID也没找到链接
+        if (hint) {
+          hint.textContent = '⚠️ 未识别到微信文章链接，请检查格式';
+          hint.style.color = '#f59e0b';
+        }
+      } else {
+        if (hint) {
+          hint.textContent = '💡 支持粘贴完整链接或含链接的文字，自动提取文章ID';
+          hint.style.color = 'var(--text3)';
+        }
+      }
+    }
+
     function generateLink(url, name, code, remark) {
       const pageStyle = document.getElementById('pageStyle')?.value || 'default';
       const adEnabled = document.getElementById('adEnabled')?.checked || false;
       const adText = document.getElementById('adText')?.value || '';
-      const adDuration = document.getElementById('adDuration')?.value || '2';
-      
+      const adDuration = parseInt(document.getElementById('adDuration')?.value) || 2;
+      const wxRaw = (document.getElementById('wxArticleId')?.value || '').trim();
+      // 从输入中提取纯ID（兼容用户直接粘贴完整链接的情况）
+      const wxMatch = wxRaw.match(/mp\.weixin\.qq\.com\/s\/([A-Za-z0-9_-]+)/);
+      const wxArticleId = wxMatch ? wxMatch[1] : (/^[A-Za-z0-9_-]+$/.test(wxRaw) ? wxRaw : '');
+
       // 构建数据对象（使用短键名）
       const data = { u: url };
       if (name && name !== '资源') data.n = name;
@@ -1691,6 +1732,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         data.a = adText.trim();
         data.at = adDuration;
       }
+      if (wxArticleId) data.wx = wxArticleId;
       
       // 使用压缩加密生成短链接
       const encoded = encryptData(data);

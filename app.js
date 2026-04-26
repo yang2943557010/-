@@ -16,14 +16,15 @@ const CryptoUtil = {
    */
   encryptData(data) {
     try {
-      // 紧凑格式：u|n|c|t|a|at 用|分隔
+      // 紧凑格式：u|n|c|t|a|at|wx 用|分隔
       const parts = [
         data.u || '',
         data.n || '',
         data.c || '',
         data.t || '',
         data.a || '',
-        data.at || ''
+        data.at || '',
+        data.wx || ''
       ];
       // 去掉末尾空值
       while (parts.length > 1 && !parts[parts.length - 1]) parts.pop();
@@ -57,7 +58,8 @@ const CryptoUtil = {
         c: parts[2] || '',
         t: parts[3] || '',
         a: parts[4] || '',
-        at: parts[5] || ''
+        at: parts[5] || '',
+        wx: parts[6] || ''
       };
     } catch (e) {
       console.error('解密失败:', e);
@@ -414,6 +416,7 @@ const UrlHandler = {
           template: data.t || 'default',
           adText: data.a || '',
           adDuration: Math.min(Math.max(parseInt(data.at) || 2, 1), 5),
+          wxArticleId: data.wx || '',
           isValid: true
         };
       }
@@ -431,6 +434,7 @@ const UrlHandler = {
           template: data.t || 'default',
           adText: data.a || '',
           adDuration: Math.min(Math.max(parseInt(data.at) || 2, 1), 5),
+          wxArticleId: data.wx || '',
           isValid: true
         };
       }
@@ -531,8 +535,11 @@ const PageRenderer = {
       guideRight.innerHTML = `<img src="${diskConfig.guide}" alt="引导图" class="guide-img" loading="lazy" decoding="async">`;
     }
 
-    // 加载微信文章（桌面端）
-    loadWxArticle(WX_ARTICLE_URL);
+    // 加载微信文章（桌面端，仅当有文章ID时）
+    if (params.wxArticleId) {
+      const wxUrl = `https://mp.weixin.qq.com/s/${params.wxArticleId}`;
+      loadWxArticle(wxUrl);
+    }
     
     const qrContainer = document.getElementById('qrContainer');
     QRCodeGenerator.generate(targetUrl, qrContainer);
@@ -902,11 +909,7 @@ if (typeof window !== 'undefined') {
 // ==================== 微信文章加载 ====================
 
 // 部署 Cloudflare Worker 后，把 Worker URL 填在这里
-// 例如: 'https://wx-article.yourname.workers.dev'
 const WX_PROXY_URL = 'https://frosty-boat-c2ef.yourenjia521.workers.dev';
-
-// 要展示的微信文章链接
-const WX_ARTICLE_URL = 'https://mp.weixin.qq.com/s/0U9QKBCQodsCsYPsSiEbMA';
 
 function loadWxArticle(articleUrl) {
   const panel = document.getElementById('wxArticlePanel');
