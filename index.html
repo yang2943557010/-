@@ -60,22 +60,34 @@
 
     /* 主舞台 */
     .stage {
-      max-width: 1200px;
       margin: 40px auto 0;
       display: flex;
-      gap: 80px;
+      gap: 40px;
       align-items: center;
       justify-content: center;
+      padding: 0 40px;
+      flex-wrap: nowrap;
     }
 
-    /* 卡片 */
+    /* 卡片 - 恢复原始宽度 */
     .card {
       width: 460px;
+      flex-shrink: 0;
       background: #fff;
       border-radius: 18px;
       padding: 36px;
       box-shadow: 0 40px 80px rgba(2, 6, 23, 0.06);
-      transform: translateX(12px);
+    }
+
+    /* 引导图区域 - 恢复原始大小，去掉之前的覆盖 */
+    .guide-right {
+      flex: 0 0 auto !important;
+      padding: 0 !important;
+      transform: none !important;
+    }
+    .guide-img {
+      max-width: 420px !important;
+      max-height: 640px !important;
     }
 
     .card h2 {
@@ -166,6 +178,87 @@
       color: #6b7280;
       font-size: 14px;
     }
+
+    /* 微信文章区 */
+    .wx-article-panel {
+      width: 300px;
+      flex-shrink: 0;
+      align-self: flex-start;
+      display: none;
+      flex-direction: column;
+    }
+    .wx-article-inner {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(2,6,23,0.07);
+    }
+    .wx-account-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .wx-account-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: #07c160;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 12px; font-weight: 700;
+      flex-shrink: 0; overflow: hidden;
+    }
+    .wx-account-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .wx-account-name { font-size: 12px; font-weight: 600; color: #111827; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .wx-follow-btn {
+      font-size: 10px; color: #07c160;
+      border: 1px solid #07c160; border-radius: 10px;
+      padding: 2px 7px; white-space: nowrap; flex-shrink: 0;
+    }
+    .wx-cover {
+      width: 100%; aspect-ratio: 2.35/1;
+      object-fit: cover; display: block;
+    }
+    .wx-cover-placeholder {
+      width: 100%; aspect-ratio: 2.35/1;
+      background: linear-gradient(135deg,#6366f1,#8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+    }
+    .wx-article-content { padding: 14px 14px 12px; }
+    .wx-article-title {
+      font-size: 14px; font-weight: 700; color: #111827;
+      line-height: 1.5; margin-bottom: 8px;
+    }
+    .wx-article-desc {
+      font-size: 12px; color: #6b7280; line-height: 1.65;
+      display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
+      -webkit-box-orient: vertical; overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .wx-article-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; color: #9ca3af;
+      padding-top: 10px; border-top: 1px solid #f3f4f6;
+    }
+    .wx-read-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #07c160; color: #fff; border-radius: 14px;
+      padding: 5px 12px; font-size: 11px; font-weight: 600;
+      text-decoration: none; transition: background .2s;
+    }
+    .wx-read-btn:hover { background: #06ad56; }
+    .wx-loading {
+      padding: 32px 14px; text-align: center;
+      color: #9ca3af; font-size: 12px;
+    }
+    .wx-loading-spinner {
+      width: 20px; height: 20px;
+      border: 2px solid #e5e7eb; border-top-color: #07c160;
+      border-radius: 50%; animation: wxspin .8s linear infinite;
+      margin: 0 auto 8px;
+    }
+    @keyframes wxspin { to { transform: rotate(360deg); } }
   </style>
   <link rel="preload" href="perf-optimized.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="perf-optimized.css"></noscript>
@@ -258,6 +351,16 @@
 
     <!-- 引导图 -->
     <div class="guide-right" id="guideRight" aria-hidden="true"></div>
+
+    <!-- 微信文章区 -->
+    <div class="wx-article-panel" id="wxArticlePanel">
+      <div class="wx-article-inner">
+        <div class="wx-loading">
+          <div class="wx-loading-spinner"></div>
+          正在加载文章...
+        </div>
+      </div>
+    </div>
 
     <!-- 错误页面 -->
     <div class="error-container" id="errorContainer" style="display: none;">

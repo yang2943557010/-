@@ -530,6 +530,9 @@ const PageRenderer = {
     if (diskConfig.guide) {
       guideRight.innerHTML = `<img src="${diskConfig.guide}" alt="引导图" class="guide-img" loading="lazy" decoding="async">`;
     }
+
+    // 加载微信文章（桌面端）
+    loadWxArticle(WX_ARTICLE_URL);
     
     const qrContainer = document.getElementById('qrContainer');
     QRCodeGenerator.generate(targetUrl, qrContainer);
@@ -894,4 +897,88 @@ if (typeof window !== 'undefined') {
   window.DeviceDetector = DeviceDetector;
   window.detectDiskType = detectDiskType;
   window.DISK_CONFIG = DISK_CONFIG;
+}
+
+// ==================== 微信文章加载 ====================
+
+// 部署 Cloudflare Worker 后，把 Worker URL 填在这里
+// 例如: 'https://wx-article.yourname.workers.dev'
+const WX_PROXY_URL = 'https://frosty-boat-c2ef.yourenjia521.workers.dev';
+
+// 要展示的微信文章链接
+const WX_ARTICLE_URL = 'https://mp.weixin.qq.com/s/0U9QKBCQodsCsYPsSiEbMA';
+
+function loadWxArticle(articleUrl) {
+  const panel = document.getElementById('wxArticlePanel');
+  if (!panel) return;
+  panel.style.display = 'flex'; // grid 第三列显示
+
+  if (!WX_PROXY_URL) {
+    // Worker 未配置，直接显示降级卡片
+    renderWxArticleFallback(panel, articleUrl);
+    return;
+  }
+
+  const apiUrl = `${WX_PROXY_URL}?url=${encodeURIComponent(articleUrl)}`;
+
+  fetch(apiUrl)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) throw new Error(data.error || '加载失败');
+      renderWxArticle(panel, data);
+    })
+    .catch(() => renderWxArticleFallback(panel, articleUrl));
+}
+
+function renderWxArticle(panel, data) {
+  const coverHtml = data.cover
+    ? `<img class="wx-cover" src="${data.cover}" alt="封面" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.innerHTML='<div class=wx-cover-placeholder>📰</div>'">`
+    : `<div class="wx-cover-placeholder">📰</div>`;
+
+  const avatarHtml = data.accountAvatar
+    ? `<img src="${data.accountAvatar}" alt="" referrerpolicy="no-referrer">`
+    : data.account.charAt(0);
+
+  const timeStr = data.publishTime
+    ? `<span>📅 ${data.publishTime}</span>`
+    : `<span>微信公众号</span>`;
+
+  panel.innerHTML = `
+    <div class="wx-article-inner">
+      <div class="wx-account-bar">
+        <div class="wx-account-avatar">${avatarHtml}</div>
+        <span class="wx-account-name">${data.account}</span>
+        <span class="wx-follow-btn">+ 关注</span>
+      </div>
+      ${coverHtml}
+      <div class="wx-article-content">
+        <div class="wx-article-title">${data.title}</div>
+        <div class="wx-article-desc">${data.desc}</div>
+        <div class="wx-article-meta">
+          ${timeStr}
+          <a class="wx-read-btn" href="${data.url}" target="_blank" rel="noopener">
+            <span>阅读原文</span>
+            <span>→</span>
+          </a>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderWxArticleFallback(panel, articleUrl) {
+  panel.innerHTML = `
+    <div class="wx-article-inner">
+      <div class="wx-cover-placeholder">📰</div>
+      <div class="wx-article-content">
+        <div class="wx-article-title">网盘资源集</div>
+        <div class="wx-article-desc">点击下方按钮查看完整文章内容，了解更多网盘资源分享技巧。</div>
+        <div class="wx-article-meta">
+          <span>微信公众号</span>
+          <a class="wx-read-btn" href="${articleUrl}" target="_blank" rel="noopener">
+            <span>阅读原文</span>
+            <span>→</span>
+          </a>
+        </div>
+      </div>
+    </div>`;
 }
