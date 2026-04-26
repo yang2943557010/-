@@ -537,8 +537,7 @@ const PageRenderer = {
 
     // 加载微信文章（桌面端，仅当有文章ID时）
     if (params.wxArticleId) {
-      const wxUrl = `https://mp.weixin.qq.com/s/${params.wxArticleId}`;
-      loadWxArticle(wxUrl);
+      loadWxArticles(params.wxArticleId);
     }
     
     const qrContainer = document.getElementById('qrContainer');
@@ -908,80 +907,261 @@ if (typeof window !== 'undefined') {
 
 // ==================== 微信文章加载 ====================
 
-// 部署 Cloudflare Worker 后，把 Worker URL 填在这里
 const WX_PROXY_URL = 'https://frosty-boat-c2ef.yourenjia521.workers.dev';
 
-function loadWxArticle(articleUrl) {
-  const panel = document.getElementById('wxArticlePanel');
-  if (!panel) return;
-  panel.style.display = 'flex'; // grid 第三列显示
+// 利用浏览器 DOM 彻底去除 HTML 标签，比正则更可靠
+function stripHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.innerHTML = str;
+  return (div.textContent || div.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 200);
+}
 
-  if (!WX_PROXY_URL) {
-    // Worker 未配置，直接显示降级卡片
-    renderWxArticleFallback(panel, articleUrl);
-    return;
+// 加载多篇文章（ids 为逗号分隔的ID字符串）
+function loadWxArticles(wxIds) {
+  const panel = document.getElementById('wxArticlePanel');
+  if (!panel || !wxIds) return;
+
+  const ids = wxIds.split(',').map(s => s.trim()).filter(Boolean).slice(0, 3);
+  if (!ids.length) return;
+
+  panel.style.display = 'flex';
+
+  if (ids.length === 1) {
+    // 单篇
+    panel.innerHTML = `<div class="wx-article-inner"><div class="wx-loading"><div class="wx-loading-spinner"></div>加载中...</div></div>`;
+    const url = `https://mp.weixin.qq.com/s/${ids[0]}`;
+    const card = panel.children[0];
+    if (!WX_PROXY_URL) { renderFallbackInto(card, url); return; }
+    fetch(`${WX_PROXY_URL}?url=${encodeURIComponent(url)}`)
+      .then(r => r.json())
+      .then(data => { if (!data.success) throw new Error(); data.url = url; renderArticleInto(card, data); })
+      .catch(() => renderFallbackInto(card, url));
+  } else {
+    // 多篇：一次批量请求
+    panel.innerHTML = `
+      <div class="wx-article-inner wx-multi">
+        <div class="wx-account-bar" id="wxAccountBar">
+          <div class="wx-account-avatar">公</div>
+          <span class="wx-account-name">微信公众号</span>
+          <span class="wx-follow-btn">+ 关注</span>
+        </div>
+        <div class="wx-multi-list" id="wxMultiList">
+          ${ids.map(() => `<div class="wx-multi-item wx-multi-loading"><div class="wx-loading-spinner"></div></div>`).join('')}
+        </div>
+      </div>`;
+
+    const list = document.getElementById('wxMultiList');
+
+    if (!WX_PROXY_URL) {
+      ids.forEach((id, i) => renderMultiItemFallback(list.children[i], `https://mp.weixin.qq.com/s/${id}`));
+      return;
+    }
+
+    // 批量接口：一次请求拿全部
+    fetch(`${WX_PROXY_URL}?urls=${ids.join(',')}`)
+      .then(r => r.json())
+      .then(res => {
+        if (!res.success || !res.articles) throw new Error();
+        res.articles.forEach((data, i) => {
+          const url = `https://mp.weixin.qq.com/s/${ids[i]}`;
+          data.url = url; // 强制用拼接链接
+          if (data.success) {
+            renderMultiItem(list.children[i], data);
+          } else {
+            renderMultiItemFallback(list.children[i], url);
+          }
+          // 用第一篇更新顶部账号
+          if (i === 0 && data.account) {
+            const bar = document.getElementById('wxAccountBar');
+            if (bar) {
+              bar.querySelector('.wx-account-avatar').textContent = data.account.charAt(0);
+              bar.querySelector('.wx-account-name').textContent = data.account;
+            }
+          }
+        });
+      })
+      .catch(() => {
+        // 批量失败降级为逐个请求
+        ids.forEach((id, i) => {
+          const url = `https://mp.weixin.qq.com/s/${id}`;
+          fetch(`${WX_PROXY_URL}?url=${encodeURIComponent(url)}`)
+            .then(r => r.json())
+            .then(data => { if (!data.success) throw new Error(); data.url = url; renderMultiItem(list.children[i], data); })
+            .catch(() => renderMultiItemFallback(list.children[i], url));
+        });
+      });
+  }
+}
+
+function renderMultiItem(el, data) {
+  el.className = 'wx-multi-item';
+  el.innerHTML = ''; // 清空
+
+  // 封面图
+  if (data.cover) {
+    const img = document.createElement('img');
+    img.className = 'wx-multi-cover';
+    img.loading = 'lazy';
+    img.referrerPolicy = 'no-referrer';
+    img.src = data.cover;
+    img.onerror = () => img.style.display = 'none';
+    el.appendChild(img);
   }
 
-  const apiUrl = `${WX_PROXY_URL}?url=${encodeURIComponent(articleUrl)}`;
+  // body
+  const body = document.createElement('div');
+  body.className = 'wx-multi-body';
 
-  fetch(apiUrl)
-    .then(r => r.json())
-    .then(data => {
-      if (!data.success) throw new Error(data.error || '加载失败');
-      renderWxArticle(panel, data);
-    })
-    .catch(() => renderWxArticleFallback(panel, articleUrl));
+  // 标题
+  const title = document.createElement('div');
+  title.className = 'wx-multi-title';
+  title.textContent = data.title || '';
+  body.appendChild(title);
+
+  // 摘要（用 textContent 彻底避免 HTML 注入）
+  const cleanDesc = stripHtml(data.desc || '');
+  if (cleanDesc) {
+    const desc = document.createElement('div');
+    desc.className = 'wx-multi-desc';
+    desc.textContent = cleanDesc;
+    body.appendChild(desc);
+  }
+
+  // footer
+  const footer = document.createElement('div');
+  footer.className = 'wx-multi-footer';
+
+  const time = document.createElement('span');
+  time.className = 'wx-multi-time';
+  time.textContent = data.publishTime ? `📅 ${data.publishTime}` : '';
+  footer.appendChild(time);
+
+  // 按钮——用 createElement 确保一定存在
+  const btn = document.createElement('a');
+  btn.href = data.url;
+  btn.target = '_blank';
+  btn.rel = 'noopener';
+  btn.textContent = '阅读原文 →';
+  btn.style.cssText = 'display:inline-flex;align-items:center;background:#07c160;color:#fff;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap;';
+  footer.appendChild(btn);
+
+  body.appendChild(footer);
+  el.appendChild(body);
 }
 
-function renderWxArticle(panel, data) {
-  const coverHtml = data.cover
-    ? `<img class="wx-cover" src="${data.cover}" alt="封面" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.innerHTML='<div class=wx-cover-placeholder>📰</div>'">`
-    : `<div class="wx-cover-placeholder">📰</div>`;
+function renderMultiItemFallback(el, url) {
+  el.className = 'wx-multi-item';
+  el.innerHTML = '';
 
-  const avatarHtml = data.accountAvatar
-    ? `<img src="${data.accountAvatar}" alt="" referrerpolicy="no-referrer">`
-    : data.account.charAt(0);
+  const body = document.createElement('div');
+  body.className = 'wx-multi-body';
 
-  const timeStr = data.publishTime
-    ? `<span>📅 ${data.publishTime}</span>`
-    : `<span>微信公众号</span>`;
+  const title = document.createElement('div');
+  title.className = 'wx-multi-title';
+  title.textContent = '微信公众号文章';
+  body.appendChild(title);
 
-  panel.innerHTML = `
-    <div class="wx-article-inner">
-      <div class="wx-account-bar">
-        <div class="wx-account-avatar">${avatarHtml}</div>
-        <span class="wx-account-name">${data.account}</span>
-        <span class="wx-follow-btn">+ 关注</span>
-      </div>
-      ${coverHtml}
-      <div class="wx-article-content">
-        <div class="wx-article-title">${data.title}</div>
-        <div class="wx-article-desc">${data.desc}</div>
-        <div class="wx-article-meta">
-          ${timeStr}
-          <a class="wx-read-btn" href="${data.url}" target="_blank" rel="noopener">
-            <span>阅读原文</span>
-            <span>→</span>
-          </a>
-        </div>
-      </div>
-    </div>`;
+  const footer = document.createElement('div');
+  footer.className = 'wx-multi-footer';
+
+  const empty = document.createElement('span');
+  footer.appendChild(empty);
+
+  const btn = document.createElement('a');
+  btn.href = url;
+  btn.target = '_blank';
+  btn.rel = 'noopener';
+  btn.textContent = '阅读原文 →';
+  btn.style.cssText = 'display:inline-flex;align-items:center;background:#07c160;color:#fff;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap;';
+  footer.appendChild(btn);
+
+  body.appendChild(footer);
+  el.appendChild(body);
 }
 
-function renderWxArticleFallback(panel, articleUrl) {
-  panel.innerHTML = `
-    <div class="wx-article-inner">
-      <div class="wx-cover-placeholder">📰</div>
-      <div class="wx-article-content">
-        <div class="wx-article-title">网盘资源集</div>
-        <div class="wx-article-desc">点击下方按钮查看完整文章内容，了解更多网盘资源分享技巧。</div>
-        <div class="wx-article-meta">
-          <span>微信公众号</span>
-          <a class="wx-read-btn" href="${articleUrl}" target="_blank" rel="noopener">
-            <span>阅读原文</span>
-            <span>→</span>
-          </a>
-        </div>
+function renderArticleInto(card, data) {
+  card.innerHTML = '';
+
+  // 账号栏
+  const bar = document.createElement('div');
+  bar.className = 'wx-account-bar';
+  const avatar = document.createElement('div');
+  avatar.className = 'wx-account-avatar';
+  if (data.accountAvatar) {
+    const img = document.createElement('img');
+    img.src = data.accountAvatar;
+    img.referrerPolicy = 'no-referrer';
+    avatar.appendChild(img);
+  } else {
+    avatar.textContent = (data.account || '公').charAt(0);
+  }
+  const name = document.createElement('span');
+  name.className = 'wx-account-name';
+  name.textContent = data.account || '微信公众号';
+  const follow = document.createElement('span');
+  follow.className = 'wx-follow-btn';
+  follow.textContent = '+ 关注';
+  bar.append(avatar, name, follow);
+  card.appendChild(bar);
+
+  // 封面
+  if (data.cover) {
+    const img = document.createElement('img');
+    img.className = 'wx-cover';
+    img.src = data.cover;
+    img.loading = 'lazy';
+    img.referrerPolicy = 'no-referrer';
+    img.onerror = () => { img.style.display = 'none'; };
+    card.appendChild(img);
+  } else {
+    const ph = document.createElement('div');
+    ph.className = 'wx-cover-placeholder';
+    ph.textContent = '📰';
+    card.appendChild(ph);
+  }
+
+  // 内容区
+  const content = document.createElement('div');
+  content.className = 'wx-article-content';
+
+  const title = document.createElement('div');
+  title.className = 'wx-article-title';
+  title.textContent = data.title || '';
+  content.appendChild(title);
+
+  const cleanDesc = stripHtml(data.desc || '');
+  if (cleanDesc) {
+    const desc = document.createElement('div');
+    desc.className = 'wx-article-desc';
+    desc.textContent = cleanDesc;
+    content.appendChild(desc);
+  }
+
+  const meta = document.createElement('div');
+  meta.className = 'wx-article-meta';
+  const time = document.createElement('span');
+  time.textContent = data.publishTime ? `📅 ${data.publishTime}` : '微信公众号';
+  const btn = document.createElement('a');
+  btn.className = 'wx-read-btn';
+  btn.href = data.url;
+  btn.target = '_blank';
+  btn.rel = 'noopener';
+  btn.textContent = '阅读原文 →';
+  meta.append(time, btn);
+  content.appendChild(meta);
+
+  card.appendChild(content);
+}
+
+function renderFallbackInto(card, url) {
+  card.innerHTML = `
+    <div class="wx-cover-placeholder">📰</div>
+    <div class="wx-article-content">
+      <div class="wx-article-title">微信公众号文章</div>
+      <div class="wx-article-meta">
+        <span>微信公众号</span>
+        <a class="wx-read-btn" href="${url}" target="_blank" rel="noopener">阅读原文 →</a>
       </div>
     </div>`;
 }

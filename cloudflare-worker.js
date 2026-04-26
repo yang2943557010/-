@@ -18,30 +18,38 @@ const CORS_HEADERS = {
 
 export default {
   async fetch(request) {
-    // 处理预检请求
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: CORS_HEADERS });
     }
 
     const url = new URL(request.url);
+
+    // 批量模式：?urls=id1,id2,id3
+    const urlsParam = url.searchParams.get('urls');
+    if (urlsParam) {
+      const ids = urlsParam.split(',').map(s => s.trim()).filter(Boolean).slice(0, 3);
+      const results = await Promise.all(ids.map(async id => {
+        const articleUrl = `https://mp.weixin.qq.com/s/${id}`;
+        try {
+          const html = await fetchArticle(articleUrl);
+          const data = parseArticle(html, articleUrl);
+          return data.title ? { success: true, ...data } : { success: false, url: articleUrl };
+        } catch (e) {
+          return { success: false, url: articleUrl };
+        }
+      }));
+      return json({ success: true, articles: results });
+    }
+
+    // 单篇模式：?url=...
     const articleUrl = url.searchParams.get('url');
-
-    if (!articleUrl) {
-      return json({ error: '缺少 url 参数' }, 400);
-    }
-
-    if (!articleUrl.includes('mp.weixin.qq.com')) {
-      return json({ error: '仅支持微信公众号文章链接' }, 403);
-    }
+    if (!articleUrl) return json({ error: '缺少 url 参数' }, 400);
+    if (!articleUrl.includes('mp.weixin.qq.com')) return json({ error: '仅支持微信公众号文章链接' }, 403);
 
     try {
       const html = await fetchArticle(articleUrl);
       const data = parseArticle(html, articleUrl);
-
-      if (!data.title) {
-        return json({ error: '无法解析文章，可能已过期' }, 404);
-      }
-
+      if (!data.title) return json({ error: '无法解析文章，可能已过期' }, 404);
       return json({ success: true, ...data });
     } catch (e) {
       return json({ error: '抓取失败: ' + e.message }, 500);
@@ -76,10 +84,12 @@ function parseArticle(html, url) {
 
   // desc 优先用 og:description，避免混入 JS 代码
   let desc = getMeta('og:description') || getMeta('description');
-  // 如果 desc 包含 JS 特征则丢弃
-  if (!desc || desc.includes('document.') || desc.includes('function(') || desc.length < 5) {
+  // 如果 desc 包含 JS 特征或 HTML 标签则丢弃，重新从正文提取
+  if (!desc || desc.includes('document.') || desc.includes('function(') || /<[a-z]/i.test(desc) || desc.length < 5) {
     desc = extractCleanText(html);
   }
+  // 最终再清理一遍残留标签和多余空白
+  desc = desc.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
 
   const cover = getMeta('og:image') || getMeta('twitter:image');
 
@@ -98,7 +108,7 @@ function parseArticle(html, url) {
     }
   }
 
-  return { title, desc: (desc || '').slice(0, 200), cover, account, publishTime, url };
+  return { title, desc: (desc || '').replace(/<[^>]*>/g, '').trim().slice(0, 200), cover, account, publishTime, url };
 }
 
 // 从正文提取干净文本（去掉脚本和标签）
@@ -108,9 +118,14 @@ function extractCleanText(html) {
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '');
   // 取 js_content 区域
-  const m = clean.match(/<div[^>]+id="js_content"[^>]*>([\s\S]{0,2000})/i);
+  const m = clean.match(/<div[^>]+id="js_content"[^>]*>([\s\S]{0,3000})/i);
   if (!m) return '';
-  return m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 200);
+  return m[1]
+    .replace(/<[^>]+>/g, ' ')   // 标签替换为空格
+    .replace(/&[a-z]+;/gi, ' ') // HTML 实体
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 200);
 }
 
 function extract(html, regex) {
