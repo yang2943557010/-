@@ -483,25 +483,26 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       </div>
 
       <!-- 批量生成微信文章 -->
-      <div style="margin-top:12px;padding:16px;background:var(--bg);border-radius:12px;">
-        <label style="font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+      <div class="form-group full" style="margin-top:8px;">
+        <label style="display:flex;align-items:center;gap:6px;">
           💬 微信公众号文章
           <span style="font-size:10px;color:var(--text3);font-weight:400;">（可选，最多3篇，电脑端右侧展示）</span>
         </label>
-        <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-size:11px;color:var(--text3);width:20px;flex-shrink:0;">①</span>
-            <input type="text" id="batchWxId1" placeholder="粘贴第1篇微信文章链接" style="flex:1;font-size:12px;" oninput="autoExtractWxId(this)">
+            <span style="font-size:11px;color:var(--text3);width:28px;flex-shrink:0;">①</span>
+            <input type="text" id="batchWxId1" placeholder="粘贴第1篇微信文章链接或含链接的文字" style="flex:1;" oninput="autoExtractWxId(this)">
           </div>
           <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-size:11px;color:var(--text3);width:20px;flex-shrink:0;">②</span>
-            <input type="text" id="batchWxId2" placeholder="粘贴第2篇（可选）" style="flex:1;font-size:12px;" oninput="autoExtractWxId(this)">
+            <span style="font-size:11px;color:var(--text3);width:28px;flex-shrink:0;">②</span>
+            <input type="text" id="batchWxId2" placeholder="粘贴第2篇微信文章链接（可选）" style="flex:1;" oninput="autoExtractWxId(this)">
           </div>
           <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-size:11px;color:var(--text3);width:20px;flex-shrink:0;">③</span>
-            <input type="text" id="batchWxId3" placeholder="粘贴第3篇（可选）" style="flex:1;font-size:12px;" oninput="autoExtractWxId(this)">
+            <span style="font-size:11px;color:var(--text3);width:28px;flex-shrink:0;">③</span>
+            <input type="text" id="batchWxId3" placeholder="粘贴第3篇微信文章链接（可选）" style="flex:1;" oninput="autoExtractWxId(this)">
           </div>
         </div>
+        <span style="font-size:11px;color:var(--text3);margin-top:4px;display:block;">💡 支持粘贴完整链接或含链接的文字，自动提取文章ID</span>
       </div>
       
       <div class="btn-group">
@@ -567,25 +568,26 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       </div>
 
       <!-- 表格导入微信文章 -->
-      <div style="margin-top:12px;padding:16px;background:var(--bg);border-radius:12px;">
-        <label style="font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+      <div class="form-group full" style="margin-top:8px;">
+        <label style="display:flex;align-items:center;gap:6px;">
           💬 微信公众号文章
           <span style="font-size:10px;color:var(--text3);font-weight:400;">（可选，最多3篇，电脑端右侧展示）</span>
         </label>
-        <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-size:11px;color:var(--text3);width:20px;flex-shrink:0;">①</span>
-            <input type="text" id="uploadWxId1" placeholder="粘贴第1篇微信文章链接" style="flex:1;font-size:12px;" oninput="autoExtractWxId(this)">
+            <span style="font-size:11px;color:var(--text3);width:28px;flex-shrink:0;">①</span>
+            <input type="text" id="uploadWxId1" placeholder="粘贴第1篇微信文章链接或含链接的文字" style="flex:1;" oninput="autoExtractWxId(this)">
           </div>
           <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-size:11px;color:var(--text3);width:20px;flex-shrink:0;">②</span>
-            <input type="text" id="uploadWxId2" placeholder="粘贴第2篇（可选）" style="flex:1;font-size:12px;" oninput="autoExtractWxId(this)">
+            <span style="font-size:11px;color:var(--text3);width:28px;flex-shrink:0;">②</span>
+            <input type="text" id="uploadWxId2" placeholder="粘贴第2篇微信文章链接（可选）" style="flex:1;" oninput="autoExtractWxId(this)">
           </div>
           <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-size:11px;color:var(--text3);width:20px;flex-shrink:0;">③</span>
-            <input type="text" id="uploadWxId3" placeholder="粘贴第3篇（可选）" style="flex:1;font-size:12px;" oninput="autoExtractWxId(this)">
+            <span style="font-size:11px;color:var(--text3);width:28px;flex-shrink:0;">③</span>
+            <input type="text" id="uploadWxId3" placeholder="粘贴第3篇微信文章链接（可选）" style="flex:1;" oninput="autoExtractWxId(this)">
           </div>
         </div>
+        <span style="font-size:11px;color:var(--text3);margin-top:4px;display:block;">💡 支持粘贴完整链接或含链接的文字，自动提取文章ID</span>
       </div>
       
       <div id="uploadResult" style="margin-top:20px;"></div>

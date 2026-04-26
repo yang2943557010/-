@@ -1052,8 +1052,8 @@ function loadWxArticles(wxIds) {
     panel.innerHTML = `
       <div class="wx-article-inner wx-multi">
         <div class="wx-account-bar" id="wxAccountBar">
-          <div class="wx-account-avatar">公</div>
-          <span class="wx-account-name">微信公众号</span>
+          <div class="wx-account-avatar">更</div>
+          <span class="wx-account-name">更多资源</span>
           <span class="wx-follow-btn">+ 关注</span>
         </div>
         <div class="wx-multi-list" id="wxMultiList">
@@ -1208,7 +1208,7 @@ function renderArticleInto(card, data) {
   }
   const name = document.createElement('span');
   name.className = 'wx-account-name';
-  name.textContent = data.account || '微信公众号';
+  name.textContent = data.account || '更多资源';
   const follow = document.createElement('span');
   follow.className = 'wx-follow-btn';
   follow.textContent = '+ 关注';
