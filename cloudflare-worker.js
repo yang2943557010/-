@@ -1,30 +1,53 @@
 /**
- * Cloudflare Worker - 微信文章信息抓取代理
- * 
+ * Cloudflare Worker - 微信文章代理 + 短链接服务
+ *
  * 部署步骤：
  * 1. 登录 https://dash.cloudflare.com
- * 2. 左侧菜单 → Workers & Pages → Create Worker
- * 3. 把本文件全部内容粘贴进去，点击 Deploy
- * 4. 复制 Worker 的 URL（如 https://wx-article.你的名字.workers.dev）
- * 5. 把该 URL 填入 app.js 的 WX_PROXY_URL 变量
+ * 2. Workers & Pages → Create Worker → 粘贴本文件内容 → Deploy
+ * 3. 进入 Worker → Settings → Bindings → KV Namespace Bindings
+ *    → Add binding，Variable name 填 KV，选择或新建一个 KV namespace
+ * 4. 把 Worker URL 填入 app.js 的 WX_PROXY_URL
  */
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json; charset=utf-8',
 };
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: CORS_HEADERS });
     }
 
     const url = new URL(request.url);
+    const path = url.pathname;
 
-    // 批量模式：?urls=id1,id2,id3
+    // ── 短链接创建：POST /shorten  body: { params: "d=xxx&wx=yyy" } ──
+    if (request.method === 'POST' && path === '/shorten') {
+      try {
+        const { params } = await request.json();
+        if (!params) return json({ error: '缺少 params' }, 400);
+
+        const code = genCode();
+        await env.KV.put(`sl:${code}`, params, { expirationTtl: 60 * 60 * 24 * 365 }); // 1年
+        return json({ success: true, code });
+      } catch (e) {
+        return json({ error: e.message }, 500);
+      }
+    }
+
+    // ── 短链接解析：GET /resolve?c=XXXXXX ──
+    if (path === '/resolve') {
+      const code = url.searchParams.get('c');
+      if (!code) return json({ error: '缺少 c 参数' }, 400);
+      const params = await env.KV.get(`sl:${code}`);
+      if (!params) return json({ error: '短链接不存在或已过期' }, 404);
+      return json({ success: true, params });
+    }
+
+    // ── 批量文章抓取：GET /?urls=id1,id2,id3 ──
     const urlsParam = url.searchParams.get('urls');
     if (urlsParam) {
       const ids = urlsParam.split(',').map(s => s.trim()).filter(Boolean).slice(0, 3);
@@ -41,21 +64,31 @@ export default {
       return json({ success: true, articles: results });
     }
 
-    // 单篇模式：?url=...
+    // ── 单篇文章抓取：GET /?url=... ──
     const articleUrl = url.searchParams.get('url');
-    if (!articleUrl) return json({ error: '缺少 url 参数' }, 400);
-    if (!articleUrl.includes('mp.weixin.qq.com')) return json({ error: '仅支持微信公众号文章链接' }, 403);
-
-    try {
-      const html = await fetchArticle(articleUrl);
-      const data = parseArticle(html, articleUrl);
-      if (!data.title) return json({ error: '无法解析文章，可能已过期' }, 404);
-      return json({ success: true, ...data });
-    } catch (e) {
-      return json({ error: '抓取失败: ' + e.message }, 500);
+    if (articleUrl) {
+      if (!articleUrl.includes('mp.weixin.qq.com')) return json({ error: '仅支持微信公众号文章链接' }, 403);
+      try {
+        const html = await fetchArticle(articleUrl);
+        const data = parseArticle(html, articleUrl);
+        if (!data.title) return json({ error: '无法解析文章' }, 404);
+        return json({ success: true, ...data });
+      } catch (e) {
+        return json({ error: '抓取失败: ' + e.message }, 500);
+      }
     }
+
+    return json({ error: '缺少参数' }, 400);
   }
 };
+
+// 生成6位随机短码（字母+数字）
+function genCode() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
 
 async function fetchArticle(url) {
   const res = await fetch(url, {
@@ -82,23 +115,17 @@ function parseArticle(html, url) {
     extract(html, /<h1[^>]*class="[^"]*rich_media_title[^"]*"[^>]*>([\s\S]*?)<\/h1>/i) ||
     extract(html, /<title>([\s\S]*?)<\/title>/i)?.replace(/\s*[-–|].*$/, '').trim();
 
-  // desc 优先用 og:description，避免混入 JS 代码
   let desc = getMeta('og:description') || getMeta('description');
-  // 如果 desc 包含 JS 特征或 HTML 标签则丢弃，重新从正文提取
   if (!desc || desc.includes('document.') || desc.includes('function(') || /<[a-z]/i.test(desc) || desc.length < 5) {
     desc = extractCleanText(html);
   }
-  // 最终再清理一遍残留标签和多余空白
-  desc = desc.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  desc = desc.replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, ' ').trim().slice(0, 200);
 
   const cover = getMeta('og:image') || getMeta('twitter:image');
-
-  const account =
-    getMeta('og:site_name') ||
+  const account = getMeta('og:site_name') ||
     extract(html, /<strong[^>]*class="[^"]*account_nickname_inner[^"]*"[^>]*>([\s\S]*?)<\/strong>/i) ||
     '微信公众号';
 
-  // 时间戳转可读日期
   let publishTime = extract(html, /<em[^>]*id="publish_time"[^>]*>([\s\S]*?)<\/em>/i);
   if (!publishTime) {
     const tsMatch = html.match(/var ct\s*=\s*"(\d+)"/);
@@ -108,24 +135,7 @@ function parseArticle(html, url) {
     }
   }
 
-  return { title, desc: (desc || '').replace(/<[^>]*>/g, '').trim().slice(0, 200), cover, account, publishTime, url };
-}
-
-// 从正文提取干净文本（去掉脚本和标签）
-function extractCleanText(html) {
-  // 去掉 script/style 块
-  const clean = html
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '');
-  // 取 js_content 区域
-  const m = clean.match(/<div[^>]+id="js_content"[^>]*>([\s\S]{0,3000})/i);
-  if (!m) return '';
-  return m[1]
-    .replace(/<[^>]+>/g, ' ')   // 标签替换为空格
-    .replace(/&[a-z]+;/gi, ' ') // HTML 实体
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 200);
+  return { title, desc, cover, account, publishTime, url };
 }
 
 function extract(html, regex) {
@@ -133,26 +143,19 @@ function extract(html, regex) {
   return m ? decodeHtml(m[1].replace(/<[^>]+>/g, '').trim()) : '';
 }
 
-function extractText(html, regex) {
-  const m = html.match(regex);
+function extractCleanText(html) {
+  const clean = html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '');
+  const m = clean.match(/<div[^>]+id="js_content"[^>]*>([\s\S]{0,3000})/i);
   if (!m) return '';
-  return m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 200);
+  return m[1].replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, ' ').trim().slice(0, 200);
 }
 
 function decodeHtml(str) {
-  return str
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ')
-    .trim();
+  return str.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ').trim();
 }
 
 function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: CORS_HEADERS,
-  });
+  return new Response(JSON.stringify(data), { status, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' } });
 }

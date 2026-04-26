@@ -7,111 +7,216 @@
 // ==================== 加密模块 ====================
 
 const CryptoUtil = {
-  SECRET_KEY: 'Qr24',  // 短密钥
-  
-  /**
-   * 加密数据对象为短字符串
-  /**
-   * 加密数据对象为短字符串
-   */
+
+  // ── 网盘代号表 ──────────────────────────────────────────
+  // 格式：代号 → { domain, pathPrefix }
+  // pathPrefix: 大多数网盘分享路径前缀（省略后只存ID）
+  DISK_CODES: {
+    B: { domain: 'pan.baidu.com',       prefix: '/s/' },
+    Q: { domain: 'pan.quark.cn',        prefix: '/s/' },
+    A: { domain: 'alipan.com',          prefix: '/s/' },
+    X: { domain: 'pan.xunlei.com',      prefix: '/s/' },
+    E: { domain: '115.com',             prefix: '/s/' },
+    L: { domain: 'lanzou.com',          prefix: '/b/' },
+    T: { domain: 'cloud.189.cn',        prefix: '/t/' },
+    W: { domain: 'weiyun.com',          prefix: '/s/' },
+    J: { domain: 'jianguoyun.com',      prefix: '/d/' },
+    M: { domain: 'caiyun.139.com',      prefix: '/s/' },
+    U: { domain: 'pan.wo.cn',           prefix: '/s/' },
+    C: { domain: 'drive.uc.cn',         prefix: '/s/' },
+    P: { domain: 'mypikpak.com',        prefix: '/s/' },
+    N: { domain: '123pan.com',          prefix: '/s/' },
+    F: { domain: 'ctfile.com',          prefix: '/f/' },
+    O: { domain: '1drv.ms',             prefix: '/'   },
+    G: { domain: 'drive.google.com',    prefix: '/file/d/' },
+    D: { domain: 'dropbox.com',         prefix: '/s/' },
+    Z: { domain: 'mega.nz',             prefix: '/#!' },
+    R: { domain: 'mediafire.com',       prefix: '/file/' },
+    K: { domain: 'box.com',             prefix: '/s/' },
+    I: { domain: 'icloud.com',          prefix: '/share/' },
+    V: { domain: 'pcloud.com',          prefix: '/share/' },
+  },
+
+  // 页面风格缩写（default 省略不存）
+  STYLE_CODES: {
+    m: 'minimal', g: 'gradient', s: 'sunset', o: 'ocean',
+    f: 'forest',  c: 'cherry',   n: 'midnight', a: 'aurora',
+    k: 'candy',   r: 'card',
+  },
+  STYLE_ENCODE: {
+    minimal: 'm', gradient: 'g', sunset: 's', ocean: 'o',
+    forest: 'f',  cherry: 'c',   midnight: 'n', aurora: 'a',
+    candy: 'k',   card: 'r',
+  },
+
+  // ── 压缩 URL ────────────────────────────────────────────
+  // 输出格式：代号ID  或  代号ID:提取码
+  // 例：Qabc123  或  Babc123:1234
+  compressUrl(url, extractCode) {
+    try {
+      const u = new URL(url);
+      const host = u.hostname.toLowerCase().replace(/^www\./, '');
+      // 找匹配的代号
+      const entry = Object.entries(this.DISK_CODES).find(([, v]) =>
+        host === v.domain || host.endsWith('.' + v.domain)
+      );
+      if (!entry) return null; // 未知网盘，不压缩
+      const [code, { prefix }] = entry;
+      let path = u.pathname;
+      // 去掉路径前缀
+      if (prefix !== '/' && path.startsWith(prefix)) {
+        path = path.slice(prefix.length);
+      } else {
+        path = path.replace(/^\//, '');
+      }
+      // 提取码：优先用 URL 里的 pwd/password/code 参数
+      const urlCode = u.searchParams.get('pwd') || u.searchParams.get('password') || u.searchParams.get('code') || '';
+      const finalCode = extractCode || urlCode;
+      // 格式：代号+路径ID[:提取码]
+      return code + path + (finalCode ? ':' + finalCode : '');
+    } catch (e) {
+      return null;
+    }
+  },
+
+  // ── 还原 URL ────────────────────────────────────────────
+  decompressUrl(str) {
+    if (!str) return str;
+    // 新格式：单大写字母开头
+    const m = str.match(/^([A-Z])([^:]+)(?::(.*))?$/);
+    if (!m) return str; // 旧格式，原样返回
+    const [, code, id, pwd] = m;
+    const disk = this.DISK_CODES[code];
+    if (!disk) return str;
+    const url = `https://${disk.domain}${disk.prefix}${id}`;
+    return pwd ? url + '?pwd=' + pwd : url;
+  },
+
+  // 从压缩格式提取提取码
+  extractCodeFromCompressed(str) {
+    if (!str) return '';
+    const m = str.match(/^[A-Z][^:]+:(.+)$/);
+    return m ? m[1] : '';
+  },
+
+  // ── 新版编码（极致压缩）────────────────────────────────
+  // 格式（|分隔，末尾空值省略）：
+  //   压缩URL | 名称 | 风格单字母 | 广告文字 | 广告时长
+  // 提取码已编码进压缩URL，不单独存
   encryptData(data) {
     try {
-      // 紧凑格式：u|n|c|t|a|at|wx 用|分隔
-      const parts = [
-        data.u || '',
-        data.n || '',
-        data.c || '',
-        data.t || '',
-        data.a || '',
-        data.at || '',
-        data.wx || ''
-      ];
-      // 去掉末尾空值
+      const compressed = this.compressUrl(data.u || '', data.c || '');
+      const u = compressed || data.u || ''; // 未知网盘用原URL
+      const t = this.STYLE_ENCODE[data.t] || ''; // default 省略
+      const parts = [u, data.n || '', t, data.a || '', data.at || ''];
       while (parts.length > 1 && !parts[parts.length - 1]) parts.pop();
-      const str = parts.join('|');
-      
-      // XOR加密
-      const encrypted = this.xorEncrypt(str);
-      // Base64编码
-      return this.toBase64Url(encrypted);
+      return this.toBase64Url(parts.join('|'));
     } catch (e) {
       console.error('加密失败:', e);
       return null;
     }
   },
-  
-  /**
-   * 解密字符串为数据对象
-   */
+
+  // ── 新版解码 ────────────────────────────────────────────
   decryptData(str) {
     try {
       if (!str) return null;
-      // Base64解码
-      const encrypted = this.fromBase64Url(str);
-      // XOR解密
-      const decrypted = this.xorEncrypt(encrypted);
-      // 解析紧凑格式
-      const parts = decrypted.split('|');
+      const decoded = this.fromBase64Url(str);
+      const parts = decoded.split('|');
+      const rawU = parts[0] || '';
+      // 判断是否是压缩格式
+      const isCompressed = /^[A-Z]/.test(rawU) && !rawU.startsWith('http');
+      const u = isCompressed ? this.decompressUrl(rawU) : rawU;
+      const c = isCompressed ? this.extractCodeFromCompressed(rawU) : (parts[2] || '');
+      const tCode = parts[2] || '';
+      // 风格：新格式是单字母，旧格式是全名
+      const t = this.STYLE_CODES[tCode] || tCode || 'default';
       return {
-        u: parts[0] || '',
+        u,
         n: parts[1] || '',
-        c: parts[2] || '',
-        t: parts[3] || '',
-        a: parts[4] || '',
-        at: parts[5] || '',
-        wx: parts[6] || ''
+        c: c || parts[2] || '',
+        t,
+        a: parts[3] || '',
+        at: parts[4] || '',
+        wx: parts[5] || '' // 兼容旧格式
       };
     } catch (e) {
       console.error('解密失败:', e);
       return null;
     }
   },
-  
-  // XOR加密/解密
-  xorEncrypt(str) {
-    const key = this.SECRET_KEY;
-    let result = '';
-    for (let i = 0; i < str.length; i++) {
-      result += String.fromCharCode(str.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+
+  // ── 旧版兼容解码（XOR+Base64）──────────────────────────
+  decryptDataLegacy(str) {
+    try {
+      if (!str) return null;
+      const key = 'Qr24';
+      const decoded = this.fromBase64Url(str);
+      let xored = '';
+      for (let i = 0; i < decoded.length; i++) {
+        xored += String.fromCharCode(decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+      }
+      const parts = xored.split('|');
+      return {
+        u: parts[0] || '',
+        n: parts[1] || '',
+        c: parts[2] || '',
+        t: parts[3] || 'default',
+        a: parts[4] || '',
+        at: parts[5] || '',
+        wx: parts[6] || ''
+      };
+    } catch (e) {
+      return null;
     }
-    return result;
   },
-  
+
   // 转URL安全Base64
   toBase64Url(str) {
     try {
-      // 先转UTF-8字节
-      const utf8 = unescape(encodeURIComponent(str));
-      const b64 = btoa(utf8);
-      return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      const bytes = new TextEncoder().encode(str);
+      let binary = '';
+      bytes.forEach(b => binary += String.fromCharCode(b));
+      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     } catch (e) {
-      return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
   },
-  
+
   // 从URL安全Base64解码
   fromBase64Url(str) {
     let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
     while (b64.length % 4) b64 += '=';
     try {
-      const utf8 = atob(b64);
-      return decodeURIComponent(escape(utf8));
+      const binary = atob(b64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return new TextDecoder().decode(bytes);
     } catch (e) {
-      return atob(b64);
+      return decodeURIComponent(escape(atob(b64)));
     }
   },
-  
-  // 兼容旧版
+
+  // 旧版兼容（单URL加密）
   encrypt(text) {
-    const encrypted = this.xorEncrypt(text);
-    return this.toBase64Url(encrypted);
+    const key = 'Qr24';
+    let xored = '';
+    for (let i = 0; i < text.length; i++) {
+      xored += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return this.toBase64Url(xored);
   },
-  
+
   decrypt(str) {
     try {
       if (!str) return null;
-      const encrypted = this.fromBase64Url(str);
-      return this.xorEncrypt(encrypted);
+      const key = 'Qr24';
+      const decoded = this.fromBase64Url(str);
+      let result = '';
+      for (let i = 0; i < decoded.length; i++) {
+        result += String.fromCharCode(decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+      }
+      return result.startsWith('http') ? result : null;
     } catch (e) {
       return null;
     }
@@ -425,7 +530,12 @@ const UrlHandler = {
     // 新版：单参数d包含所有数据
     const compressedData = params.get('d');
     if (compressedData) {
-      const data = this.decodeData(compressedData);
+      // 先尝试新格式解码
+      let data = this.decodeData(compressedData);
+      // 如果新格式解码后 URL 不合法，尝试旧版 XOR 格式
+      if (!data || !data.u || !data.u.startsWith('http')) {
+        data = CryptoUtil.decryptDataLegacy(compressedData);
+      }
       if (data && data.u) {
         return {
           targetUrl: data.u,
@@ -434,7 +544,7 @@ const UrlHandler = {
           template: data.t || 'default',
           adText: data.a || '',
           adDuration: Math.min(Math.max(parseInt(data.at) || 2, 1), 5),
-          wxArticleId: data.wx || '',
+          wxArticleId: params.get('wx') || data.wx || '',
           isValid: true
         };
       }

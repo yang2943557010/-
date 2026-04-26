@@ -1008,44 +1008,93 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     let batchGeneratedResults = [];
 
     // ==================== 加密工具 ====================
-    // XOR加密
-    function xorEncrypt(str) {
-      const key = 'Qr24';
-      let result = '';
-      for (let i = 0; i < str.length; i++) {
-        result += String.fromCharCode(str.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-      }
-      return result;
+
+    // 网盘代号表（与 app.js 保持一致）
+    const DISK_CODES = {
+      B: { domain: 'pan.baidu.com',    prefix: '/s/' },
+      Q: { domain: 'pan.quark.cn',     prefix: '/s/' },
+      A: { domain: 'alipan.com',       prefix: '/s/' },
+      X: { domain: 'pan.xunlei.com',   prefix: '/s/' },
+      E: { domain: '115.com',          prefix: '/s/' },
+      L: { domain: 'lanzou.com',       prefix: '/b/' },
+      T: { domain: 'cloud.189.cn',     prefix: '/t/' },
+      W: { domain: 'weiyun.com',       prefix: '/s/' },
+      J: { domain: 'jianguoyun.com',   prefix: '/d/' },
+      M: { domain: 'caiyun.139.com',   prefix: '/s/' },
+      U: { domain: 'pan.wo.cn',        prefix: '/s/' },
+      C: { domain: 'drive.uc.cn',      prefix: '/s/' },
+      P: { domain: 'mypikpak.com',     prefix: '/s/' },
+      N: { domain: '123pan.com',       prefix: '/s/' },
+      F: { domain: 'ctfile.com',       prefix: '/f/' },
+      O: { domain: '1drv.ms',          prefix: '/'   },
+      G: { domain: 'drive.google.com', prefix: '/file/d/' },
+      D: { domain: 'dropbox.com',      prefix: '/s/' },
+      Z: { domain: 'mega.nz',          prefix: '/#!' },
+      R: { domain: 'mediafire.com',    prefix: '/file/' },
+      K: { domain: 'box.com',          prefix: '/s/' },
+      I: { domain: 'icloud.com',       prefix: '/share/' },
+      V: { domain: 'pcloud.com',       prefix: '/share/' },
+    };
+
+    // 域名 → 代号反查
+    const DOMAIN_TO_CODE = {};
+    for (const [code, { domain }] of Object.entries(DISK_CODES)) {
+      DOMAIN_TO_CODE[domain] = code;
     }
-    
-    // 转URL安全Base64
+
+    // 页面风格缩写
+    const STYLE_ENCODE = {
+      minimal: 'm', gradient: 'g', sunset: 's', ocean: 'o',
+      forest: 'f',  cherry: 'c',   midnight: 'n', aurora: 'a',
+      candy: 'k',   card: 'r',
+    };
+
+    // 压缩 URL：https://pan.quark.cn/s/abc123?pwd=1234 → Qabc123:1234
+    function compressUrl(url, extractCode) {
+      try {
+        const u = new URL(url);
+        const host = u.hostname.toLowerCase().replace(/^www\./, '');
+        const code = DOMAIN_TO_CODE[host] ||
+          Object.keys(DISK_CODES).find(k => host.endsWith('.' + DISK_CODES[k].domain));
+        if (!code) return null;
+        const { prefix } = DISK_CODES[code];
+        let path = u.pathname;
+        if (prefix !== '/' && path.startsWith(prefix)) {
+          path = path.slice(prefix.length);
+        } else {
+          path = path.replace(/^\//, '');
+        }
+        const urlCode = u.searchParams.get('pwd') || u.searchParams.get('password') || u.searchParams.get('code') || '';
+        const finalCode = extractCode || urlCode;
+        return code + path + (finalCode ? ':' + finalCode : '');
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // 转URL安全Base64（新版，用 TextEncoder）
     function toBase64Url(str) {
       try {
-        const utf8 = unescape(encodeURIComponent(str));
-        const b64 = btoa(utf8);
-        return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        const bytes = new TextEncoder().encode(str);
+        let binary = '';
+        bytes.forEach(b => binary += String.fromCharCode(b));
+        return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
       } catch (e) {
-        return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
       }
     }
-    
-    // 加密数据对象
+
+    // 加密数据对象（新格式，极致压缩）
+    // 格式：压缩URL|名称|风格单字母|广告文字|广告时长
+    // 提取码已编码进压缩URL，不单独存
     function encryptData(data) {
       try {
-        // 紧凑格式：u|n|c|t|a|at|wx
-        const parts = [
-          data.u || '',
-          data.n || '',
-          data.c || '',
-          data.t || '',
-          data.a || '',
-          data.at || '',
-          data.wx || ''
-        ];
+        const compressed = compressUrl(data.u || '', data.c || '');
+        const u = compressed || data.u || '';
+        const t = STYLE_ENCODE[data.t] || ''; // default 省略
+        const parts = [u, data.n || '', t, data.a || '', data.at || ''];
         while (parts.length > 1 && !parts[parts.length - 1]) parts.pop();
-        const str = parts.join('|');
-        const encrypted = xorEncrypt(str);
-        return toBase64Url(encrypted);
+        return toBase64Url(parts.join('|'));
       } catch (e) {
         console.error('加密失败:', e);
         return null;
@@ -1718,7 +1767,6 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       const adText = document.getElementById('adText')?.value || '';
       const adDuration = parseInt(document.getElementById('adDuration')?.value) || 2;
 
-      // 读取3个文章输入框，提取ID后合并为逗号分隔字符串
       const wxIds = [1, 2, 3].map(i => {
         const raw = (document.getElementById(`wxArticleId${i}`)?.value || '').trim();
         const m = raw.match(/mp\.weixin\.qq\.com\/s\/([A-Za-z0-9_-]+)/);
@@ -1726,20 +1774,19 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       }).filter(Boolean);
       const wxArticleId = wxIds.join(',');
 
-      // 构建数据对象（使用短键名）
-      const data = { u: url };
+      // 构建数据对象（提取码 c 传入 encryptData，会被编码进压缩URL）
+      const data = { u: url, c: code || '' };
       if (name && name !== '资源') data.n = name;
-      if (code) data.c = code;
       if (pageStyle !== 'default') data.t = pageStyle;
       if (adEnabled && adText.trim()) {
         data.a = adText.trim();
         data.at = adDuration;
       }
-      if (wxArticleId) data.wx = wxArticleId;
-      
-      // 使用压缩加密生成短链接
+
       const encoded = encryptData(data);
-      return `${BASE_URL}?d=${encoded}`;
+      return wxArticleId
+        ? `${BASE_URL}?d=${encoded}&wx=${wxArticleId}`
+        : `${BASE_URL}?d=${encoded}`;
     }
     
     // 带自定义广告设置的链接生成函数（用于批量生成和表格导入）
