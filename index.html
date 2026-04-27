@@ -6,10 +6,12 @@
   <title>资源分享</title>
   <meta name="description" content="网盘资源分享二维码页面">
   <meta name="robots" content="index, follow">
+  <!-- DNS 预解析 & 预连接 -->
   <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-  <link rel="dns-prefetch" href="//testlink11.oss-cn-beijing.aliyuncs.com">
+  <link rel="dns-prefetch" href="//assets.251800.xyz">
   <link rel="preconnect" href="//cdn.jsdelivr.net" crossorigin>
-  <link rel="preconnect" href="//testlink11.oss-cn-beijing.aliyuncs.com">
+  <!-- QR 库预加载（LCP 关键路径） -->
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" as="script" crossorigin>
   <script>
     document.addEventListener('contextmenu',function(e){e.preventDefault();});
     document.addEventListener('keydown',function(e){
@@ -77,6 +79,31 @@
       border-radius: 18px;
       padding: 36px;
       box-shadow: 0 40px 80px rgba(2, 6, 23, 0.06);
+      /* CLS 优化：固定最小高度，防止二维码加载时布局跳动 */
+      min-height: 420px;
+      contain: layout style;
+    }
+
+    /* 二维码容器固定尺寸，防止 CLS */
+    .qr {
+      width: 176px;
+      height: 176px;
+      margin: 18px auto;
+      background: #f8fafc;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+      border: 1px solid #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* 占位防止跳动 */
+      flex-shrink: 0;
+    }
+    .qr canvas, .qr img {
+      width: 160px !important;
+      height: 160px !important;
+      object-fit: cover;
+      border-radius: 8px;
     }
 
     /* 引导图区域 - 恢复原始大小，去掉之前的覆盖 */
@@ -87,7 +114,10 @@
     }
     .guide-img {
       max-width: 420px !important;
-      max-height: 640px !important;
+      max-height: min(640px, calc(100vh - 200px)) !important;
+      height: auto !important;
+      aspect-ratio: 415 / 640;
+      display: block;
     }
 
     .card h2 {
@@ -157,6 +187,11 @@
     .hint .highlight {
       color: #3b82f6;
     }
+
+    /* 卡片内推广预留高度，防止 CLS */
+    .card-promo { min-height: 52px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #f3f4f6; text-align: center; }
+    /* 底部推广条预留，防止 CLS */
+    .page-promo { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; }
 
     /* 错误页面 */
     .error-container {
@@ -422,7 +457,7 @@
       <h2 id="resourceName">资源名称：加载中...</h2>
       <div class="extract-code">提取码：<strong id="extractCode">--</strong></div>
       <div class="sub" id="scanTip">打开 <span class="app-name">手机浏览器</span> - 点击搜索框相机 - 扫码</div>
-      <div class="qr" id="qrContainer"></div>
+      <div class="qr" id="qrContainer" style="width:176px;height:176px;"></div>
       <div class="hint">
         由于资源仅允许手机端访问<br>
         <small>请使用 <span class="highlight" id="bottomAppName">手机浏览器</span> 或浏览器扫码打开</small>

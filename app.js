@@ -642,7 +642,7 @@ const PageRenderer = {
     
     const guideRight = document.getElementById('guideRight');
     if (diskConfig.guide) {
-      guideRight.innerHTML = `<img src="${diskConfig.guide}" alt="引导图" class="guide-img" loading="lazy" decoding="async">`;
+      guideRight.innerHTML = `<img src="${diskConfig.guide}" alt="引导图" class="guide-img" loading="eager" fetchpriority="high" decoding="async" width="420" height="640">`;
     }
 
     // 加载微信文章（桌面端，仅当有文章ID时）

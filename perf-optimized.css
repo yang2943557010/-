@@ -293,6 +293,9 @@
   box-shadow: none;
   border-radius: 0;
   display: block;
+  /* CLS 优化：固定宽高比，防止图片加载前布局跳动 */
+  aspect-ratio: 415 / 640;
+  content-visibility: auto;
 }
 
 /* 广告弹窗样式 - 增强版 */
@@ -541,7 +544,8 @@
 .card-promo {
   margin-top: 20px;
   padding-top: 16px;
-  border-top: 1px dashed #e5e7eb;
+  border-top: 1px solid #f3f4f6;
+  min-height: 52px;
   text-align: center;
 }
 
