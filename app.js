@@ -632,6 +632,10 @@ const PageRenderer = {
     if (diskConfig.logo) {
       siteLogo.src = diskConfig.logo;
       siteLogo.style.display = 'inline-block';
+      siteLogo.style.visibility = 'visible';
+    } else {
+      siteLogo.removeAttribute('src');
+      siteLogo.style.visibility = 'hidden';
     }
     siteName.textContent = diskConfig.name;
     
@@ -642,7 +646,20 @@ const PageRenderer = {
     
     const guideRight = document.getElementById('guideRight');
     if (diskConfig.guide) {
-      guideRight.innerHTML = `<img src="${diskConfig.guide}" alt="引导图" class="guide-img" loading="eager" fetchpriority="high" decoding="async" width="420" height="640">`;
+      guideRight.style.display = 'flex';
+      const guideImg = document.createElement('img');
+      guideImg.src = diskConfig.guide;
+      guideImg.alt = '引导图';
+      guideImg.className = 'guide-img';
+      guideImg.loading = 'eager';
+      guideImg.fetchPriority = 'high';
+      guideImg.decoding = 'async';
+      guideImg.width = 420;
+      guideImg.height = 640;
+      guideRight.replaceChildren(guideImg);
+    } else {
+      guideRight.replaceChildren();
+      guideRight.style.display = 'none';
     }
 
     // 加载微信文章（桌面端，仅当有文章ID时）
@@ -672,13 +689,7 @@ const PageRenderer = {
 // ==================== 主程序入口 ====================
 
 function init() {
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(() => {
-      processInit();
-    });
-  } else {
-    processInit();
-  }
+  processInit();
 }
 
 function processInit() {

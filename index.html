@@ -11,7 +11,6 @@
   <link rel="dns-prefetch" href="//assets.251800.xyz">
   <link rel="preconnect" href="//cdn.jsdelivr.net" crossorigin>
   <!-- QR 库预加载（LCP 关键路径） -->
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" as="script" crossorigin>
   <script>
     document.addEventListener('contextmenu',function(e){e.preventDefault();});
     document.addEventListener('keydown',function(e){
@@ -50,10 +49,11 @@
 
     .site-logo {
       height: 36px;
-      width: auto;
+      width: 36px;
       display: inline-block;
       object-fit: contain;
       vertical-align: middle;
+      visibility: hidden;
     }
 
     .site-name {
@@ -108,11 +108,16 @@
 
     /* 引导图区域 - 恢复原始大小，去掉之前的覆盖 */
     .guide-right {
-      flex: 0 0 auto !important;
+      flex: 0 0 420px !important;
+      width: 420px;
+      min-height: min(640px, calc(100vh - 200px));
+      display: flex;
+      align-items: center;
       padding: 0 !important;
       transform: none !important;
     }
     .guide-img {
+      width: 420px;
       max-width: 420px !important;
       max-height: min(640px, calc(100vh - 200px)) !important;
       height: auto !important;
@@ -384,7 +389,6 @@
   <link rel="preload" href="perf-optimized.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="perf-optimized.css"></noscript>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
-  <script src="enhancements.js" defer></script>
 </head>
 <body>
   <!-- 广告弹窗 - 增强版 -->
@@ -446,7 +450,7 @@
 
   <!-- 顶部Logo -->
   <div class="topbar" id="topbar">
-    <img src="" alt="logo" class="site-logo" id="siteLogo" style="display: none;">
+    <img src="" alt="logo" class="site-logo" id="siteLogo" width="36" height="36">
     <span class="site-name" id="siteName">资源分享</span>
   </div>
 
@@ -514,5 +518,6 @@
   </div>
 
   <script src="app.js" defer></script>
+  <script src="enhancements.js" defer></script>
 </body>
 </html>

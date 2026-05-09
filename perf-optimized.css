@@ -275,18 +275,20 @@
 
 /* 引导图区域 */
 .guide-right {
-  flex: 0 0 600px;
+  flex: 0 0 420px;
+  width: 420px;
+  min-height: min(640px, calc(100vh - 200px));
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 0 40px 0 0;
-  transform: translateX(-12px);
+  padding: 0;
+  transform: none;
 }
 
 .guide-img {
-  max-width: 560px;
-  width: auto;
-  max-height: 760px;
+  width: 420px;
+  max-width: 420px;
+  max-height: min(640px, calc(100vh - 200px));
   height: auto;
   object-fit: contain;
   background: transparent;
@@ -739,5 +741,13 @@
   
   .ad-decoration {
     display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .guide-right {
+    display: none;
+    width: auto;
+    min-height: 0;
   }
 }
