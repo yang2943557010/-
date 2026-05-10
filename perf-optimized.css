@@ -248,7 +248,8 @@
   .card-promo a:active,
   .error-promo-btn:active,
   .page-promo-btn:active,
-  .promo-link a:active {
+  .promo-link a:active,
+  .ad-generate-btn:active {
     transform: scale(0.98);
     opacity: 0.9;
   }
@@ -444,6 +445,10 @@
   background: rgba(255,255,255,0.25);
   transform: translateY(-2px);
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.ad-generate-btn {
+  display: none;
 }
 
 /* 装饰元素 */
@@ -715,19 +720,37 @@
     overflow: hidden;
   }
   
-  .ad-skip-btn {
+  .ad-skip-btn,
+  .ad-generate-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     width: 100%;
     justify-content: center;
     padding: 14px 16px;
     font-size: 14px;
     font-weight: 700;
     border-radius: 14px;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .ad-skip-btn {
     background: #4f46e5;
     border: 1px solid rgba(79, 70, 229, 0.25);
     color: #ffffff;
   }
 
-  .ad-skip-btn.visible {
+  .ad-generate-btn {
+    margin-top: 10px;
+    background: #f8fafc;
+    border: 1px solid rgba(79, 70, 229, 0.18);
+    color: #4f46e5;
+  }
+
+  .ad-skip-btn.visible,
+  .ad-generate-btn {
     box-shadow: 0 14px 35px rgba(0,0,0,0.18);
   }
   
