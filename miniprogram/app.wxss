@@ -1,0 +1,59 @@
+/* app.wxss - 全局样式 */
+
+/* 基础重置 */
+page {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+view, text, image, navigator, button {
+  box-sizing: border-box;
+}
+
+/* 隐藏滚动条 */
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
+}
+
+/* 禁止文本选择 */
+page {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 按钮重置 */
+button {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  line-height: inherit;
+  font-size: inherit;
+}
+
+button::after {
+  border: none;
+}
+
+/* 图片默认样式 */
+image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 文本样式 */
+text {
+  display: inline;
+}
+
+/* 导航器样式 */
+navigator {
+  text-decoration: none;
+  color: inherit;
+}

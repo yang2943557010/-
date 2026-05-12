@@ -1,0 +1,68 @@
+<!--pages/generator/generator.wxml-->
+<view class="generator-container">
+  <view class="generator-header">
+    <view class="generator-title">生成分享链接</view>
+    <view class="generator-subtitle">将网盘分享链接转换为二维码页面</view>
+  </view>
+
+  <view class="form-section">
+    <view class="form-group">
+      <view class="form-label">网盘链接</view>
+      <input class="form-input" placeholder="请输入网盘分享链接" value="{{url}}" bindinput="onUrlInput" />
+    </view>
+
+    <view class="form-group">
+      <view class="form-label">资源名称</view>
+      <input class="form-input" placeholder="请输入资源名称" value="{{resourceName}}" bindinput="onNameInput" />
+    </view>
+
+    <view class="form-group">
+      <view class="form-label">提取码</view>
+      <input class="form-input" placeholder="请输入提取码（可选）" value="{{extractCode}}" bindinput="onCodeInput" />
+    </view>
+
+    <view class="form-group">
+      <view class="form-label">页面风格</view>
+      <picker mode="selector" range="{{styles}}" value="{{styleIndex}}" bindchange="onStyleChange">
+        <view class="form-picker">
+          <text>{{styles[styleIndex]}}</text>
+          <text class="picker-arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-group">
+      <view class="form-label">广告文字</view>
+      <input class="form-input" placeholder="跳转前显示的广告文字（可选）" value="{{adText}}" bindinput="onAdTextInput" />
+    </view>
+
+    <view class="form-group" wx:if="{{adText}}">
+      <view class="form-label">广告时长（秒）</view>
+      <slider min="1" max="5" step="1" value="{{adDuration}}" show-value bindchange="onAdDurationChange" />
+    </view>
+  </view>
+
+  <view class="preview-section" wx:if="{{generatedUrl}}">
+    <view class="preview-title">生成结果</view>
+    <view class="preview-url">
+      <text class="preview-label">分享链接：</text>
+      <text class="preview-value" selectable>{{generatedUrl}}</text>
+    </view>
+    <view class="preview-actions">
+      <button class="btn btn-primary" bindtap="copyLink">复制链接</button>
+      <button class="btn btn-secondary" bindtap="generateQRCode">生成二维码</button>
+    </view>
+  </view>
+
+  <view class="qrcode-section" wx:if="{{showQRCode}}">
+    <view class="qrcode-title">二维码</view>
+    <view class="qrcode-container">
+      <canvas type="2d" id="qrcode" class="qrcode-canvas" style="width: 200px; height: 200px;"></canvas>
+    </view>
+    <view class="qrcode-tip">使用手机浏览器扫码访问</view>
+  </view>
+
+  <view class="generator-footer">
+    <view class="footer-tip">支持百度网盘、夸克网盘、阿里云盘等主流网盘</view>
+  </view>
+</view>

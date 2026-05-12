@@ -12,6 +12,69 @@
   <link rel="preconnect" href="//cdn.jsdelivr.net" crossorigin>
   <!-- QR 库预加载（LCP 关键路径） -->
   <script>
+    (function(){
+      if (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) return;
+      var guideMap = {
+        B: 'baidu-guide.png', Q: 'quark-guide.png', A: 'aliyun-guide.svg', X: 'xunlei-guide.svg',
+        E: '115-guide.svg', L: 'lanzou-guide.svg', T: 'tianyi-guide.svg', W: 'weiyun-guide.svg',
+        J: 'jianguoyun-guide.svg', M: 'caiyun-guide.svg', U: 'wocloud-guide.svg', C: 'uc-guide.svg',
+        P: 'pikpak-guide.svg', N: '123pan-guide.svg', O: 'onedrive-guide.svg', G: 'googledrive-guide.svg',
+        D: 'dropbox-guide.svg', Z: 'mega-guide.svg'
+      };
+      var domainMap = [
+        ['pan.baidu.com','baidu-guide.png'], ['pan.quark.cn','quark-guide.png'], ['alipan.com','aliyun-guide.svg'],
+        ['pan.xunlei.com','xunlei-guide.svg'], ['115.com','115-guide.svg'], ['lanzou','lanzou-guide.svg'],
+        ['cloud.189.cn','tianyi-guide.svg'], ['weiyun.com','weiyun-guide.svg'], ['jianguoyun.com','jianguoyun-guide.svg'],
+        ['caiyun.139.com','caiyun-guide.svg'], ['pan.wo.cn','wocloud-guide.svg'], ['drive.uc.cn','uc-guide.svg'],
+        ['mypikpak.com','pikpak-guide.svg'], ['123pan.com','123pan-guide.svg'], ['1drv.ms','onedrive-guide.svg'],
+        ['drive.google.com','googledrive-guide.svg'], ['dropbox.com','dropbox-guide.svg'], ['mega.nz','mega-guide.svg']
+      ];
+      function decodeBase64Url(value) {
+        if (!value) return '';
+        try {
+          var b64 = value.replace(/-/g, '+').replace(/_/g, '/');
+          while (b64.length % 4) b64 += '=';
+          return decodeURIComponent(Array.prototype.map.call(atob(b64), function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+        } catch (e) {
+          try { return atob(value); } catch (_) { return ''; }
+        }
+      }
+      function guideFromUrl(url) {
+        var lower = String(url || '').toLowerCase();
+        for (var i = 0; i < domainMap.length; i++) {
+          if (lower.indexOf(domainMap[i][0]) !== -1) return domainMap[i][1];
+        }
+        return '';
+      }
+      function preloadGuide(file) {
+        if (!file) return;
+        var link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = 'assets/images/guides/' + file;
+        link.fetchPriority = 'high';
+        document.head.appendChild(link);
+      }
+      var params = new URLSearchParams(location.search);
+      var raw = params.get('d') || '';
+      var shortId = params.get('s') || '';
+      var file = '';
+      if (shortId) {
+        try {
+          var shortLinks = JSON.parse(localStorage.getItem('shortLinks') || '{}');
+          raw = (shortLinks[shortId] || '').split('|')[0] || '';
+        } catch (e) {}
+      }
+      if (raw) {
+        var decoded = decodeBase64Url(raw).split('|')[0] || raw;
+        file = guideMap[decoded.charAt(0)] || guideFromUrl(decoded);
+      } else if (params.get('u')) {
+        file = guideFromUrl(decodeBase64Url(params.get('u')));
+      }
+      preloadGuide(file);
+    })();
     document.addEventListener('contextmenu',function(e){e.preventDefault();});
     document.addEventListener('keydown',function(e){
       if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='U')){
@@ -43,6 +106,8 @@
       display: flex;
       align-items: center;
       gap: 20px;
+      width: 240px;
+      min-height: 36px;
       color: #0f172a;
       font-weight: 600;
     }
@@ -58,6 +123,12 @@
 
     .site-name {
       font-size: 16px;
+      display: inline-block;
+      width: 180px;
+      min-height: 22px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* 主舞台 */
@@ -196,7 +267,8 @@
     /* 卡片内推广预留高度，防止 CLS */
     .card-promo { min-height: 52px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #f3f4f6; text-align: center; }
     /* 底部推广条预留，防止 CLS */
-    .page-promo { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; }
+    .page-promo { position: fixed; bottom: 0; left: 0; right: 0; min-height: 56px; }
+    .disclaimer { min-height: 86px; contain: layout paint; }
 
     /* 错误页面 */
     .error-container {
@@ -388,7 +460,6 @@
   </style>
   <link rel="preload" href="perf-optimized.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="perf-optimized.css"></noscript>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
 </head>
 <body>
   <!-- 广告弹窗 - 增强版 -->
@@ -521,7 +592,7 @@
     用户应自行判断资源的合法性，因使用本服务产生的任何法律责任由用户自行承担。如有侵权，请联系资源分享者删除。
   </div>
 
-  <script src="app.js" defer></script>
+  <script src="app.js"></script>
   <script src="enhancements.js" defer></script>
 </body>
 </html>

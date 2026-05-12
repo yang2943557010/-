@@ -510,9 +510,31 @@ const UrlHandler = {
     
     // 短链接模式
     const shortId = params.get('s');
-    if (shortId && window.ShortLinkGenerator) {
-      ShortLinkGenerator.init();
-      const data = ShortLinkGenerator.resolve(shortId);
+    if (shortId) {
+      let data = null;
+      try {
+        if (window.ShortLinkGenerator) {
+          ShortLinkGenerator.init();
+          data = ShortLinkGenerator.resolve(shortId);
+        } else {
+          const shortLinks = JSON.parse(localStorage.getItem('shortLinks') || '{}');
+          const compressed = shortLinks[shortId];
+          if (compressed) {
+            const parts = compressed.split('|');
+            data = {
+              u: parts[0] || '',
+              n: parts[1] || '',
+              c: parts[2] || '',
+              t: parts[3] || '',
+              a: parts[4] || '',
+              at: parts[5] || '',
+              wx: parts[6] || ''
+            };
+          }
+        }
+      } catch (e) {
+        data = null;
+      }
       if (data && data.u) {
         return {
           targetUrl: data.u,
@@ -597,10 +619,38 @@ const DeviceDetector = {
 
 const QRCodeGenerator = {
   qrInstance: null,
+  scriptPromise: null,
+
+  loadLibrary() {
+    if (typeof QRCode !== 'undefined') return Promise.resolve();
+    if (this.scriptPromise) return this.scriptPromise;
+
+    this.scriptPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
+      script.async = true;
+      script.crossOrigin = 'anonymous';
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+
+    return this.scriptPromise;
+  },
   
   generate(url, container) {
+    container.innerHTML = '';
+    if (typeof QRCode === 'undefined') {
+      this.loadLibrary()
+        .then(() => this.render(url, container))
+        .catch(() => this.renderFallback(url, container));
+      return;
+    }
+    this.render(url, container);
+  },
+
+  render(url, container) {
     try {
-      container.innerHTML = '';
       // 使用更高效的二维码配置
       this.qrInstance = new QRCode(container, {
         text: url,
@@ -612,9 +662,12 @@ const QRCodeGenerator = {
         quietZone: 1 // 减少静默区域
       });
     } catch (e) {
-      console.error('二维码生成失败:', e);
-      container.innerHTML = `<a href="${url}" style="word-break: break-all; color: #1890ff;">${url}</a>`;
+      this.renderFallback(url, container);
     }
+  },
+
+  renderFallback(url, container) {
+    container.innerHTML = `<a href="${url}" style="word-break: break-all; color: #1890ff;">${url}</a>`;
   }
 };
 
@@ -1015,7 +1068,11 @@ function applyTemplate(template) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', init);
+if (document.readyState === 'loading' && !document.getElementById('stage')) {
+  document.addEventListener('DOMContentLoaded', init, { once: true });
+} else {
+  (window.queueMicrotask || ((callback) => Promise.resolve().then(callback)))(init);
+}
 
 // 导出模块
 if (typeof window !== 'undefined') {

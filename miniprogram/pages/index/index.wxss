@@ -1,0 +1,992 @@
+/* pages/index/index.wxss */
+/* 完全还原原网页样式 */
+
+/* 基础样式 */
+page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  background: #f3f6fb;
+  color: #0b1220;
+  min-height: 100vh;
+}
+
+.page-container {
+  min-height: 100vh;
+  padding: 80rpx 160rpx;
+}
+
+/* 顶部 logo 区 */
+.topbar {
+  position: relative;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 40rpx;
+  color: #0f172a;
+  font-weight: 600;
+  margin-bottom: 40rpx;
+}
+
+.site-logo {
+  height: 72rpx;
+  width: 72rpx;
+  object-fit: contain;
+}
+
+.site-logo-placeholder {
+  height: 72rpx;
+  width: 72rpx;
+}
+
+.site-name {
+  font-size: 32rpx;
+}
+
+/* 主舞台 */
+.stage {
+  margin: 80rpx auto 0;
+  display: flex;
+  gap: 80rpx;
+  align-items: center;
+  justify-content: center;
+  padding: 0 80rpx;
+  flex-wrap: nowrap;
+}
+
+/* 卡片 */
+.card {
+  width: 920rpx;
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 36rpx;
+  padding: 72rpx;
+  box-shadow: 0 80rpx 160rpx rgba(2, 6, 23, 0.06);
+  min-height: 840rpx;
+  contain: layout style;
+}
+
+.resource-title {
+  font-size: 40rpx;
+  margin-bottom: 24rpx;
+  font-weight: 700;
+  display: block;
+}
+
+.extract-code {
+  margin-bottom: 20rpx;
+  color: #374151;
+  font-size: 28rpx;
+}
+
+.code-value {
+  font-weight: 700;
+  color: #0b1220;
+}
+
+.sub-text {
+  color: #6b7280;
+  margin-bottom: 36rpx;
+  font-size: 28rpx;
+  display: block;
+}
+
+.app-name {
+  color: #0b1220;
+  font-weight: 700;
+}
+
+/* 二维码 */
+.qr {
+  width: 352rpx;
+  height: 352rpx;
+  margin: 36rpx auto;
+  background: #fff;
+  border-radius: 24rpx;
+  box-shadow: 0 12rpx 36rpx rgba(2, 6, 23, 0.06);
+  border: 2rpx solid #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.qr-canvas {
+  width: 320rpx;
+  height: 320rpx;
+}
+
+.hint {
+  text-align: center;
+  margin-top: 40rpx;
+  font-weight: 700;
+  color: #111827;
+  font-size: 28rpx;
+  line-height: 1.8;
+}
+
+.hint-small {
+  font-weight: 400;
+  color: #6b7280;
+  font-size: 24rpx;
+  display: block;
+  margin-top: 8rpx;
+}
+
+.highlight {
+  color: #3b82f6;
+}
+
+/* 卡片内推广 */
+.card-promo {
+  margin-top: 40rpx;
+  padding-top: 32rpx;
+  border-top: 2rpx solid #f3f4f6;
+  min-height: 104rpx;
+  text-align: center;
+}
+
+.card-promo navigator {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rpx;
+  color: #6366f1;
+  font-size: 24rpx;
+  padding: 12rpx 28rpx;
+  background: #f0f0ff;
+  border-radius: 32rpx;
+}
+
+/* 引导图区域 */
+.guide-right {
+  flex: 0 0 840rpx;
+  width: 840rpx;
+  min-height: min(1280rpx, calc(100vh - 400rpx));
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.guide-img {
+  width: 840rpx;
+  max-width: 840rpx;
+  max-height: min(1280rpx, calc(100vh - 400rpx));
+  height: auto;
+  object-fit: contain;
+  background: transparent;
+  display: block;
+  aspect-ratio: 415 / 640;
+}
+
+/* 错误页面 */
+.error-container {
+  width: 920rpx;
+  background: #fff;
+  border-radius: 36rpx;
+  padding: 120rpx 72rpx;
+  box-shadow: 0 80rpx 160rpx rgba(2, 6, 23, 0.06);
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 24rpx;
+}
+
+.error-title {
+  font-size: 40rpx;
+  color: #ef4444;
+  margin-bottom: 24rpx;
+  font-weight: 700;
+  display: block;
+}
+
+.error-desc {
+  color: #6b7280;
+  font-size: 28rpx;
+  display: block;
+}
+
+.error-promo {
+  margin-top: 48rpx;
+  padding-top: 40rpx;
+  border-top: 2rpx solid #f3f4f6;
+}
+
+.error-promo-text {
+  font-size: 26rpx;
+  color: #6b7280;
+  margin-bottom: 24rpx;
+  display: block;
+}
+
+.error-promo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: 500;
+  padding: 20rpx 48rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 30rpx rgba(102, 126, 234, 0.3);
+}
+
+/* 底部推广条 */
+.page-promo {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 24rpx 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24rpx;
+  box-shadow: 0 -8rpx 40rpx rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.page-promo-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 26rpx;
+  flex: 1;
+}
+
+.page-promo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rpx;
+  background: #fff;
+  color: #764ba2;
+  font-size: 26rpx;
+  font-weight: 600;
+  padding: 16rpx 40rpx;
+  border-radius: 40rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+/* 免责声明 */
+.disclaimer {
+  max-width: 2400rpx;
+  margin: 40rpx auto 160rpx;
+  padding: 32rpx 40rpx;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 24rpx;
+  font-size: 22rpx;
+  color: #9ca3af;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.disclaimer-title {
+  display: block;
+  color: #6b7280;
+  font-weight: 700;
+  margin-bottom: 12rpx;
+}
+
+.disclaimer-content {
+  display: block;
+}
+
+/* ==================== 广告弹窗样式 ==================== */
+.ad-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+/* 广告背景主题 */
+.ad-overlay.theme-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.ad-overlay.theme-sunset {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #f6d365 100%);
+}
+
+.ad-overlay.theme-ocean {
+  background: linear-gradient(135deg, #0c3483 0%, #a2b6df 50%, #6b8dd6 100%);
+}
+
+.ad-overlay.theme-forest {
+  background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+}
+
+.ad-overlay.theme-dark {
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+}
+
+.ad-overlay.theme-candy {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #d299c2 100%);
+}
+
+/* 动态背景效果 */
+.ad-bg-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ad-bg-animation .circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  animation: float 8s ease-in-out infinite;
+}
+
+.ad-bg-animation .circle:nth-child(1) {
+  width: 600rpx;
+  height: 600rpx;
+  left: -200rpx;
+  top: -200rpx;
+  animation-delay: 0s;
+}
+
+.ad-bg-animation .circle:nth-child(2) {
+  width: 400rpx;
+  height: 400rpx;
+  right: -100rpx;
+  top: 30%;
+  animation-delay: -2s;
+}
+
+.ad-bg-animation .circle:nth-child(3) {
+  width: 500rpx;
+  height: 500rpx;
+  left: 20%;
+  bottom: -160rpx;
+  animation-delay: -4s;
+}
+
+.ad-bg-animation .circle:nth-child(4) {
+  width: 300rpx;
+  height: 300rpx;
+  right: 20%;
+  bottom: 20%;
+  animation-delay: -6s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.1;
+  }
+  50% {
+    transform: translateY(-60rpx) scale(1.1);
+    opacity: 0.2;
+  }
+}
+
+.ad-container {
+  position: relative;
+  text-align: center;
+  color: #fff;
+  padding: 80rpx;
+  max-width: 90%;
+  z-index: 1;
+}
+
+/* 广告卡片样式 */
+.ad-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border-radius: 48rpx;
+  padding: 80rpx 100rpx 80rpx;
+  box-shadow: 0 50rpx 100rpx rgba(0, 0, 0, 0.15);
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.ad-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+  margin-bottom: 28rpx;
+}
+
+.ad-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.ad-disk {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 280rpx;
+  height: 80rpx;
+  padding: 0;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.18);
+  border: 2rpx solid rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+
+.ad-disk-img {
+  display: block;
+  width: 260rpx;
+  height: 80rpx;
+  object-fit: cover;
+  object-position: right center;
+}
+
+.ad-notice {
+  padding: 8rpx 16rpx;
+  font-size: 24rpx;
+  font-weight: 800;
+  color: #ef4444;
+  background: #fff1f2;
+  border: 2rpx solid rgba(239, 68, 68, 0.25);
+  border-radius: 999rpx;
+}
+
+.ad-text {
+  font-size: 30rpx;
+  line-height: 1.5;
+  margin-bottom: 28rpx;
+  color: #fff;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+}
+
+.ad-countdown-wrapper {
+  margin-bottom: 24rpx;
+}
+
+.ad-countdown {
+  width: 100%;
+  justify-content: center;
+  padding: 0;
+  font-size: 28rpx;
+  gap: 12rpx;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+}
+
+.ad-countdown-num {
+  width: auto;
+  height: auto;
+  font-size: 32rpx;
+  padding: 0 4rpx;
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+}
+
+.ad-progress {
+  width: 100%;
+  max-width: 640rpx;
+  height: 10rpx;
+  margin: 0 auto 28rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 5rpx;
+  overflow: hidden;
+}
+
+.ad-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, 0.55) 100%);
+  border-radius: 5rpx;
+  transition: width 0.1s linear;
+}
+
+.ad-hint {
+  font-size: 24rpx;
+  line-height: 1.5;
+  margin: 0 auto 32rpx;
+  max-width: 640rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border: 2rpx solid rgba(255, 255, 255, 0.12);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ad-skip-btn,
+.ad-generate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 16rpx;
+  width: 100%;
+  justify-content: center;
+  padding: 28rpx 32rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  border-radius: 28rpx;
+  text-decoration: none;
+  border: none;
+  background: transparent;
+}
+
+.ad-skip-btn {
+  background: #fff;
+  color: #764ba2;
+  border: 2rpx solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 28rpx 70rpx rgba(0, 0, 0, 0.18);
+}
+
+.ad-skip-btn::after {
+  border: none;
+}
+
+.ad-generate-btn {
+  margin-top: 20rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2rpx solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+/* 底部推广链接 */
+.promo-link {
+  margin-top: 56rpx;
+  padding-top: 48rpx;
+  border-top: 2rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.promo-link navigator {
+  display: inline-flex;
+  align-items: center;
+  gap: 16rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 26rpx;
+  padding: 24rpx 48rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+}
+
+/* 装饰元素 */
+.ad-decoration {
+  position: absolute;
+  pointer-events: none;
+}
+
+.ad-decoration.sparkle {
+  width: 40rpx;
+  height: 40rpx;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.ad-decoration.sparkle:nth-child(1) {
+  top: 20%;
+  left: 15%;
+  animation-delay: 0s;
+}
+
+.ad-decoration.sparkle:nth-child(2) {
+  top: 30%;
+  right: 20%;
+  animation-delay: 0.5s;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ==================== 移动端优化 ==================== */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 32rpx;
+    padding-bottom: 160rpx;
+  }
+
+  /* 顶部栏优化 */
+  .topbar {
+    justify-content: center;
+    gap: 24rpx;
+    padding: 16rpx 0;
+    margin-bottom: 32rpx;
+  }
+
+  .site-logo {
+    height: 56rpx;
+    width: 56rpx;
+  }
+
+  .site-name {
+    font-size: 28rpx;
+  }
+
+  /* 主舞台优化 */
+  .stage {
+    flex-direction: column;
+    gap: 40rpx;
+    margin-top: 32rpx;
+    padding: 0;
+  }
+
+  /* 卡片优化 */
+  .card {
+    width: 100%;
+    max-width: 100%;
+    padding: 48rpx 40rpx;
+    border-radius: 32rpx;
+    min-height: auto;
+  }
+
+  .resource-title {
+    font-size: 36rpx;
+    margin-bottom: 20rpx;
+    line-height: 1.4;
+  }
+
+  .extract-code {
+    font-size: 30rpx;
+    margin-bottom: 16rpx;
+    padding: 20rpx 28rpx;
+    background: #f8fafc;
+    border-radius: 20rpx;
+    display: inline-block;
+  }
+
+  .sub-text {
+    font-size: 26rpx;
+    line-height: 1.6;
+    margin-bottom: 32rpx;
+  }
+
+  /* 二维码区域优化 */
+  .qr {
+    width: 400rpx;
+    height: 400rpx;
+    margin: 40rpx auto;
+    border-radius: 32rpx;
+    padding: 24rpx;
+  }
+
+  .qr-canvas {
+    width: 352rpx;
+    height: 352rpx;
+  }
+
+  /* 提示文字优化 */
+  .hint {
+    font-size: 28rpx;
+    line-height: 1.8;
+    margin-top: 32rpx;
+  }
+
+  .hint-small {
+    font-size: 26rpx;
+    display: block;
+    margin-top: 12rpx;
+  }
+
+  /* 引导图隐藏 */
+  .guide-right {
+    display: none;
+    width: auto;
+    min-height: 0;
+  }
+
+  /* 卡片内推广优化 */
+  .card-promo {
+    margin-top: 48rpx;
+    padding-top: 40rpx;
+  }
+
+  .card-promo navigator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16rpx;
+    padding: 28rpx 40rpx;
+    font-size: 28rpx;
+    border-radius: 24rpx;
+  }
+
+  /* 错误页面优化 */
+  .error-container {
+    padding: 96rpx 48rpx;
+    border-radius: 32rpx;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .error-title {
+    font-size: 36rpx;
+    margin-bottom: 24rpx;
+  }
+
+  .error-desc {
+    font-size: 28rpx;
+    line-height: 1.6;
+  }
+
+  .error-promo {
+    margin-top: 56rpx;
+    padding-top: 48rpx;
+  }
+
+  .error-promo-text {
+    font-size: 28rpx;
+    margin-bottom: 32rpx;
+  }
+
+  .error-promo-btn {
+    padding: 28rpx 56rpx;
+    font-size: 30rpx;
+    border-radius: 24rpx;
+  }
+
+  /* 底部推广条优化 */
+  .page-promo {
+    padding: 28rpx 32rpx;
+    flex-direction: column;
+    gap: 20rpx;
+  }
+
+  .page-promo-text {
+    font-size: 26rpx;
+    text-align: center;
+  }
+
+  .page-promo-btn {
+    padding: 24rpx 48rpx;
+    font-size: 28rpx;
+    width: 100%;
+    max-width: 560rpx;
+    justify-content: center;
+  }
+
+  /* 广告弹窗移动端优化 */
+  .ad-overlay {
+    padding: 24rpx;
+    align-items: center;
+    justify-content: center;
+    background: rgba(2, 6, 23, 0.62) !important;
+    overflow: hidden;
+  }
+
+  .ad-overlay.theme-gradient,
+  .ad-overlay.theme-sunset,
+  .ad-overlay.theme-ocean,
+  .ad-overlay.theme-forest,
+  .ad-overlay.theme-dark,
+  .ad-overlay.theme-candy {
+    background: rgba(2, 6, 23, 0.62) !important;
+  }
+
+  .ad-container {
+    padding: 0;
+    max-width: 1040rpx;
+    width: 100%;
+    margin: 0 auto;
+    color: #0f172a;
+  }
+
+  .ad-card {
+    width: 100%;
+    max-width: 1040rpx;
+    padding: 36rpx 32rpx 32rpx;
+    border-radius: 32rpx;
+    background: #ffffff;
+    border: 2rpx solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 36rpx 110rpx rgba(0, 0, 0, 0.28);
+    backdrop-filter: none;
+  }
+
+  .ad-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24rpx;
+    margin-bottom: 24rpx;
+  }
+
+  .ad-notice {
+    padding: 8rpx 16rpx;
+    font-size: 24rpx;
+    font-weight: 800;
+    color: #ef4444;
+    background: #fff1f2;
+    border: 2rpx solid rgba(239, 68, 68, 0.25);
+    border-radius: 999rpx;
+  }
+
+  .ad-left {
+    gap: 16rpx;
+  }
+
+  .ad-disk {
+    width: 280rpx;
+    height: 80rpx;
+    border-radius: 32rpx;
+    background: #f8fafc;
+    border: 2rpx solid rgba(15, 23, 42, 0.08);
+  }
+
+  .ad-disk-img {
+    width: 260rpx;
+    height: 80rpx;
+    object-position: right center;
+  }
+
+  .ad-text {
+    font-size: 30rpx;
+    line-height: 1.5;
+    margin-bottom: 28rpx;
+    color: #0f172a;
+    text-shadow: none;
+  }
+
+  .ad-countdown {
+    width: 100%;
+    justify-content: center;
+    padding: 0;
+    font-size: 28rpx;
+    gap: 12rpx;
+    background: transparent;
+    color: #334155;
+    border: 0;
+  }
+
+  .ad-countdown-num {
+    width: auto;
+    height: auto;
+    font-size: 32rpx;
+    padding: 0 4rpx;
+    background: transparent;
+    color: #4f46e5;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .ad-progress {
+    width: 100%;
+    max-width: 640rpx;
+    height: 10rpx;
+    margin-bottom: 28rpx;
+    background: #e2e8f0;
+  }
+
+  .ad-progress-bar {
+    background: linear-gradient(90deg, #4f46e5 0%, rgba(79, 70, 229, 0.55) 100%);
+    box-shadow: none;
+  }
+
+  .ad-hint {
+    font-size: 24rpx;
+    line-height: 1.5;
+    margin: 0 auto 32rpx;
+    max-width: 640rpx;
+    padding: 20rpx 24rpx;
+    border-radius: 28rpx;
+    background: #f8fafc;
+    color: #64748b;
+    border: 2rpx solid rgba(15, 23, 42, 0.06);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .ad-skip-btn,
+  .ad-generate-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 16rpx;
+    width: 100%;
+    justify-content: center;
+    padding: 28rpx 32rpx;
+    font-size: 28rpx;
+    font-weight: 700;
+    border-radius: 28rpx;
+    text-decoration: none;
+    border: none;
+  }
+
+  .ad-skip-btn {
+    background: #4f46e5;
+    border: 2rpx solid rgba(79, 70, 229, 0.25);
+    color: #ffffff;
+  }
+
+  .ad-generate-btn {
+    margin-top: 20rpx;
+    background: #f8fafc;
+    border: 2rpx solid rgba(79, 70, 229, 0.18);
+    color: #4f46e5;
+  }
+
+  .promo-link {
+    display: none;
+  }
+
+  .ad-bg-animation .circle {
+    display: none;
+  }
+
+  .ad-decoration {
+    display: none;
+  }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 380px) {
+  .page-container {
+    padding: 24rpx;
+    padding-bottom: 180rpx;
+  }
+
+  .card {
+    padding: 40rpx 32rpx;
+  }
+
+  .resource-title {
+    font-size: 32rpx;
+  }
+
+  .qr {
+    width: 360rpx;
+    height: 360rpx;
+  }
+
+  .qr-canvas {
+    width: 312rpx;
+    height: 312rpx;
+  }
+
+  .hint {
+    font-size: 26rpx;
+  }
+
+  .card-promo navigator {
+    padding: 24rpx 32rpx;
+    font-size: 26rpx;
+  }
+}

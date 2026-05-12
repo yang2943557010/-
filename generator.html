@@ -7,6 +7,11 @@
   <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
   <link rel="preconnect" href="//cdn.jsdelivr.net" crossorigin>
   <script>
+    try {
+      if (localStorage.getItem('hideGuidePanel') === 'true') {
+        document.documentElement.classList.add('guide-hidden');
+      }
+    } catch (e) {}
     document.addEventListener('contextmenu',function(e){e.preventDefault();});
     document.addEventListener('keydown',function(e){
       if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='U')){
@@ -51,6 +56,10 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.04);
       border: 1px solid var(--border);
       text-align: center;
+    }
+    .sidebar-ad-card + .sidebar-ad-card {
+      content-visibility: auto;
+      contain-intrinsic-size: 320px;
     }
     
     .sidebar-ad-card .ad-badge {
@@ -234,6 +243,35 @@
     .tab { flex:1; padding:10px 16px; text-align:center; border-radius:10px; cursor:pointer; font-size:13px; font-weight:500; color:var(--text2); transition:all .2s; }
     .tab.active { background:var(--primary); color:#fff; box-shadow:0 2px 8px rgba(99,102,241,.3); }
     .tab:hover:not(.active) { background:var(--bg); }
+
+    .guide-panel { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+    .guide-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:14px; }
+    .guide-title { font-size:15px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:8px; }
+    .guide-subtitle { margin-top:4px; font-size:12px; color:var(--text3); line-height:1.7; }
+    .guide-actions { display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+    .guide-toggle { border:1px solid var(--border); background:var(--bg); color:var(--text2); border-radius:999px; padding:6px 10px; font-size:12px; cursor:pointer; transition:all .2s; white-space:nowrap; }
+    .guide-toggle:hover { border-color:var(--primary); color:var(--primary); }
+    .guide-restore { display:none; }
+    .guide-hidden #guidePanel { display:none; }
+    .guide-hidden #guideRestore { display:inline-flex; }
+    .guide-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .guide-step { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:12px; min-height:94px; }
+    .guide-step strong { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text); margin-bottom:6px; }
+    .guide-step p { font-size:11px; color:var(--text2); line-height:1.65; }
+    .guide-faq { margin-top:12px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .guide-faq details { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
+    .guide-faq summary { cursor:pointer; font-size:12px; font-weight:600; color:var(--text); list-style:none; }
+    .guide-faq summary::-webkit-details-marker { display:none; }
+    .guide-faq p { margin-top:8px; font-size:11px; color:var(--text2); line-height:1.7; }
+    .guide-badges { display:flex; flex-wrap:wrap; gap:6px; align-items:center; justify-content:flex-end; }
+    .guide-badge { font-size:11px; color:var(--primary); background:rgba(99,102,241,.08); border:1px solid rgba(99,102,241,.16); border-radius:999px; padding:5px 9px; white-space:nowrap; }
+    .help-card { background:linear-gradient(135deg, rgba(99,102,241,.08), rgba(139,92,246,.06)); border:1px solid rgba(99,102,241,.16); border-radius:14px; padding:14px 16px; margin-bottom:16px; }
+    .help-card-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+    .help-list { display:grid; grid-template-columns:repeat(2,1fr); gap:8px 14px; }
+    .help-item { font-size:12px; color:var(--text2); line-height:1.7; }
+    .help-item strong { color:var(--text); }
+    .format-example { margin-top:10px; padding:10px 12px; border-radius:10px; background:rgba(15,23,42,.04); color:var(--text2); font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; font-size:12px; line-height:1.7; word-break:break-all; }
+    [data-theme="dark"] .format-example { background:rgba(255,255,255,.04); }
     
     .panel { display:none; background:var(--card); border-radius:16px; padding:24px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
     .panel.active { display:block; }
@@ -304,7 +342,7 @@
         <div class="ad-desc">首单免费在线打印<br>满1.9元包邮</div>
         <span class="ad-highlight">🔥 首单免费</span>
         <div class="ad-qr zoomable-qr" id="printAdQr" ondblclick="zoomQR(this, '打印拉新')">
-          <img src="assets/images/qrcodes/print-qr.png" alt="刺猬云印小程序码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
+          <img src="assets/images/qrcodes/print-qr.png" alt="刺猬云印小程序码" width="100" height="100" style="width:100px;height:100px;display:block;" loading="lazy" fetchpriority="low" decoding="async">
         </div>
        <div class="ad-tip">双击放大 · 扫码打印资源</div>
         <div class="ad-features">
@@ -324,6 +362,7 @@
       <div class="container">
         <div class="header">
       <h1><span style="font-size:24px;">🔗</span> 链接生成器</h1>
+      <button class="guide-toggle guide-restore" id="guideRestore" type="button" onclick="toggleGuidePanel(false)">💡 显示新手说明</button>
       <div class="header-actions">
         <a href="tools.html" class="icon-btn" title="实用工具" style="text-decoration:none;">🧰</a>
         <button class="icon-btn" onclick="toggleTheme()" title="切换主题">🌓</button>
@@ -340,8 +379,66 @@
       <div class="tab" onclick="switchTab('settings')">设置</div>
     </div>
 
+    <section class="guide-panel" id="guidePanel" aria-label="新手使用说明">
+      <div class="guide-head">
+        <div>
+          <div class="guide-title">💡 新手快速上手</div>
+          <div class="guide-subtitle">把网盘原链接转换成分享页链接。电脑端展示二维码和引导图，手机端可直接跳转资源页。</div>
+        </div>
+        <div class="guide-actions">
+          <button class="guide-toggle" type="button" onclick="toggleGuidePanel(true)">隐藏说明</button>
+          <div class="guide-badges">
+            <span class="guide-badge">支持提取码识别</span>
+            <span class="guide-badge">支持批量生成</span>
+            <span class="guide-badge">支持二维码导出</span>
+          </div>
+        </div>
+      </div>
+      <div class="guide-grid">
+        <div class="guide-step">
+          <strong>1. 粘贴链接</strong>
+          <p>把百度、夸克、阿里、迅雷等网盘分享链接粘贴到目标链接。</p>
+        </div>
+        <div class="guide-step">
+          <strong>2. 补充信息</strong>
+          <p>资源名称会显示在分享页；提取码通常会自动识别，也可以手动填写。</p>
+        </div>
+        <div class="guide-step">
+          <strong>3. 预览效果</strong>
+          <p>生成前可先预览电脑端扫码页和手机端跳转广告，确认样式没问题。</p>
+        </div>
+        <div class="guide-step">
+          <strong>4. 复制分发</strong>
+          <p>生成后复制新链接发给用户，历史记录会自动保存，方便后续查找。</p>
+        </div>
+      </div>
+      <div class="guide-faq">
+        <details>
+          <summary>生成的链接有什么用？</summary>
+          <p>它会先进入本站分享页。电脑用户看到二维码扫码，手机用户可按设置直接跳转到原网盘资源。</p>
+        </details>
+        <details>
+          <summary>什么时候开启广告提示？</summary>
+          <p>需要在手机端跳转前展示自定义文字时开启；不需要提示就保持关闭，跳转会更直接。</p>
+        </details>
+        <details>
+          <summary>找不到以前生成的链接？</summary>
+          <p>进入“历史记录”可以搜索、复制、删除，也可以导出备份或批量导出二维码。</p>
+        </details>
+      </div>
+    </section>
+
     <!-- 单个生成 -->
     <div class="panel active" id="panel-single">
+      <div class="help-card">
+        <div class="help-card-title">📌 单个链接怎么填</div>
+        <div class="help-list">
+          <div class="help-item"><strong>目标链接：</strong>必须填写，粘贴原始网盘分享链接即可。</div>
+          <div class="help-item"><strong>资源名称：</strong>建议写清楚内容，用户扫码页会看到。</div>
+          <div class="help-item"><strong>提取码：</strong>链接里带 pwd/code 时会自动识别，识别不到再手填。</div>
+          <div class="help-item"><strong>广告提示：</strong>只在手机端跳转前展示，不影响电脑端二维码页。</div>
+        </div>
+      </div>
       <div class="form-grid">
         <div class="form-group full">
           <label>目标链接</label>
@@ -445,6 +542,16 @@
 
     <!-- 批量生成 -->
     <div class="panel" id="panel-batch">
+      <div class="help-card">
+        <div class="help-card-title">📦 批量生成说明</div>
+        <div class="help-list">
+          <div class="help-item"><strong>一行一个资源：</strong>每行会生成一个独立分享链接。</div>
+          <div class="help-item"><strong>分隔符：</strong>用英文竖线 <strong>|</strong> 分隔链接、名称、提取码、分组、备注。</div>
+          <div class="help-item"><strong>可省略字段：</strong>只有链接必填，后面的名称、提取码、分组、备注都可留空。</div>
+          <div class="help-item"><strong>统一设置：</strong>下方广告和公众号文章会应用到本次批量生成的所有链接。</div>
+        </div>
+        <div class="format-example">示例： https://pan.quark.cn/s/xxxx?pwd=1234|电影资源|1234|娱乐|高清版</div>
+      </div>
       <div class="form-group">
         <label>批量输入（每行格式：链接|名称|提取码|分组|备注）</label>
         <textarea id="batchInput" style="min-height:140px;font-family:monospace;font-size:12px;" placeholder="https://pan.quark.cn/s/xxx?pwd=1234|电影资源|1234|娱乐|高清版本
@@ -517,6 +624,15 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
 
     <!-- 表格导入 -->
     <div class="panel" id="panel-upload">
+      <div class="help-card">
+        <div class="help-card-title">📊 表格导入说明</div>
+        <div class="help-list">
+          <div class="help-item"><strong>适合场景：</strong>资源很多、已有 Excel/CSV 清单时使用。</div>
+          <div class="help-item"><strong>第一列必填：</strong>A 列必须是网盘链接，其余列可以为空。</div>
+          <div class="help-item"><strong>推荐做法：</strong>先下载模板，再按列填写，能减少格式错误。</div>
+          <div class="help-item"><strong>导入后：</strong>系统会批量生成链接，并保存在历史记录中。</div>
+        </div>
+      </div>
       <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
         <div class="icon">📊</div>
         <div class="text">点击或拖拽上传 Excel/CSV 文件</div>
@@ -934,6 +1050,15 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     .modal-close { width:32px; height:32px; border:none; background:var(--bg); border-radius:8px; cursor:pointer; font-size:18px; color:var(--text2); transition:all .2s; }
     .modal-close:hover { background:var(--primary); color:#fff; }
 
+    @media (max-width: 900px) {
+      .guide-head { flex-direction:column; }
+      .guide-actions { align-items:flex-start; width:100%; }
+      .guide-badges { justify-content:flex-start; }
+      .guide-grid { grid-template-columns:repeat(2,1fr); }
+      .guide-faq { grid-template-columns:1fr; }
+      .help-list { grid-template-columns:1fr; }
+    }
+
     #previewModal .modal-box { display:flex; flex-direction:column; }
     #previewModal .preview-header-left { display:flex; align-items:center; gap:12px; min-width:0; }
     #previewModal .preview-device-switch { display:flex; gap:8px; }
@@ -948,6 +1073,9 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     .poster-item.selected { border-color:var(--primary); }
 
     @media (max-width: 768px) {
+      .guide-panel { padding: 14px; }
+      .guide-grid { grid-template-columns: 1fr; }
+      .guide-step { min-height: auto; }
       .form-group.full > div[style*="padding:16px"] > div[style*="grid-template-columns"] {
         grid-template-columns: 1fr !important;
         gap: 12px !important;
@@ -2902,6 +3030,16 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     function closeShortcutsModal() {
       document.getElementById('shortcutsModal').classList.remove('show');
     }
+
+    function applyGuidePreference() {
+      const hidden = localStorage.getItem('hideGuidePanel') === 'true';
+      document.documentElement.classList.toggle('guide-hidden', hidden);
+    }
+
+    function toggleGuidePanel(hidden) {
+      localStorage.setItem('hideGuidePanel', hidden ? 'true' : 'false');
+      applyGuidePreference();
+    }
     
     // 模板预设
     function renderPresets() {
@@ -2997,6 +3135,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       document.addEventListener('DOMContentLoaded', async () => {
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        applyGuidePreference();
         
         const savedSettings = localStorage.getItem('qrSettings');
         if (savedSettings) {
