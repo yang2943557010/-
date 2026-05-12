@@ -270,6 +270,15 @@
     .help-list { display:grid; grid-template-columns:repeat(2,1fr); gap:8px 14px; }
     .help-item { font-size:12px; color:var(--text2); line-height:1.7; }
     .help-item strong { color:var(--text); }
+    .help-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    .field-label { display:flex; align-items:center; gap:6px; }
+    .tip-dot { position:relative; display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; border:1px solid var(--border); color:var(--text3); background:var(--bg); font-size:11px; cursor:help; flex-shrink:0; }
+    .tip-dot::after { content:attr(data-tip); position:absolute; left:50%; bottom:calc(100% + 8px); transform:translateX(-50%); width:230px; padding:9px 10px; border-radius:10px; background:var(--text); color:var(--card); font-size:11px; line-height:1.6; font-weight:400; box-shadow:0 8px 24px rgba(15,23,42,.18); opacity:0; pointer-events:none; transition:opacity .15s, transform .15s; z-index:30; white-space:normal; }
+    .tip-dot:hover::after, .tip-dot:focus-visible::after { opacity:1; transform:translateX(-50%) translateY(-2px); }
+    .next-step-card { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:12px; padding:14px 16px; border:1px solid rgba(99,102,241,.18); border-radius:14px; background:linear-gradient(135deg, rgba(99,102,241,.09), rgba(16,185,129,.06)); }
+    .next-step-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:4px; }
+    .next-step-desc { font-size:12px; color:var(--text2); line-height:1.6; }
+    .next-step-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
     .format-example { margin-top:10px; padding:10px 12px; border-radius:10px; background:rgba(15,23,42,.04); color:var(--text2); font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; font-size:12px; line-height:1.7; word-break:break-all; }
     [data-theme="dark"] .format-example { background:rgba(255,255,255,.04); }
     
@@ -438,26 +447,30 @@
           <div class="help-item"><strong>提取码：</strong>链接里带 pwd/code 时会自动识别，识别不到再手填。</div>
           <div class="help-item"><strong>广告提示：</strong>只在手机端跳转前展示，不影响电脑端二维码页。</div>
         </div>
+        <div class="help-actions">
+          <button class="btn btn-secondary btn-sm" type="button" onclick="fillSingleExample()">不会填？填入示例</button>
+          <button class="btn btn-secondary btn-sm" type="button" onclick="previewExampleFlow()">看看生成后长什么样</button>
+        </div>
       </div>
       <div class="form-grid">
         <div class="form-group full">
-          <label>目标链接</label>
+          <label class="field-label">目标链接 <span class="tip-dot" tabindex="0" data-tip="填原始网盘分享链接，例如 pan.quark.cn、pan.baidu.com、aliyundrive.com 等。不要填本站已经生成过的新链接。">?</span></label>
           <input type="url" id="targetUrl" placeholder="粘贴网盘链接，支持百度、夸克、阿里、迅雷、OneDrive、Google Drive 等" oninput="autoExtractCode()">
         </div>
         <div class="form-group">
-          <label>资源名称</label>
+          <label class="field-label">资源名称 <span class="tip-dot" tabindex="0" data-tip="会显示在分享页和历史记录里。建议写成用户能看懂的名字，例如 2026考研资料、电影合集。">?</span></label>
           <input type="text" id="resourceName" placeholder="给资源起个名字">
         </div>
         <div class="form-group">
-          <label>提取码</label>
+          <label class="field-label">提取码 <span class="tip-dot" tabindex="0" data-tip="多数链接会自动识别 pwd、password 或 code 参数。没有提取码可以留空。">?</span></label>
           <input type="text" id="extractCode" placeholder="自动识别">
         </div>
         <div class="form-group">
-          <label>分组</label>
+          <label class="field-label">分组 <span class="tip-dot" tabindex="0" data-tip="用于历史记录筛选，不会影响用户打开资源。可以在设置里新增自己的分组。">?</span></label>
           <select id="groupTag"><option value="">选择分组</option></select>
         </div>
         <div class="form-group">
-          <label>页面风格</label>
+          <label class="field-label">页面风格 <span class="tip-dot" tabindex="0" data-tip="控制分享页背景色和视觉风格。拿不准就用默认灰蓝。">?</span></label>
           <select id="pageStyle">
             <option value="default">默认灰蓝</option>
             <option value="minimal">纯净白</option>
@@ -472,7 +485,7 @@
           </select>
         </div>
         <div class="form-group full">
-          <label>备注信息</label>
+          <label class="field-label">备注信息 <span class="tip-dot" tabindex="0" data-tip="可写资源说明、使用方法、清晰度、更新日期等，方便用户确认资源内容。">?</span></label>
           <textarea id="remarkText" placeholder="添加备注，如资源说明、使用方法等（可选）"></textarea>
         </div>
 
@@ -504,6 +517,7 @@
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
             <label style="margin:0;font-weight:600;display:flex;align-items:center;gap:6px;">
               📢 手机端广告提示
+              <span class="tip-dot" tabindex="0" data-tip="开启后，手机用户打开生成链接时，会先看到你写的提示和倒计时，然后再跳转到原网盘。电脑端仍显示二维码页。">?</span>
               <span style="font-size:10px;color:var(--text3);font-weight:400;">（跳转前显示）</span>
             </label>
             <label class="switch">
@@ -551,9 +565,12 @@
           <div class="help-item"><strong>统一设置：</strong>下方广告和公众号文章会应用到本次批量生成的所有链接。</div>
         </div>
         <div class="format-example">示例： https://pan.quark.cn/s/xxxx?pwd=1234|电影资源|1234|娱乐|高清版</div>
+        <div class="help-actions">
+          <button class="btn btn-secondary btn-sm" type="button" onclick="fillBatchExample()">不会填？填入批量示例</button>
+        </div>
       </div>
       <div class="form-group">
-        <label>批量输入（每行格式：链接|名称|提取码|分组|备注）</label>
+        <label class="field-label">批量输入（每行格式：链接|名称|提取码|分组|备注） <span class="tip-dot" tabindex="0" data-tip="一行生成一个链接。只有第一段原始网盘链接必填，后面的名称、提取码、分组、备注都可以空着。">?</span></label>
         <textarea id="batchInput" style="min-height:140px;font-family:monospace;font-size:12px;" placeholder="https://pan.quark.cn/s/xxx?pwd=1234|电影资源|1234|娱乐|高清版本
 https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       </div>
@@ -564,6 +581,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <label style="margin:0;font-weight:600;display:flex;align-items:center;gap:6px;font-size:13px;">
             📢 广告提示设置
+            <span class="tip-dot" tabindex="0" data-tip="开启后，本次批量生成的所有链接都会使用同一段手机端跳转提示。">?</span>
             <span style="font-size:10px;color:var(--text3);font-weight:400;">（应用到所有链接）</span>
           </label>
           <label class="switch">
@@ -1057,6 +1075,8 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       .guide-grid { grid-template-columns:repeat(2,1fr); }
       .guide-faq { grid-template-columns:1fr; }
       .help-list { grid-template-columns:1fr; }
+      .next-step-card { flex-direction:column; align-items:flex-start; }
+      .next-step-actions { justify-content:flex-start; }
     }
 
     #previewModal .modal-box { display:flex; flex-direction:column; }
@@ -1794,6 +1814,31 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       }
     }
 
+    function fillSingleExample() {
+      document.getElementById('targetUrl').value = 'https://pan.quark.cn/s/example123?pwd=8888';
+      document.getElementById('resourceName').value = '示例资源合集';
+      document.getElementById('extractCode').value = '8888';
+      document.getElementById('remarkText').value = '这里可以写资源说明、使用方法或更新日期。';
+      const pageStyle = document.getElementById('pageStyle');
+      if (pageStyle) pageStyle.value = 'default';
+      toast('已填入示例，可以点击预览或生成');
+    }
+
+    function previewExampleFlow() {
+      if (!document.getElementById('targetUrl').value.trim()) {
+        fillSingleExample();
+      }
+      previewResult();
+    }
+
+    function fillBatchExample() {
+      document.getElementById('batchInput').value = [
+        'https://pan.quark.cn/s/example123?pwd=8888|示例资源合集|8888|资料|这里可以写资源说明',
+        'https://pan.baidu.com/s/example456|学习资料|5678|学习|PDF格式'
+      ].join('\n');
+      toast('已填入批量示例，可以直接生成');
+    }
+
     // 从任意文字中提取微信文章ID
     function autoExtractWxId(input) {
       const val = input.value;
@@ -1922,6 +1967,17 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       const container = document.getElementById('singleResult');
       const qrId = 'qr-single-' + Date.now();
       container.innerHTML = `
+        <div class="next-step-card">
+          <div>
+            <div class="next-step-title">下一步：复制新链接发给用户</div>
+            <div class="next-step-desc">电脑用户打开会看到二维码扫码页，手机用户打开会按你的设置进入跳转流程。结果已自动保存到历史记录。</div>
+          </div>
+          <div class="next-step-actions">
+            <button class="btn btn-primary btn-sm" onclick="copyLink(currentData.link)">复制新链接</button>
+            <button class="btn btn-secondary btn-sm" onclick="previewResult()">预览效果</button>
+            <button class="btn btn-secondary btn-sm" onclick="switchTab('history')">查看历史</button>
+          </div>
+        </div>
         <div class="result-card">
           <div class="qr" id="${qrId}" style="width:56px;height:56px;"></div>
           <div class="info">
@@ -2005,6 +2061,21 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         }
 
         if (batchGeneratedResults.length) {
+          const nextStepElement = document.createElement('div');
+          nextStepElement.className = 'next-step-card';
+          nextStepElement.innerHTML = `
+            <div>
+              <div class="next-step-title">下一步：复制或导出本次批量链接</div>
+              <div class="next-step-desc">已成功生成 ${successCount} 条链接，并保存到历史记录。常用做法是先复制全部链接发给用户，或导出 CSV 方便整理。</div>
+            </div>
+            <div class="next-step-actions">
+              <button class="btn btn-primary btn-sm" onclick="copyAllBatchLinks()">复制全部链接</button>
+              <button class="btn btn-secondary btn-sm" onclick="exportBatchResultsCSV()">导出CSV</button>
+              <button class="btn btn-secondary btn-sm" onclick="switchTab('history')">查看历史</button>
+            </div>
+          `;
+          batchResultContainer.insertBefore(nextStepElement, batchRenderContainer);
+
           const exportBarElement = document.createElement('div');
           exportBarElement.style.cssText = 'display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0;padding:12px;background:var(--bg);border-radius:10px;';
           exportBarElement.innerHTML = `
