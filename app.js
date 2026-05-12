@@ -302,7 +302,7 @@ const DISK_CONFIG = {
   caiyun: {
     name: '中国移动云盘',
     keywords: ['caiyun.139.com', 'yun.139.com', '139.com/w'],
-    logo: 'assets/logos/caiyun.ico',
+    logo: 'assets/logos/caiyun.svg',
     guide: 'assets/images/guides/caiyun-guide.svg',
     appName: '中国移动云盘APP',
     color: '#00a0e9'
@@ -342,7 +342,7 @@ const DISK_CONFIG = {
   '123pan': {
     name: '123云盘',
     keywords: ['123pan.com', '123684.com', '123865.com'],
-    logo: 'assets/logos/123pan.ico',
+    logo: 'assets/logos/123pan.svg',
     guide: 'assets/images/guides/123pan-guide.svg',
     appName: '123云盘APP',
     color: '#ff4d4f'
@@ -431,7 +431,7 @@ const DISK_CONFIG = {
   pcloud: {
     name: 'pCloud',
     keywords: ['pcloud.com', 'u.pcloud.com'],
-    logo: 'assets/logos/pcloud.ico',
+    logo: 'assets/logos/pcloud.svg',
     guide: '',
     appName: '手机浏览器',
     color: '#20b2aa'
@@ -683,6 +683,10 @@ const PageRenderer = {
     const siteLogo = document.getElementById('siteLogo');
     const siteName = document.getElementById('siteName');
     if (diskConfig.logo) {
+      siteLogo.onerror = () => {
+        siteLogo.style.visibility = 'hidden';
+        siteLogo.removeAttribute('src');
+      };
       siteLogo.src = diskConfig.logo;
       siteLogo.style.display = 'inline-block';
       siteLogo.style.visibility = 'visible';
@@ -834,6 +838,10 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
   const diskConfig = detectDiskType(targetUrl);
   if (diskLogo) {
     if (diskConfig.logo) {
+      diskLogo.onerror = () => {
+        diskLogo.style.display = 'none';
+        diskLogo.removeAttribute('src');
+      };
       diskLogo.src = diskConfig.logo;
       diskLogo.style.display = 'inline';
     } else {

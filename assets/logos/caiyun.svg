@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="China Mobile Cloud">
+  <defs>
+    <linearGradient id="g" x1="10" y1="54" x2="54" y2="10" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#18c37e"/>
+      <stop offset="1" stop-color="#12a8ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#eefaf6"/>
+  <path d="M23 42h25a10 10 0 0 0 0-20 16 16 0 0 0-30-3 12 12 0 0 0 5 23Z" fill="url(#g)"/>
+  <path d="M23 42h25a10 10 0 0 0 0-20 16 16 0 0 0-30-3 12 12 0 0 0 5 23Z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+</svg>
