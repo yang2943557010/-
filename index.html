@@ -92,17 +92,20 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-      background: #f3f6fb;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(99, 102, 241, .08), transparent 28%),
+        radial-gradient(circle at 78% 12%, rgba(14, 165, 233, .08), transparent 26%),
+        linear-gradient(180deg, #f6f8fc 0%, #f3f6fb 48%, #eef3fa 100%);
       color: #0b1220;
-      padding: 40px 80px;
+      padding: 34px 80px 104px;
       min-height: 100vh;
     }
 
     /* 顶部 logo 区 */
     .topbar {
       position: absolute;
-      left: 220px;
-      top: 28px;
+      left: max(80px, calc(50% - 760px));
+      top: 34px;
       display: flex;
       align-items: center;
       gap: 20px;
@@ -131,14 +134,136 @@
       text-overflow: ellipsis;
     }
 
-    /* 主舞台 */
-    .stage {
-      margin: 40px auto 0;
+    /* 顶部推广入口 */
+    .top-promo {
+      max-width: 1180px;
+      min-height: 68px;
+      margin: 0 auto 18px;
+      padding-left: 260px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      contain: layout paint;
+    }
+
+    .top-promo-item {
       display: flex;
-      gap: 40px;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      min-height: 68px;
+      padding: 12px 16px;
+      border: 1px solid rgba(148, 163, 184, .16);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.68));
+      color: #0f172a;
+      text-decoration: none;
+      box-shadow: 0 14px 36px rgba(15, 23, 42, .045);
+      backdrop-filter: blur(12px);
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .top-promo-item::after {
+      content: '→';
+      margin-left: auto;
+      color: #94a3b8;
+      font-weight: 800;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity .18s ease, transform .18s ease;
+    }
+
+    .top-promo-item:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99, 102, 241, .28);
+      box-shadow: 0 18px 46px rgba(15, 23, 42, .08);
+    }
+
+    .top-promo-item:hover::after {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .top-promo-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 14px;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 0 40px;
+      flex-shrink: 0;
+      font-size: 16px;
+      background: #eef2ff;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.58);
+    }
+
+    .top-promo-copy {
+      min-width: 0;
+      line-height: 1.35;
+    }
+
+    .top-promo-title {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .top-promo-desc {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      color: #64748b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    @media (max-width: 1000px) {
+      .top-promo {
+        max-width: 100%;
+        margin: 0 0 18px;
+        padding-left: 0;
+        grid-template-columns: repeat(3, minmax(190px, 1fr));
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .top-promo::-webkit-scrollbar { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .top-promo {
+        grid-template-columns: repeat(3, 210px);
+        gap: 10px;
+        margin-bottom: 14px;
+        padding-bottom: 2px;
+      }
+      .top-promo-item {
+        min-height: 58px;
+        padding: 10px 12px;
+        border-radius: 14px;
+      }
+      .top-promo-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+        font-size: 14px;
+      }
+      .top-promo-title { font-size: 12px; }
+      .top-promo-desc { font-size: 10px; }
+    }
+
+    /* 主舞台 */
+    .stage {
+      margin: 0 auto;
+      display: flex;
+      gap: 34px;
+      align-items: center;
+      justify-content: center;
+      max-width: 1320px;
+      padding: 10px 24px 0;
       flex-wrap: nowrap;
     }
 
@@ -146,13 +271,15 @@
     .card {
       width: 460px;
       flex-shrink: 0;
-      background: #fff;
-      border-radius: 18px;
-      padding: 36px;
-      box-shadow: 0 40px 80px rgba(2, 6, 23, 0.06);
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(226, 232, 240, .78);
+      border-radius: 24px;
+      padding: 38px;
+      box-shadow: 0 34px 90px rgba(15, 23, 42, 0.075);
       /* CLS 优化：固定最小高度，防止二维码加载时布局跳动 */
       min-height: 420px;
       contain: layout style;
+      transform: translateY(-8px);
     }
 
     /* 二维码容器固定尺寸，防止 CLS */
@@ -161,9 +288,9 @@
       height: 176px;
       margin: 18px auto;
       background: #f8fafc;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
-      border: 1px solid #f3f4f6;
+      border-radius: 18px;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.09);
+      border: 1px solid #eef2f7;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -186,6 +313,7 @@
       align-items: center;
       padding: 0 !important;
       transform: none !important;
+      filter: drop-shadow(0 24px 44px rgba(15, 23, 42, .08));
     }
     .guide-img {
       width: 420px;
@@ -194,16 +322,18 @@
       height: auto !important;
       aspect-ratio: 415 / 640;
       display: block;
+      border-radius: 28px;
     }
 
     .card h2 {
-      font-size: 20px;
-      margin-bottom: 12px;
+      font-size: 21px;
+      line-height: 1.35;
+      margin-bottom: 16px;
       font-weight: 700;
     }
 
     .extract-code {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       color: #374151;
       font-size: 14px;
     }
@@ -215,7 +345,7 @@
 
     .card .sub {
       color: #6b7280;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
       font-size: 14px;
     }
 
@@ -230,9 +360,9 @@
       height: 176px;
       margin: 18px auto;
       background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
-      border: 1px solid #f3f4f6;
+      border-radius: 18px;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.09);
+      border: 1px solid #eef2f7;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -248,7 +378,7 @@
 
     .hint {
       text-align: center;
-      margin-top: 20px;
+      margin-top: 22px;
       font-weight: 700;
       color: #111827;
       font-size: 14px;
@@ -265,7 +395,7 @@
     }
 
     /* 卡片内推广预留高度，防止 CLS */
-    .card-promo { min-height: 52px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #f3f4f6; text-align: center; }
+    .card-promo { min-height: 54px; margin-top: 22px; padding-top: 18px; border-top: 1px solid #eef2f7; text-align: center; }
     /* 底部推广条预留，防止 CLS */
     .page-promo { position: fixed; bottom: 0; left: 0; right: 0; min-height: 56px; }
     .disclaimer { min-height: 86px; contain: layout paint; }
@@ -300,6 +430,7 @@
       flex-direction: column;
       gap: 12px;
       max-height: 600px;
+      margin-top: 0;
       overflow-y: auto;
       scrollbar-width: thin;
       scrollbar-color: #e5e7eb transparent;
@@ -309,9 +440,11 @@
     .wx-article-panel::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
     .wx-article-inner {
       background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(2,6,23,0.07);
+      border: 1px solid rgba(226, 232, 240, .75);
+      border-radius: 20px;
+      box-shadow: 0 18px 48px rgba(15,23,42,0.065);
       flex-shrink: 0;
+      overflow: hidden;
     }
     .wx-article-inner.wx-multi {
       overflow: visible;
@@ -346,9 +479,10 @@
     }
     .wx-multi-cover {
       width: 100%;
-      height: 140px;
+      height: 132px;
       object-fit: cover;
       display: block;
+      background: linear-gradient(135deg,#ecfdf5,#eef2ff);
     }
     .wx-multi-body {
       padding: 12px 14px;
@@ -395,8 +529,9 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 14px;
+      padding: 14px 16px;
       border-bottom: 1px solid #f3f4f6;
+      background: rgba(255,255,255,.9);
     }
     .wx-account-avatar {
       width: 30px; height: 30px;
@@ -416,14 +551,18 @@
     .wx-cover {
       width: 100%; aspect-ratio: 2.35/1;
       object-fit: cover; display: block;
+      background: linear-gradient(135deg,#ecfdf5,#eef2ff);
     }
     .wx-cover-placeholder {
       width: 100%; aspect-ratio: 2.35/1;
-      background: linear-gradient(135deg,#6366f1,#8b5cf6);
+      background:
+        radial-gradient(circle at 24% 30%, rgba(255,255,255,.5), transparent 20%),
+        linear-gradient(135deg,#10b981,#6366f1);
+      color: #fff;
       display: flex; align-items: center; justify-content: center;
-      font-size: 32px;
+      font-size: 30px;
     }
-    .wx-article-content { padding: 14px 14px 12px; }
+    .wx-article-content { padding: 16px 16px 14px; }
     .wx-article-title {
       font-size: 14px; font-weight: 700; color: #111827;
       line-height: 1.5; margin-bottom: 8px;
@@ -527,6 +666,31 @@
   <div class="topbar" id="topbar">
     <img src="" alt="logo" class="site-logo" id="siteLogo" width="36" height="36">
     <span class="site-name" id="siteName">资源分享</span>
+  </div>
+
+  <!-- 顶部推广入口 -->
+  <div class="top-promo" id="topPromo" aria-label="推荐服务">
+    <a class="top-promo-item" href="speed.html" target="_blank" rel="noopener">
+      <span class="top-promo-icon" style="background:#ecfeff;">⚡</span>
+      <span class="top-promo-copy">
+        <span class="top-promo-title">网盘解除限速</span>
+        <span class="top-promo-desc">提速教程与实用工具合集</span>
+      </span>
+    </a>
+    <a class="top-promo-item" href="vip.html" target="_blank" rel="noopener">
+      <span class="top-promo-icon" style="background:#fff7ed;">💎</span>
+      <span class="top-promo-copy">
+        <span class="top-promo-title">免费网盘会员账号</span>
+        <span class="top-promo-desc">每日更新可用福利入口</span>
+      </span>
+    </a>
+    <a class="top-promo-item" href="resources.html" target="_blank" rel="noopener">
+      <span class="top-promo-icon" style="background:#f0fdf4;">📚</span>
+      <span class="top-promo-copy">
+        <span class="top-promo-title">更多资源合集</span>
+        <span class="top-promo-desc">影视、学习、软件分类整理</span>
+      </span>
+    </a>
   </div>
 
   <!-- 主内容 -->

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>网盘解除限速 - 资源分享</title>
+  <meta name="description" content="网盘提速教程、实用工具和转存技巧合集。">
+  <style>
+    :root { --bg:#f8fafc; --card:#fff; --text:#1e293b; --text2:#475569; --text3:#94a3b8; --border:#e2e8f0; --primary:#6366f1; --primary2:#06b6d4; --good:#10b981; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; min-height:100vh; background:linear-gradient(180deg,#f3f6fb 0%,#f8fafc 44%,#fff 100%); color:var(--text); padding:24px; }
+    .container { max-width:1080px; margin:0 auto; }
+    .nav { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:22px; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:800; color:var(--text); text-decoration:none; }
+    .brand-icon { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; background:#ecfeff; }
+    .nav-links { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .nav-links a, .back { color:var(--text2); text-decoration:none; font-size:13px; padding:8px 12px; border:1px solid var(--border); background:rgba(255,255,255,.78); border-radius:999px; }
+    .nav-links a:hover, .back:hover { border-color:var(--primary); color:var(--primary); }
+    .hero { display:grid; grid-template-columns:1.2fr .8fr; gap:18px; align-items:stretch; margin-bottom:18px; }
+    .hero-card, .panel, .tool-card { background:rgba(255,255,255,.86); border:1px solid rgba(148,163,184,.2); border-radius:20px; box-shadow:0 18px 50px rgba(15,23,42,.06); }
+    .hero-card { padding:34px; overflow:hidden; position:relative; }
+    .eyebrow { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; background:#ecfeff; color:#0891b2; font-size:12px; font-weight:700; margin-bottom:16px; }
+    h1 { font-size:34px; line-height:1.18; letter-spacing:0; margin-bottom:12px; }
+    .lead { color:var(--text2); font-size:15px; line-height:1.8; max-width:640px; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:22px; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:42px; padding:0 18px; border-radius:12px; text-decoration:none; font-size:14px; font-weight:700; border:1px solid transparent; }
+    .btn-primary { color:#fff; background:linear-gradient(135deg,var(--primary),#8b5cf6); box-shadow:0 12px 24px rgba(99,102,241,.22); }
+    .btn-secondary { color:var(--text); background:#fff; border-color:var(--border); }
+    .metric { padding:24px; display:grid; align-content:center; gap:14px; }
+    .metric-item { padding:14px; background:#f8fafc; border:1px solid var(--border); border-radius:16px; }
+    .metric-value { font-size:22px; font-weight:800; color:var(--primary); }
+    .metric-label { margin-top:4px; color:var(--text2); font-size:12px; }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:18px; }
+    .tool-card { padding:20px; }
+    .tool-icon { width:44px; height:44px; border-radius:14px; display:grid; place-items:center; background:#f1f5f9; margin-bottom:14px; font-size:20px; }
+    .tool-title { font-size:16px; font-weight:800; margin-bottom:8px; }
+    .tool-desc { color:var(--text2); font-size:13px; line-height:1.7; }
+    .panel { padding:24px; margin-bottom:18px; }
+    .panel h2 { font-size:20px; margin-bottom:14px; }
+    .steps { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    .step { border:1px solid var(--border); background:#fff; border-radius:16px; padding:16px; }
+    .step-num { width:26px; height:26px; border-radius:9px; display:grid; place-items:center; background:#eef2ff; color:var(--primary); font-size:12px; font-weight:800; margin-bottom:10px; }
+    .step-title { font-weight:800; margin-bottom:6px; }
+    .step-desc { color:var(--text2); font-size:12px; line-height:1.7; }
+    .notice { color:var(--text3); font-size:12px; line-height:1.8; padding:14px 16px; background:#f8fafc; border:1px solid var(--border); border-radius:14px; }
+    @media (max-width:900px) { body { padding:16px; } .hero, .grid, .steps { grid-template-columns:1fr; } h1 { font-size:28px; } .nav { align-items:flex-start; flex-direction:column; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="nav">
+      <a class="brand" href="index.html"><span class="brand-icon">⚡</span><span>网盘解除限速</span></a>
+      <div class="nav-links">
+        <a href="vip.html">免费会员账号</a>
+        <a href="resources.html">更多资源合集</a>
+        <a href="generator.html">生成分享链接</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-card">
+        <div class="eyebrow">提速教程 · 工具整理 · 转存技巧</div>
+        <h1>把网盘下载和转存流程整理得更顺手</h1>
+        <p class="lead">这里汇总常见网盘的提速思路、批量转存工具、客户端下载建议和失败排查方法。适合需要频繁下载、整理、分享资源的用户。</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="tools.html">查看实用工具</a>
+          <a class="btn btn-secondary" href="generator.html">制作自己的分享页</a>
+        </div>
+      </div>
+      <aside class="metric hero-card">
+        <div class="metric-item"><div class="metric-value">4 类</div><div class="metric-label">提速方式：客户端、转存、批量、排查</div></div>
+        <div class="metric-item"><div class="metric-value">多网盘</div><div class="metric-label">覆盖百度、夸克、阿里、迅雷等常见平台</div></div>
+        <div class="metric-item"><div class="metric-value">持续更新</div><div class="metric-label">优先保留稳定、低门槛、可复用的方法</div></div>
+      </aside>
+    </section>
+
+    <section class="grid">
+      <div class="tool-card"><div class="tool-icon">🚀</div><div class="tool-title">客户端下载建议</div><div class="tool-desc">整理各网盘更适合下载和扫码的官方入口，减少浏览器兼容问题。</div></div>
+      <div class="tool-card"><div class="tool-icon">📦</div><div class="tool-title">批量转存工具</div><div class="tool-desc">适合一次处理多个分享链接，自动识别提取码，提升整理效率。</div></div>
+      <div class="tool-card"><div class="tool-icon">🔧</div><div class="tool-title">失败排查清单</div><div class="tool-desc">遇到限速、失效、扫码打不开时，按步骤快速定位问题。</div></div>
+    </section>
+
+    <section class="panel">
+      <h2>推荐使用流程</h2>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-title">确认网盘类型</div><div class="step-desc">先判断是百度、夸克、阿里还是其他网盘，不同平台处理方式不同。</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-title">优先用官方客户端</div><div class="step-desc">大文件下载优先走客户端，稳定性通常好于网页直接下载。</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-title">批量转存再下载</div><div class="step-desc">资源较多时先转存到自己的网盘，再统一整理和下载。</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-title">生成分享页</div><div class="step-desc">需要分发资源时，用本站生成二维码分享页，降低用户打开门槛。</div></div>
+      </div>
+    </section>
+
+    <div class="notice">提示：本页仅整理公开可用的工具、教程和效率建议，不提供绕过平台规则的破解内容。请遵守各网盘服务条款。</div>
+  </div>
+</body>
+</html>

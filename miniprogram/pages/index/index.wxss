@@ -1,166 +1,260 @@
 /* pages/index/index.wxss */
-/* 完全还原原网页样式 */
+/* 现代化美化版样式 */
 
 /* 基础样式 */
 page {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-  background: #f3f6fb;
-  color: #0b1220;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
   min-height: 100vh;
 }
 
 .page-container {
   min-height: 100vh;
-  padding: 80rpx 160rpx;
+  padding: 60rpx 120rpx;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 /* 顶部 logo 区 */
 .topbar {
-  position: relative;
-  left: 0;
-  top: 0;
   display: flex;
   align-items: center;
-  gap: 40rpx;
-  color: #0f172a;
-  font-weight: 600;
+  gap: 24rpx;
+  padding: 32rpx 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(99, 102, 241, 0.08);
   margin-bottom: 40rpx;
+  border: 1rpx solid rgba(99, 102, 241, 0.1);
 }
 
 .site-logo {
-  height: 72rpx;
-  width: 72rpx;
+  height: 48rpx;
+  width: 48rpx;
   object-fit: contain;
+  animation: pulse 2s ease-in-out infinite;
 }
 
-.site-logo-placeholder {
-  height: 72rpx;
-  width: 72rpx;
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .site-name {
-  font-size: 32rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #4f46e5;
+  letter-spacing: 0.5rpx;
 }
 
 /* 主舞台 */
 .stage {
-  margin: 80rpx auto 0;
+  margin: 40rpx auto 0;
   display: flex;
-  gap: 80rpx;
+  gap: 60rpx;
   align-items: center;
   justify-content: center;
-  padding: 0 80rpx;
-  flex-wrap: nowrap;
+  padding: 0 60rpx;
+  animation: stage-fade 0.8s ease-out;
+}
+
+@keyframes stage-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 /* 卡片 */
 .card {
-  width: 920rpx;
+  width: 800rpx;
   flex-shrink: 0;
   background: #fff;
-  border-radius: 36rpx;
-  padding: 72rpx;
-  box-shadow: 0 80rpx 160rpx rgba(2, 6, 23, 0.06);
-  min-height: 840rpx;
-  contain: layout style;
+  border-radius: 32rpx;
+  padding: 48rpx;
+  box-shadow: 
+    0 4rpx 6rpx -1rpx rgba(99, 102, 241, 0.1),
+    0 2rpx 4rpx -1rpx rgba(99, 102, 241, 0.06),
+    0 20rpx 40rpx -10rpx rgba(99, 102, 241, 0.1);
+  min-height: 600rpx;
+  position: relative;
+  overflow: hidden;
+  animation: card-enter 0.6s ease-out;
+}
+
+@keyframes card-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(30rpx);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6rpx;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
+  border-radius: 32rpx 32rpx 0 0;
 }
 
 .resource-title {
-  font-size: 40rpx;
-  margin-bottom: 24rpx;
+  font-size: 36rpx;
+  margin-bottom: 20rpx;
   font-weight: 700;
+  color: #1e293b;
   display: block;
+  line-height: 1.4;
 }
 
 .extract-code {
-  margin-bottom: 20rpx;
-  color: #374151;
-  font-size: 28rpx;
+  margin-bottom: 16rpx;
+  padding: 16rpx 24rpx;
+  background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+  border-radius: 16rpx;
+  border: 1rpx solid rgba(99, 102, 241, 0.1);
+  box-shadow: 0 2rpx 8rpx rgba(99, 102, 241, 0.08);
+  display: flex;
+  align-items: center;
 }
 
 .code-value {
   font-weight: 700;
-  color: #0b1220;
+  color: #4f46e5;
+  font-size: 32rpx;
+  letter-spacing: 1rpx;
 }
 
 .sub-text {
-  color: #6b7280;
-  margin-bottom: 36rpx;
-  font-size: 28rpx;
+  color: #64748b;
+  margin-bottom: 32rpx;
+  font-size: 26rpx;
   display: block;
+  line-height: 1.6;
 }
 
 .app-name {
-  color: #0b1220;
-  font-weight: 700;
+  color: #4f46e5;
+  font-weight: 600;
 }
 
 /* 二维码 */
 .qr {
-  width: 352rpx;
-  height: 352rpx;
-  margin: 36rpx auto;
-  background: #fff;
-  border-radius: 24rpx;
-  box-shadow: 0 12rpx 36rpx rgba(2, 6, 23, 0.06);
-  border: 2rpx solid #f3f4f6;
+  width: 280rpx;
+  height: 280rpx;
+  margin: 32rpx auto;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 20rpx;
+  box-shadow: 
+    0 8rpx 16rpx -4rpx rgba(99, 102, 241, 0.15),
+    0 4rpx 8rpx -2rpx rgba(99, 102, 241, 0.1);
+  border: 3rpx solid rgba(255, 255, 255, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  position: relative;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 
+      0 8rpx 16rpx -4rpx rgba(99, 102, 241, 0.15),
+      0 4rpx 8rpx -2rpx rgba(99, 102, 241, 0.1);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 
+      0 12rpx 24rpx -4rpx rgba(99, 102, 241, 0.2),
+      0 6rpx 12rpx -2rpx rgba(99, 102, 241, 0.15);
+  }
+}
+
+.qr::before {
+  content: '';
+  position: absolute;
+  inset: 6rpx;
+  border: 2rpx solid rgba(99, 102, 241, 0.2);
+  border-radius: 16rpx;
+  pointer-events: none;
+  background: rgba(99, 102, 241, 0.05);
 }
 
 .qr-canvas {
-  width: 320rpx;
-  height: 320rpx;
+  width: 252rpx;
+  height: 252rpx;
+  z-index: 1;
 }
 
 .hint {
   text-align: center;
-  margin-top: 40rpx;
-  font-weight: 700;
-  color: #111827;
-  font-size: 28rpx;
+  margin-top: 32rpx;
+  font-weight: 600;
+  color: #475569;
+  font-size: 26rpx;
   line-height: 1.8;
 }
 
 .hint-small {
   font-weight: 400;
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 24rpx;
   display: block;
   margin-top: 8rpx;
 }
 
 .highlight {
-  color: #3b82f6;
+  color: #4f46e5;
+  font-weight: 600;
 }
 
 /* 卡片内推广 */
 .card-promo {
-  margin-top: 40rpx;
-  padding-top: 32rpx;
-  border-top: 2rpx solid #f3f4f6;
-  min-height: 104rpx;
+  margin-top: 32rpx;
+  padding-top: 24rpx;
+  border-top: 2rpx solid #e2e8f0;
+  min-height: 52rpx;
   text-align: center;
 }
 
 .card-promo navigator {
   display: inline-flex;
   align-items: center;
-  gap: 12rpx;
-  color: #6366f1;
+  gap: 8rpx;
+  color: #4f46e5;
   font-size: 24rpx;
-  padding: 12rpx 28rpx;
-  background: #f0f0ff;
-  border-radius: 32rpx;
+  padding: 10rpx 20rpx;
+  background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+  border-radius: 12rpx;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2rpx 8rpx rgba(99, 102, 241, 0.1);
+}
+
+.card-promo navigator::active {
+  transform: scale(0.98);
+  box-shadow: 0 1rpx 4rpx rgba(99, 102, 241, 0.15);
 }
 
 /* 引导图区域 */
 .guide-right {
-  flex: 0 0 840rpx;
-  width: 840rpx;
-  min-height: min(1280rpx, calc(100vh - 400rpx));
+  flex: 0 0 760rpx;
+  width: 760rpx;
+  min-height: min(1280rpx, calc(100vh - 320rpx));
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -168,70 +262,103 @@ page {
 }
 
 .guide-img {
-  width: 840rpx;
-  max-width: 840rpx;
-  max-height: min(1280rpx, calc(100vh - 400rpx));
+  width: 760rpx;
+  max-width: 760rpx;
+  max-height: min(1280rpx, calc(100vh - 320rpx));
   height: auto;
   object-fit: contain;
   background: transparent;
   display: block;
   aspect-ratio: 415 / 640;
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(99, 102, 241, 0.15);
 }
 
 /* 错误页面 */
 .error-container {
-  width: 920rpx;
+  width: 800rpx;
   background: #fff;
-  border-radius: 36rpx;
-  padding: 120rpx 72rpx;
-  box-shadow: 0 80rpx 160rpx rgba(2, 6, 23, 0.06);
+  border-radius: 32rpx;
+  padding: 80rpx 40rpx;
+  box-shadow: 
+    0 4rpx 6rpx -1rpx rgba(0, 0, 0, 0.1),
+    0 2rpx 4rpx -1rpx rgba(0, 0, 0, 0.06),
+    0 20rpx 40rpx -10rpx rgba(0, 0, 0, 0.1);
   text-align: center;
+  position: relative;
+}
+
+.error-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6rpx;
+  background: linear-gradient(90deg, #ef4444, #f87171, #fca5a5);
+  border-radius: 32rpx 32rpx 0 0;
 }
 
 .error-icon {
-  font-size: 80rpx;
+  font-size: 64rpx;
   display: block;
   margin-bottom: 24rpx;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10rpx); }
+  75% { transform: translateX(10rpx); }
 }
 
 .error-title {
-  font-size: 40rpx;
+  font-size: 32rpx;
   color: #ef4444;
-  margin-bottom: 24rpx;
+  margin-bottom: 16rpx;
   font-weight: 700;
   display: block;
 }
 
 .error-desc {
-  color: #6b7280;
-  font-size: 28rpx;
+  color: #64748b;
+  font-size: 26rpx;
   display: block;
+  margin-bottom: 40rpx;
+  line-height: 1.6;
 }
 
 .error-promo {
-  margin-top: 48rpx;
-  padding-top: 40rpx;
-  border-top: 2rpx solid #f3f4f6;
+  margin-top: 40rpx;
+  padding-top: 32rpx;
+  border-top: 2rpx solid #e2e8f0;
 }
 
 .error-promo-text {
-  font-size: 26rpx;
-  color: #6b7280;
-  margin-bottom: 24rpx;
+  font-size: 24rpx;
+  color: #64748b;
+  margin-bottom: 16rpx;
   display: block;
+  line-height: 1.6;
 }
 
 .error-promo-btn {
   display: inline-flex;
   align-items: center;
-  gap: 12rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  gap: 8rpx;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: #fff;
-  font-size: 26rpx;
+  font-size: 24rpx;
   font-weight: 500;
-  padding: 20rpx 48rpx;
-  border-radius: 20rpx;
-  box-shadow: 0 8rpx 30rpx rgba(102, 126, 234, 0.3);
+  padding: 16rpx 32rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(99, 102, 241, 0.3);
+  transition: all 0.3s ease;
+}
+
+.error-promo-btn::active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(99, 102, 241, 0.4);
 }
 
 /* 底部推广条 */
@@ -240,54 +367,64 @@ page {
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 24rpx 40rpx;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  padding: 20rpx 40rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24rpx;
-  box-shadow: 0 -8rpx 40rpx rgba(0, 0, 0, 0.1);
+  gap: 20rpx;
+  box-shadow: 0 -4rpx 20rpx rgba(99, 102, 241, 0.2);
   z-index: 1000;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1rpx solid rgba(255, 255, 255, 0.1);
 }
 
 .page-promo-text {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 24rpx;
   flex: 1;
+  line-height: 1.5;
 }
 
 .page-promo-btn {
   display: inline-flex;
   align-items: center;
-  gap: 12rpx;
+  gap: 8rpx;
   background: #fff;
-  color: #764ba2;
-  font-size: 26rpx;
+  color: #4f46e5;
+  font-size: 24rpx;
   font-weight: 600;
-  padding: 16rpx 40rpx;
+  padding: 12rpx 32rpx;
   border-radius: 40rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
   white-space: nowrap;
+}
+
+.page-promo-btn::active {
+  transform: scale(0.95);
 }
 
 /* 免责声明 */
 .disclaimer {
-  max-width: 2400rpx;
-  margin: 40rpx auto 160rpx;
-  padding: 32rpx 40rpx;
-  background: rgba(0, 0, 0, 0.02);
-  border-radius: 24rpx;
-  font-size: 22rpx;
-  color: #9ca3af;
+  max-width: 1800rpx;
+  margin: 32rpx auto 120rpx;
+  padding: 24rpx 32rpx;
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: 16rpx;
+  font-size: 20rpx;
+  color: #94a3b8;
   line-height: 1.8;
   text-align: center;
+  border: 1rpx solid rgba(99, 102, 241, 0.1);
 }
 
 .disclaimer-title {
   display: block;
-  color: #6b7280;
-  font-weight: 700;
-  margin-bottom: 12rpx;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 8rpx;
 }
 
 .disclaimer-content {
@@ -406,12 +543,14 @@ page {
 
 /* 广告卡片样式 */
 .ad-card {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(40px);
   border-radius: 48rpx;
   padding: 80rpx 100rpx 80rpx;
-  box-shadow: 0 50rpx 100rpx rgba(0, 0, 0, 0.15);
-  border: 2rpx solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 25rpx 50rpx rgba(0, 0, 0, 0.15),
+    0 0 100rpx rgba(99, 102, 241, 0.1);
+  border: 2rpx solid rgba(255, 255, 255, 0.8);
   position: relative;
 }
 
@@ -427,7 +566,7 @@ page {
 .ad-left {
   display: inline-flex;
   align-items: center;
-  gap: 20rpx;
+  gap: 16rpx;
 }
 
 .ad-disk {
@@ -437,36 +576,39 @@ page {
   width: 280rpx;
   height: 80rpx;
   padding: 0;
-  border-radius: 28rpx;
-  background: rgba(255, 255, 255, 0.18);
-  border: 2rpx solid rgba(255, 255, 255, 0.22);
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 2rpx solid rgba(99, 102, 241, 0.1);
   overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(99, 102, 241, 0.1);
 }
 
 .ad-disk-img {
   display: block;
   width: 260rpx;
   height: 80rpx;
-  object-fit: cover;
+  object-fit: contain;
   object-position: right center;
 }
 
 .ad-notice {
   padding: 8rpx 16rpx;
-  font-size: 24rpx;
+  font-size: 22rpx;
   font-weight: 800;
   color: #ef4444;
-  background: #fff1f2;
-  border: 2rpx solid rgba(239, 68, 68, 0.25);
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border: 2rpx solid rgba(239, 68, 68, 0.2);
   border-radius: 999rpx;
+  box-shadow: 0 2rpx 8rpx rgba(239, 68, 68, 0.1);
 }
 
 .ad-text {
-  font-size: 30rpx;
-  line-height: 1.5;
-  margin-bottom: 28rpx;
-  color: #fff;
-  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+  font-size: 28rpx;
+  line-height: 1.6;
+  margin-bottom: 32rpx;
+  color: #1e293b;
+  text-shadow: none;
+  font-weight: 600;
 }
 
 .ad-countdown-wrapper {
@@ -477,55 +619,58 @@ page {
   width: 100%;
   justify-content: center;
   padding: 0;
-  font-size: 28rpx;
+  font-size: 26rpx;
   gap: 12rpx;
   background: transparent;
-  color: rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
+  color: #475569;
+  border: 0;
 }
 
 .ad-countdown-num {
   width: auto;
   height: auto;
-  font-size: 32rpx;
-  padding: 0 4rpx;
-  background: transparent;
+  font-size: 36rpx;
+  padding: 0 8rpx;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: #fff;
-  font-weight: 700;
+  font-weight: 800;
+  border-radius: 12rpx;
+  box-shadow: 0 4rpx 12rpx rgba(99, 102, 241, 0.3);
 }
 
 .ad-progress {
   width: 100%;
   max-width: 640rpx;
-  height: 10rpx;
-  margin: 0 auto 28rpx;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 5rpx;
+  height: 8rpx;
+  margin: 0 auto 32rpx;
+  background: #e2e8f0;
+  border-radius: 4rpx;
   overflow: hidden;
 }
 
 .ad-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, 0.55) 100%);
-  border-radius: 5rpx;
+  background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+  border-radius: 4rpx;
+  box-shadow: 0 0 12rpx rgba(99, 102, 241, 0.5);
   transition: width 0.1s linear;
 }
 
 .ad-hint {
-  font-size: 24rpx;
-  line-height: 1.5;
+  font-size: 22rpx;
+  line-height: 1.6;
   margin: 0 auto 32rpx;
   max-width: 640rpx;
   padding: 20rpx 24rpx;
-  border-radius: 28rpx;
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
-  border: 2rpx solid rgba(255, 255, 255, 0.12);
+  border-radius: 16rpx;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #64748b;
+  border: 2rpx solid rgba(99, 102, 241, 0.1);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(99, 102, 241, 0.05);
 }
 
 .ad-skip-btn,
@@ -538,47 +683,59 @@ page {
   padding: 28rpx 32rpx;
   font-size: 28rpx;
   font-weight: 700;
-  border-radius: 28rpx;
+  border-radius: 16rpx;
   text-decoration: none;
   border: none;
-  background: transparent;
-}
-
-.ad-skip-btn {
-  background: #fff;
-  color: #764ba2;
-  border: 2rpx solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 28rpx 70rpx rgba(0, 0, 0, 0.18);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #fff;
+  box-shadow: 0 8rpx 20rpx rgba(99, 102, 241, 0.4);
+  transition: all 0.3s ease;
 }
 
 .ad-skip-btn::after {
   border: none;
 }
 
+.ad-skip-btn::active {
+  transform: scale(0.98);
+  box-shadow: 0 4rpx 12rpx rgba(99, 102, 241, 0.5);
+}
+
 .ad-generate-btn {
-  margin-top: 20rpx;
-  background: rgba(255, 255, 255, 0.15);
-  border: 2rpx solid rgba(255, 255, 255, 0.18);
-  color: #fff;
+  margin-top: 16rpx;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #4f46e5;
+  border: 2rpx solid rgba(99, 102, 241, 0.2);
+}
+
+.ad-generate-btn::active {
+  transform: scale(0.98);
+  box-shadow: 0 4rpx 12rpx rgba(99, 102, 241, 0.2);
 }
 
 /* 底部推广链接 */
 .promo-link {
-  margin-top: 56rpx;
-  padding-top: 48rpx;
+  margin-top: 48rpx;
+  padding-top: 40rpx;
   border-top: 2rpx solid rgba(255, 255, 255, 0.2);
 }
 
 .promo-link navigator {
   display: inline-flex;
   align-items: center;
-  gap: 16rpx;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 26rpx;
-  padding: 24rpx 48rpx;
+  gap: 12rpx;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 24rpx;
+  padding: 16rpx 32rpx;
   background: rgba(255, 255, 255, 0.15);
-  border-radius: 50rpx;
+  border-radius: 40rpx;
   border: 2rpx solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
+}
+
+.promo-link navigator::active {
+  transform: scale(0.98);
 }
 
 /* 装饰元素 */
@@ -590,7 +747,7 @@ page {
 .ad-decoration.sparkle {
   width: 40rpx;
   height: 40rpx;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, transparent 70%);
   animation: sparkle 2s ease-in-out infinite;
 }
 
@@ -620,32 +777,31 @@ page {
 /* ==================== 移动端优化 ==================== */
 @media (max-width: 768px) {
   .page-container {
-    padding: 32rpx;
+    padding: 24rpx;
     padding-bottom: 160rpx;
   }
 
   /* 顶部栏优化 */
   .topbar {
     justify-content: center;
-    gap: 24rpx;
-    padding: 16rpx 0;
-    margin-bottom: 32rpx;
+    gap: 16rpx;
+    padding: 20rpx 0;
   }
 
   .site-logo {
-    height: 56rpx;
-    width: 56rpx;
+    height: 40rpx;
+    width: 40rpx;
   }
 
   .site-name {
-    font-size: 28rpx;
+    font-size: 26rpx;
   }
 
   /* 主舞台优化 */
   .stage {
     flex-direction: column;
-    gap: 40rpx;
-    margin-top: 32rpx;
+    gap: 32rpx;
+    margin-top: 24rpx;
     padding: 0;
   }
 
@@ -653,57 +809,56 @@ page {
   .card {
     width: 100%;
     max-width: 100%;
-    padding: 48rpx 40rpx;
-    border-radius: 32rpx;
+    padding: 40rpx 32rpx;
+    border-radius: 24rpx;
     min-height: auto;
   }
 
   .resource-title {
-    font-size: 36rpx;
-    margin-bottom: 20rpx;
+    font-size: 32rpx;
+    margin-bottom: 16rpx;
     line-height: 1.4;
   }
 
   .extract-code {
-    font-size: 30rpx;
-    margin-bottom: 16rpx;
-    padding: 20rpx 28rpx;
-    background: #f8fafc;
-    border-radius: 20rpx;
-    display: inline-block;
+    font-size: 28rpx;
+    margin-bottom: 12rpx;
+    padding: 14rpx 20rpx;
+    background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+    border-radius: 12rpx;
   }
 
   .sub-text {
-    font-size: 26rpx;
+    font-size: 24rpx;
     line-height: 1.6;
-    margin-bottom: 32rpx;
+    margin-bottom: 24rpx;
   }
 
   /* 二维码区域优化 */
   .qr {
-    width: 400rpx;
-    height: 400rpx;
-    margin: 40rpx auto;
-    border-radius: 32rpx;
-    padding: 24rpx;
+    width: 320rpx;
+    height: 320rpx;
+    margin: 24rpx auto;
+    border-radius: 16rpx;
+    padding: 16rpx;
   }
 
   .qr-canvas {
-    width: 352rpx;
-    height: 352rpx;
+    width: 288rpx;
+    height: 288rpx;
   }
 
   /* 提示文字优化 */
   .hint {
-    font-size: 28rpx;
+    font-size: 24rpx;
     line-height: 1.8;
-    margin-top: 32rpx;
+    margin-top: 24rpx;
   }
 
   .hint-small {
-    font-size: 26rpx;
+    font-size: 22rpx;
     display: block;
-    margin-top: 12rpx;
+    margin-top: 6rpx;
   }
 
   /* 引导图隐藏 */
@@ -715,69 +870,70 @@ page {
 
   /* 卡片内推广优化 */
   .card-promo {
-    margin-top: 48rpx;
-    padding-top: 40rpx;
+    margin-top: 24rpx;
+    padding-top: 20rpx;
   }
 
   .card-promo navigator {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 16rpx;
-    padding: 28rpx 40rpx;
-    font-size: 28rpx;
-    border-radius: 24rpx;
+    gap: 8rpx;
+    padding: 20rpx 32rpx;
+    font-size: 24rpx;
+    border-radius: 12rpx;
   }
 
   /* 错误页面优化 */
   .error-container {
-    padding: 96rpx 48rpx;
-    border-radius: 32rpx;
+    padding: 64rpx 32rpx;
+    border-radius: 24rpx;
     width: 100%;
     max-width: 100%;
   }
 
   .error-title {
-    font-size: 36rpx;
-    margin-bottom: 24rpx;
+    font-size: 28rpx;
+    margin-bottom: 16rpx;
   }
 
   .error-desc {
-    font-size: 28rpx;
+    font-size: 24rpx;
     line-height: 1.6;
   }
 
   .error-promo {
-    margin-top: 56rpx;
-    padding-top: 48rpx;
+    margin-top: 32rpx;
+    padding-top: 24rpx;
   }
 
   .error-promo-text {
-    font-size: 28rpx;
-    margin-bottom: 32rpx;
+    font-size: 22rpx;
+    margin-bottom: 16rpx;
   }
 
   .error-promo-btn {
-    padding: 28rpx 56rpx;
-    font-size: 30rpx;
-    border-radius: 24rpx;
+    padding: 20rpx 40rpx;
+    font-size: 24rpx;
+    border-radius: 12rpx;
   }
 
   /* 底部推广条优化 */
   .page-promo {
-    padding: 28rpx 32rpx;
+    padding: 20rpx 24rpx;
     flex-direction: column;
-    gap: 20rpx;
+    gap: 12rpx;
   }
 
   .page-promo-text {
-    font-size: 26rpx;
+    font-size: 22rpx;
     text-align: center;
+    line-height: 1.5;
   }
 
   .page-promo-btn {
-    padding: 24rpx 48rpx;
-    font-size: 28rpx;
+    padding: 16rpx 32rpx;
+    font-size: 24rpx;
     width: 100%;
     max-width: 560rpx;
     justify-content: center;
@@ -806,15 +962,15 @@ page {
     max-width: 1040rpx;
     width: 100%;
     margin: 0 auto;
-    color: #0f172a;
+    color: #1e293b;
   }
 
   .ad-card {
     width: 100%;
     max-width: 1040rpx;
-    padding: 36rpx 32rpx 32rpx;
-    border-radius: 32rpx;
-    background: #ffffff;
+    padding: 32rpx 28rpx 28rpx;
+    border-radius: 24rpx;
+    background: #fff;
     border: 2rpx solid rgba(15, 23, 42, 0.08);
     box-shadow: 0 36rpx 110rpx rgba(0, 0, 0, 0.28);
     backdrop-filter: none;
@@ -824,29 +980,30 @@ page {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24rpx;
-    margin-bottom: 24rpx;
+    gap: 20rpx;
+    margin-bottom: 20rpx;
   }
 
   .ad-notice {
     padding: 8rpx 16rpx;
-    font-size: 24rpx;
+    font-size: 20rpx;
     font-weight: 800;
     color: #ef4444;
-    background: #fff1f2;
-    border: 2rpx solid rgba(239, 68, 68, 0.25);
+    background: #fee2e2;
+    border: 2rpx solid rgba(239, 68, 68, 0.2);
     border-radius: 999rpx;
+    box-shadow: 0 2rpx 8rpx rgba(239, 68, 68, 0.1);
   }
 
   .ad-left {
-    gap: 16rpx;
+    gap: 12rpx;
   }
 
   .ad-disk {
     width: 280rpx;
     height: 80rpx;
-    border-radius: 32rpx;
-    background: #f8fafc;
+    border-radius: 20rpx;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     border: 2rpx solid rgba(15, 23, 42, 0.08);
   }
 
@@ -857,62 +1014,66 @@ page {
   }
 
   .ad-text {
-    font-size: 30rpx;
+    font-size: 26rpx;
     line-height: 1.5;
-    margin-bottom: 28rpx;
-    color: #0f172a;
+    margin-bottom: 24rpx;
+    color: #1e293b;
     text-shadow: none;
+    font-weight: 600;
   }
 
   .ad-countdown {
     width: 100%;
     justify-content: center;
     padding: 0;
-    font-size: 28rpx;
+    font-size: 24rpx;
     gap: 12rpx;
     background: transparent;
-    color: #334155;
+    color: #475569;
     border: 0;
   }
 
   .ad-countdown-num {
     width: auto;
     height: auto;
-    font-size: 32rpx;
-    padding: 0 4rpx;
-    background: transparent;
-    color: #4f46e5;
-    border-radius: 0;
-    box-shadow: none;
+    font-size: 28rpx;
+    padding: 0 8rpx;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: #fff;
+    font-weight: 800;
+    border-radius: 12rpx;
+    box-shadow: 0 4rpx 12rpx rgba(99, 102, 241, 0.3);
   }
 
   .ad-progress {
     width: 100%;
     max-width: 640rpx;
-    height: 10rpx;
-    margin-bottom: 28rpx;
+    height: 8rpx;
+    margin-bottom: 24rpx;
     background: #e2e8f0;
   }
 
   .ad-progress-bar {
-    background: linear-gradient(90deg, #4f46e5 0%, rgba(79, 70, 229, 0.55) 100%);
-    box-shadow: none;
+    background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+    border-radius: 4rpx;
+    box-shadow: 0 0 12rpx rgba(99, 102, 241, 0.5);
   }
 
   .ad-hint {
-    font-size: 24rpx;
+    font-size: 20rpx;
     line-height: 1.5;
-    margin: 0 auto 32rpx;
+    margin: 0 auto 24rpx;
     max-width: 640rpx;
-    padding: 20rpx 24rpx;
-    border-radius: 28rpx;
-    background: #f8fafc;
+    padding: 16rpx 20rpx;
+    border-radius: 12rpx;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     color: #64748b;
     border: 2rpx solid rgba(15, 23, 42, 0.06);
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    box-shadow: 0 2rpx 8rpx rgba(99, 102, 241, 0.05);
   }
 
   .ad-skip-btn,
@@ -922,25 +1083,35 @@ page {
     gap: 16rpx;
     width: 100%;
     justify-content: center;
-    padding: 28rpx 32rpx;
-    font-size: 28rpx;
+    padding: 24rpx 28rpx;
+    font-size: 26rpx;
     font-weight: 700;
-    border-radius: 28rpx;
+    border-radius: 12rpx;
     text-decoration: none;
     border: none;
   }
 
   .ad-skip-btn {
-    background: #4f46e5;
-    border: 2rpx solid rgba(79, 70, 229, 0.25);
-    color: #ffffff;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: #fff;
+    box-shadow: 0 8rpx 20rpx rgba(99, 102, 241, 0.4);
+  }
+
+  .ad-skip-btn::active {
+    transform: scale(0.98);
+    box-shadow: 0 4rpx 12rpx rgba(99, 102, 241, 0.5);
   }
 
   .ad-generate-btn {
-    margin-top: 20rpx;
-    background: #f8fafc;
-    border: 2rpx solid rgba(79, 70, 229, 0.18);
+    margin-top: 16rpx;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     color: #4f46e5;
+    border: 2rpx solid rgba(99, 102, 241, 0.2);
+  }
+
+  .ad-generate-btn::active {
+    transform: scale(0.98);
+    box-shadow: 0 4rpx 12rpx rgba(99, 102, 241, 0.2);
   }
 
   .promo-link {
@@ -959,34 +1130,34 @@ page {
 /* 超小屏幕优化 */
 @media (max-width: 380px) {
   .page-container {
-    padding: 24rpx;
+    padding: 20rpx;
     padding-bottom: 180rpx;
   }
 
   .card {
-    padding: 40rpx 32rpx;
+    padding: 32rpx 24rpx;
   }
 
   .resource-title {
-    font-size: 32rpx;
+    font-size: 28rpx;
   }
 
   .qr {
-    width: 360rpx;
-    height: 360rpx;
+    width: 280rpx;
+    height: 280rpx;
   }
 
   .qr-canvas {
-    width: 312rpx;
-    height: 312rpx;
+    width: 252rpx;
+    height: 252rpx;
   }
 
   .hint {
-    font-size: 26rpx;
+    font-size: 22rpx;
   }
 
   .card-promo navigator {
-    padding: 24rpx 32rpx;
-    font-size: 26rpx;
+    padding: 20rpx 28rpx;
+    font-size: 22rpx;
   }
 }

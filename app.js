@@ -1103,6 +1103,13 @@ function stripHtml(str) {
   return (div.textContent || div.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 200);
 }
 
+function createWxCoverPlaceholder() {
+  const ph = document.createElement('div');
+  ph.className = 'wx-cover-placeholder';
+  ph.textContent = '更多资源';
+  return ph;
+}
+
 // 加载多篇文章（ids 为逗号分隔的ID字符串）
 function loadWxArticles(wxIds) {
   const panel = document.getElementById('wxArticlePanel');
@@ -1191,8 +1198,10 @@ function renderMultiItem(el, data) {
     img.loading = 'lazy';
     img.referrerPolicy = 'no-referrer';
     img.src = data.cover;
-    img.onerror = () => img.style.display = 'none';
+    img.onerror = () => img.replaceWith(createWxCoverPlaceholder());
     el.appendChild(img);
+  } else {
+    el.appendChild(createWxCoverPlaceholder());
   }
 
   // body
@@ -1291,13 +1300,10 @@ function renderArticleInto(card, data) {
     img.src = data.cover;
     img.loading = 'lazy';
     img.referrerPolicy = 'no-referrer';
-    img.onerror = () => { img.style.display = 'none'; };
+    img.onerror = () => { img.replaceWith(createWxCoverPlaceholder()); };
     card.appendChild(img);
   } else {
-    const ph = document.createElement('div');
-    ph.className = 'wx-cover-placeholder';
-    ph.textContent = '📰';
-    card.appendChild(ph);
+    card.appendChild(createWxCoverPlaceholder());
   }
 
   // 内容区

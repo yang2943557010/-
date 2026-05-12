@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>更多资源合集 - 资源分享</title>
+  <meta name="description" content="影视、学习、软件、素材等资源合集分类导航。">
+  <style>
+    :root { --bg:#f8fafc; --card:#fff; --text:#1e293b; --text2:#475569; --text3:#94a3b8; --border:#e2e8f0; --primary:#10b981; --primary2:#6366f1; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; min-height:100vh; background:linear-gradient(180deg,#f0fdf4 0%,#f8fafc 42%,#fff 100%); color:var(--text); padding:24px; }
+    .container { max-width:1080px; margin:0 auto; }
+    .nav { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:22px; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:800; color:var(--text); text-decoration:none; }
+    .brand-icon { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; background:#f0fdf4; }
+    .nav-links { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .nav-links a { color:var(--text2); text-decoration:none; font-size:13px; padding:8px 12px; border:1px solid var(--border); background:rgba(255,255,255,.78); border-radius:999px; }
+    .nav-links a:hover { border-color:var(--primary); color:var(--primary); }
+    .hero { background:rgba(255,255,255,.9); border:1px solid rgba(148,163,184,.2); border-radius:22px; box-shadow:0 18px 50px rgba(15,23,42,.06); padding:34px; margin-bottom:18px; display:grid; grid-template-columns:1fr auto; gap:18px; align-items:center; }
+    .eyebrow { display:inline-flex; padding:6px 12px; border-radius:999px; background:#f0fdf4; color:#059669; font-size:12px; font-weight:800; margin-bottom:16px; }
+    h1 { font-size:34px; line-height:1.18; margin-bottom:12px; }
+    .lead { color:var(--text2); font-size:15px; line-height:1.8; max-width:680px; }
+    .search-box { display:flex; align-items:center; gap:10px; width:280px; min-height:46px; padding:0 14px; background:#f8fafc; border:1px solid var(--border); border-radius:14px; color:var(--text3); font-size:13px; }
+    .tabs { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+    .tab { padding:9px 14px; border-radius:999px; background:#fff; border:1px solid var(--border); color:var(--text2); font-size:13px; font-weight:700; }
+    .tab.active { color:#fff; background:var(--primary); border-color:var(--primary); }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:18px; }
+    .card { background:#fff; border:1px solid var(--border); border-radius:18px; padding:20px; box-shadow:0 10px 30px rgba(15,23,42,.04); transition:transform .18s,border-color .18s,box-shadow .18s; }
+    .card:hover { transform:translateY(-2px); border-color:rgba(16,185,129,.35); box-shadow:0 16px 40px rgba(15,23,42,.07); }
+    .cover { height:86px; border-radius:14px; display:flex; align-items:flex-end; padding:14px; margin-bottom:14px; color:#fff; font-size:28px; background:linear-gradient(135deg,#10b981,#6366f1); }
+    .name { font-size:16px; font-weight:800; margin-bottom:7px; }
+    .desc { color:var(--text2); font-size:13px; line-height:1.7; margin-bottom:14px; }
+    .meta { display:flex; justify-content:space-between; align-items:center; gap:10px; color:var(--text3); font-size:12px; border-top:1px solid #f1f5f9; padding-top:12px; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; color:#fff; background:var(--primary); border-radius:999px; text-decoration:none; padding:7px 12px; font-size:12px; font-weight:800; }
+    .panel { background:#fff; border:1px solid var(--border); border-radius:18px; padding:22px; margin-bottom:18px; }
+    .panel h2 { font-size:20px; margin-bottom:12px; }
+    .guide { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .guide-item { background:#f8fafc; border:1px solid var(--border); border-radius:14px; padding:14px; }
+    .guide-title { font-weight:800; margin-bottom:6px; }
+    .guide-desc { color:var(--text2); font-size:12px; line-height:1.7; }
+    .notice { color:var(--text3); font-size:12px; line-height:1.8; padding:14px 16px; background:#f8fafc; border:1px solid var(--border); border-radius:14px; }
+    @media (max-width:900px) { body { padding:16px; } .hero, .grid, .guide { grid-template-columns:1fr; } .hero { padding:24px; } .search-box { width:100%; } h1 { font-size:28px; } .nav { align-items:flex-start; flex-direction:column; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="nav">
+      <a class="brand" href="index.html"><span class="brand-icon">📚</span><span>更多资源合集</span></a>
+      <div class="nav-links">
+        <a href="speed.html">网盘解除限速</a>
+        <a href="vip.html">免费会员账号</a>
+        <a href="generator.html">生成分享链接</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div>
+        <div class="eyebrow">分类导航 · 持续更新 · 便于收藏</div>
+        <h1>把分散资源整理成更容易找的合集页</h1>
+        <p class="lead">这里可以承接影视、学习资料、软件工具、设计素材、电子书等资源分类。后续你只需要维护每个分类的链接，就能让用户持续回来查找。</p>
+      </div>
+      <div class="search-box">🔎 搜索功能预留：输入关键词查资源</div>
+    </section>
+
+    <div class="tabs">
+      <span class="tab active">全部</span>
+      <span class="tab">影视</span>
+      <span class="tab">学习</span>
+      <span class="tab">软件</span>
+      <span class="tab">素材</span>
+      <span class="tab">电子书</span>
+    </div>
+
+    <section class="grid">
+      <article class="card"><div class="cover">🎬</div><div class="name">影视资源合集</div><div class="desc">电影、剧集、纪录片、动画等分类入口，适合按更新时间维护。</div><div class="meta"><span>建议每周更新</span><a class="btn" href="generator.html">生成入口</a></div></article>
+      <article class="card"><div class="cover" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);">📘</div><div class="name">学习资料合集</div><div class="desc">考试资料、课程笔记、行业教程、语言学习等长期资源。</div><div class="meta"><span>适合分组整理</span><a class="btn" href="generator.html">生成入口</a></div></article>
+      <article class="card"><div class="cover" style="background:linear-gradient(135deg,#f97316,#ef4444);">🧰</div><div class="name">软件工具合集</div><div class="desc">效率工具、系统工具、办公软件、实用脚本等下载导航。</div><div class="meta"><span>注意版本说明</span><a class="btn" href="tools.html">看工具箱</a></div></article>
+      <article class="card"><div class="cover" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);">🎨</div><div class="name">设计素材合集</div><div class="desc">图片、字体、模板、图标、PPT 和视频素材分类。</div><div class="meta"><span>适合做专题页</span><a class="btn" href="generator.html">生成入口</a></div></article>
+      <article class="card"><div class="cover" style="background:linear-gradient(135deg,#14b8a6,#22c55e);">📖</div><div class="name">电子书合集</div><div class="desc">技术书、小说、教材、行业报告等文本类资源。</div><div class="meta"><span>建议加备注</span><a class="btn" href="generator.html">生成入口</a></div></article>
+      <article class="card"><div class="cover" style="background:linear-gradient(135deg,#64748b,#0f172a);">⭐</div><div class="name">热门推荐合集</div><div class="desc">把当前访问量高、转化好的资源集中到一个入口。</div><div class="meta"><span>适合首页推荐</span><a class="btn" href="generator.html">生成入口</a></div></article>
+    </section>
+
+    <section class="panel">
+      <h2>建议后续功能</h2>
+      <div class="guide">
+        <div class="guide-item"><div class="guide-title">资源搜索</div><div class="guide-desc">按标题、分组、备注搜索，适合资源数量变多后使用。</div></div>
+        <div class="guide-item"><div class="guide-title">热门排序</div><div class="guide-desc">结合访问量，把最常被打开的合集自动放到前面。</div></div>
+        <div class="guide-item"><div class="guide-title">失效反馈</div><div class="guide-desc">用户发现资源失效后可提交反馈，方便及时替换链接。</div></div>
+      </div>
+    </section>
+
+    <div class="notice">提示：请确保发布的资源内容合法合规。本页适合作为分类导航和入口展示，不建议直接堆满无说明的链接。</div>
+  </div>
+</body>
+</html>

@@ -11,6 +11,7 @@ Page({
     showAd: false,
     showSkipBtn: false,
     showGuide: false,
+    adVisible: false,
     
     // 设备信息
     isMobile: true,
@@ -32,12 +33,16 @@ Page({
     adCountdown: 3,
     adHint: '请稍候，正在为您准备资源...',
     adThemeClass: 'theme-gradient',
-    adOpacity: 1,
-    progressWidth: 100,
+    adOpacity: 0,
+    progressWidth: 0,
     skipBtnText: '跳过',
     
     // 背景色
-    bgColor: '#f3f6fb',
+    bgColor: '#f8fafc',
+    
+    // 动画状态
+    cardFadeIn: false,
+    qrFadeIn: false,
     
     // 错误信息
     errorMessage: '链接无效'
@@ -49,7 +54,11 @@ Page({
     const isMobile = systemInfo.platform === 'ios' || systemInfo.platform === 'android';
     
     this.setData({ isMobile });
-    this.initPage(options);
+    
+    // 设置动画延迟
+    setTimeout(() => {
+      this.initPage(options);
+    }, 300);
   },
 
   // 初始化页面
@@ -92,7 +101,8 @@ Page({
       diskType: diskConfig.type || 'default',
       appName: diskConfig.appName,
       guideImage: diskConfig.guide || '',
-      showGuide: !!diskConfig.guide
+      showGuide: !!diskConfig.guide,
+      cardFadeIn: true
     });
 
     // 设置导航栏标题
@@ -103,6 +113,10 @@ Page({
     // 生成二维码
     setTimeout(() => {
       this.generateQRCode(targetUrl);
+      
+      setTimeout(() => {
+        this.setData({ qrFadeIn: true });
+      }, 200);
     }, 100);
   },
 
@@ -145,11 +159,11 @@ Page({
     this.draw定位图案(ctx, centerX - size / 2, centerY + size / 2 - size * 0.25, size * 0.25);
     
     // 绘制中间的图案
-    ctx.fillStyle = '#000000';
+    ctx.fillStyle = '#4f46e5';
     ctx.fillRect(centerX - size * 0.1, centerY - size * 0.1, size * 0.2, size * 0.2);
     
     // 绘制数据点
-    ctx.fillStyle = '#000000';
+    ctx.fillStyle = '#4f46e5';
     const dotSize = size * 0.03;
     for (let i = 0; i < 100; i++) {
       const x = centerX - size / 2 + Math.random() * size;
@@ -158,8 +172,8 @@ Page({
     }
     
     // 绘制文字
-    ctx.fillStyle = '#6b7280';
-    ctx.font = '10px Arial';
+    ctx.fillStyle = '#64748b';
+    ctx.font = '11px -apple-system, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('扫码访问资源', centerX, height - 15);
@@ -168,7 +182,7 @@ Page({
   // 绘制定位图案
   draw定位图案(ctx, x, y, size) {
     // 外框
-    ctx.fillStyle = '#000000';
+    ctx.fillStyle = '#4f46e5';
     ctx.fillRect(x, y, size, size);
     
     // 内框（白色）
@@ -176,7 +190,7 @@ Page({
     ctx.fillRect(x + size * 0.15, y + size * 0.15, size * 0.7, size * 0.7);
     
     // 中心
-    ctx.fillStyle = '#000000';
+    ctx.fillStyle = '#4f46e5';
     ctx.fillRect(x + size * 0.3, y + size * 0.3, size * 0.4, size * 0.4);
   },
 
@@ -210,16 +224,17 @@ Page({
     
     this.setData({
       showAd: true,
+      adVisible: false,
       adText: adText,
       adCountdown: duration,
       adHint: adHint,
       adThemeClass: adThemeClass,
       diskLogo: diskConfig.logo || '',
       diskName: diskConfig.name,
-      progressWidth: 100,
+      progressWidth: 0,
       showSkipBtn: false,
       skipBtnText: '跳过',
-      adOpacity: 1
+      adOpacity: 0
     });
 
     // 保存跳转目标
@@ -228,8 +243,16 @@ Page({
 
     // 1秒后显示跳过按钮
     setTimeout(() => {
-      this.setData({ showSkipBtn: true });
+      this.setData({ 
+        showSkipBtn: true,
+        adVisible: true
+      });
     }, 1000);
+
+    // 淡入动画
+    setTimeout(() => {
+      this.setData({ adOpacity: 1 });
+    }, 100);
 
     // 开始倒计时
     this.startCountdown(duration);
@@ -323,7 +346,7 @@ Page({
   // 应用模板样式
   applyTemplate(template) {
     const bgMap = {
-      'default': '#f3f6fb',
+      'default': '#f8fafc',
       'minimal': '#ffffff',
       'gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       'sunset': 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #f6d365 100%)',
@@ -336,7 +359,7 @@ Page({
       'card': 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'
     };
     
-    const bgColor = bgMap[template] || '#f3f6fb';
+    const bgColor = bgMap[template] || '#f8fafc';
     this.setData({ bgColor });
   },
 
@@ -348,7 +371,8 @@ Page({
         success: () => {
           wx.showToast({
             title: '链接已复制',
-            icon: 'success'
+            icon: 'success',
+            duration: 2000
           });
         }
       });
@@ -363,7 +387,8 @@ Page({
         success: () => {
           wx.showToast({
             title: '提取码已复制',
-            icon: 'success'
+            icon: 'success',
+            duration: 2000
           });
         }
       });
