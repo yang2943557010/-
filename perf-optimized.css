@@ -166,6 +166,27 @@
     display: block;
     margin-top: 6px;
   }
+
+  .home-link-wrap {
+    margin: 0 0 14px;
+    min-height: 38px;
+  }
+
+  .home-link-btn {
+    width: 100%;
+    min-width: 0;
+    justify-content: space-between;
+    padding: 9px 12px;
+  }
+
+  .mobile-open-tip {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    border-radius: 14px;
+    padding: 8px 10px;
+    text-align: left;
+  }
   
   /* 引导图隐藏 - 移动端不需要 */
   .guide-right {

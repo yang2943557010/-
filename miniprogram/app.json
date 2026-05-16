@@ -5,10 +5,10 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#f3f6fb",
+    "navigationBarBackgroundColor": "#f5f7fb",
     "navigationBarTitleText": "资源分享",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f3f6fb"
+    "backgroundColor": "#f5f7fb"
   },
   "sitemapLocation": "sitemap.json",
   "style": "v2"

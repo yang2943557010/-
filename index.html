@@ -328,8 +328,48 @@
     .card h2 {
       font-size: 21px;
       line-height: 1.35;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       font-weight: 700;
+    }
+
+    .home-link-wrap {
+      min-height: 38px;
+      margin: -8px 0 14px;
+      text-align: center;
+    }
+
+    .home-link-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 36px;
+      min-width: 210px;
+      max-width: 100%;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(16, 185, 129, .3);
+      background: linear-gradient(135deg, rgba(236, 253, 245, .98), rgba(239, 246, 255, .96));
+      color: #0f766e;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(16, 185, 129, .1);
+    }
+
+    .home-link-btn::after {
+      content: '查看更多资源 →';
+      color: #2563eb;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .home-link-btn:hover {
+      border-color: rgba(16, 185, 129, .36);
+      background: linear-gradient(135deg, #ecfdf5, #eff6ff);
+      transform: translateY(-1px);
+      text-decoration: none;
     }
 
     .extract-code {
@@ -345,7 +385,7 @@
 
     .card .sub {
       color: #6b7280;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       font-size: 14px;
     }
 
@@ -378,7 +418,7 @@
 
     .hint {
       text-align: center;
-      margin-top: 22px;
+      margin-top: 18px;
       font-weight: 700;
       color: #111827;
       font-size: 14px;
@@ -392,6 +432,40 @@
 
     .hint .highlight {
       color: #3b82f6;
+    }
+
+    .mobile-open-tip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      max-width: 100%;
+      margin: 8px auto 0;
+      padding: 6px 10px;
+      border: 1px solid rgba(59, 130, 246, .16);
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(239, 246, 255, .92), rgba(240, 253, 244, .92));
+      color: #334155;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    .mobile-open-tip .recommend-badge {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #10b981;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .mobile-open-tip strong {
+      color: #2563eb;
+      font-weight: 700;
     }
 
     /* 卡片内推广预留高度，防止 CLS */
@@ -697,6 +771,7 @@
   <div class="stage" id="stage">
     <!-- 二维码卡片 -->
     <div class="card" id="qrCard" role="region" aria-label="资源卡片">
+      <div class="home-link-wrap" id="homeLinkWrap" style="display:none;"></div>
       <h2 id="resourceName">资源名称：加载中...</h2>
       <div class="extract-code">提取码：<strong id="extractCode">--</strong></div>
       <div class="sub" id="scanTip">打开 <span class="app-name">手机浏览器</span> - 点击搜索框相机 - 扫码</div>
@@ -704,6 +779,10 @@
       <div class="hint">
         由于资源仅允许手机端访问<br>
         <small>请使用 <span class="highlight" id="bottomAppName">手机浏览器</span> 或浏览器扫码打开</small>
+        <div class="mobile-open-tip">
+          <span class="recommend-badge">推荐</span>
+          <span>或者将链接发送到手机，用<strong>手机浏览器</strong>打开访问</span>
+        </div>
       </div>
       <div class="card-promo">
         <a href="generator.html" target="_blank">

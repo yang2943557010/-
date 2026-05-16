@@ -1,6 +1,59 @@
 /**
- * 加密模块
+ * 加密模块 - 适配微信小程序
  */
+
+// Base64 字符集
+const BASE64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+// 自定义 Base64 编码
+function base64Encode(str) {
+  let output = '';
+  let i = 0;
+  const bytes = new TextEncoder().encode(str);
+  
+  while (i < bytes.length) {
+    const a = bytes[i++];
+    const b = i < bytes.length ? bytes[i++] : 0;
+    const c = i < bytes.length ? bytes[i++] : 0;
+    
+    const idx1 = a >> 2;
+    const idx2 = ((a & 3) << 4) | (b >> 4);
+    const idx3 = ((b & 15) << 2) | (c >> 6);
+    const idx4 = c & 63;
+    
+    output += BASE64_CHARS[idx1];
+    output += BASE64_CHARS[idx2];
+    output += i - 2 < bytes.length ? BASE64_CHARS[idx3] : '=';
+    output += i - 1 < bytes.length ? BASE64_CHARS[idx4] : '=';
+  }
+  
+  return output;
+}
+
+// 自定义 Base64 解码
+function base64Decode(str) {
+  str = str.replace(/[^A-Za-z0-9+/=]/g, '');
+  
+  const bytes = [];
+  let i = 0;
+  
+  while (i < str.length) {
+    const idx1 = BASE64_CHARS.indexOf(str[i++]);
+    const idx2 = BASE64_CHARS.indexOf(str[i++]);
+    const idx3 = BASE64_CHARS.indexOf(str[i++]);
+    const idx4 = BASE64_CHARS.indexOf(str[i++]);
+    
+    const a = (idx1 << 2) | (idx2 >> 4);
+    const b = ((idx2 & 15) << 4) | (idx3 >> 2);
+    const c = ((idx3 & 3) << 6) | idx4;
+    
+    bytes.push(a);
+    if (idx3 !== 64) bytes.push(b);
+    if (idx4 !== 64) bytes.push(c);
+  }
+  
+  return new Uint8Array(bytes);
+}
 
 const CryptoUtil = {
   // 网盘代号表
@@ -158,24 +211,26 @@ const CryptoUtil = {
     try {
       const bytes = new TextEncoder().encode(str);
       let binary = '';
-      bytes.forEach(b => binary += String.fromCharCode(b));
-      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return base64Encode(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     } catch (e) {
-      return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      console.error('toBase64Url error:', e);
+      return null;
     }
   },
 
   // 从URL安全Base64解码
   fromBase64Url(str) {
-    let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
-    while (b64.length % 4) b64 += '=';
     try {
-      const binary = atob(b64);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      const bytes = base64Decode(b64);
       return new TextDecoder().decode(bytes);
     } catch (e) {
-      return decodeURIComponent(escape(atob(b64)));
+      console.error('fromBase64Url error:', e);
+      return '';
     }
   },
 

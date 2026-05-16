@@ -31,6 +31,11 @@
     .claim-name { font-weight:800; }
     .claim-note { color:var(--text3); font-size:12px; margin-top:3px; }
     .badge { color:#16a34a; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:999px; padding:4px 9px; font-size:11px; font-weight:800; white-space:nowrap; }
+    .badge.soon { color:#c2410c; background:#fff7ed; border-color:#fed7aa; }
+    .badge.off { color:#64748b; background:#f8fafc; border-color:var(--border); }
+    .filters { display:flex; gap:10px; flex-wrap:wrap; margin:0 0 16px; }
+    .filter { padding:9px 14px; border-radius:999px; border:1px solid var(--border); background:#fff; color:var(--text2); font-size:13px; font-weight:800; cursor:pointer; }
+    .filter.active { color:#fff; background:var(--primary); border-color:var(--primary); }
     .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:18px; }
     .feature { padding:20px; }
     .icon { width:44px; height:44px; border-radius:14px; display:grid; place-items:center; background:#fff7ed; margin-bottom:14px; font-size:20px; }
@@ -38,11 +43,23 @@
     .desc { color:var(--text2); font-size:13px; line-height:1.7; }
     .panel { padding:24px; margin-bottom:18px; }
     .panel h2 { font-size:20px; margin-bottom:14px; }
+    .section-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+    .benefit-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .benefit { padding:18px; }
+    .benefit-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:12px; }
+    .platform { color:var(--text3); font-size:12px; font-weight:800; }
+    .benefit h3 { font-size:16px; margin-bottom:8px; }
+    .benefit p { color:var(--text2); font-size:13px; line-height:1.7; margin-bottom:12px; }
+    .benefit-meta { display:grid; gap:6px; color:var(--text3); font-size:12px; padding:12px 0; border-top:1px solid #f1f5f9; border-bottom:1px solid #f1f5f9; margin-bottom:12px; }
+    .benefit-actions { display:flex; gap:8px; flex-wrap:wrap; }
     .list { display:grid; gap:10px; }
     .list-item { display:flex; gap:10px; padding:14px; background:#f8fafc; border:1px solid var(--border); border-radius:14px; color:var(--text2); font-size:13px; line-height:1.7; }
     .dot { width:22px; height:22px; display:grid; place-items:center; flex-shrink:0; border-radius:8px; background:#fff7ed; color:#ea580c; font-weight:800; font-size:12px; }
     .notice { color:var(--text3); font-size:12px; line-height:1.8; padding:14px 16px; background:#f8fafc; border:1px solid var(--border); border-radius:14px; }
-    @media (max-width:900px) { body { padding:16px; } .hero, .grid { grid-template-columns:1fr; } h1 { font-size:28px; } .nav { align-items:flex-start; flex-direction:column; } }
+    .is-hidden { display:none !important; }
+    .empty { display:none; text-align:center; padding:28px; color:var(--text3); border:1px dashed var(--border); border-radius:16px; background:#fff; }
+    .empty.show { display:block; }
+    @media (max-width:900px) { body { padding:16px; } .hero, .grid, .benefit-grid { grid-template-columns:1fr; } h1 { font-size:28px; } .nav { align-items:flex-start; flex-direction:column; } }
   </style>
 </head>
 <body>
@@ -80,6 +97,30 @@
     </section>
 
     <section class="card panel">
+      <div class="section-head">
+        <h2 style="margin:0;">福利领取清单</h2>
+        <span style="color:var(--text3);font-size:12px;">按平台或状态筛选，后续可替换为真实活动链接</span>
+      </div>
+      <div class="filters" id="benefitFilters">
+        <button class="filter active" type="button" data-filter="all">全部</button>
+        <button class="filter" type="button" data-filter="可领取">可领取</button>
+        <button class="filter" type="button" data-filter="即将结束">即将结束</button>
+        <button class="filter" type="button" data-filter="夸克">夸克</button>
+        <button class="filter" type="button" data-filter="百度">百度</button>
+        <button class="filter" type="button" data-filter="阿里">阿里</button>
+      </div>
+      <div class="empty" id="benefitEmpty">没有找到匹配的福利活动。</div>
+      <div class="benefit-grid">
+        <article class="card benefit" data-tags="夸克 可领取 容量 试用"><div class="benefit-top"><div class="platform">夸克网盘</div><span class="badge">可领取</span></div><h3>新用户容量与会员试用</h3><p>适合放官方新人活动、容量任务、短期会员体验入口。</p><div class="benefit-meta"><span>领取条件：新用户或活动用户</span><span>建议标注：最后验证时间</span></div><div class="benefit-actions"><a class="btn btn-primary" href="generator.html">配置入口</a><button class="btn btn-secondary" type="button" onclick="reportInvalid(this)">失效反馈</button></div></article>
+        <article class="card benefit" data-tags="百度 可领取 会员 联合活动"><div class="benefit-top"><div class="platform">百度网盘</div><span class="badge">可领取</span></div><h3>联合会员活动入口</h3><p>适合整理官方联合活动、优惠券、限时试用和任务奖励。</p><div class="benefit-meta"><span>领取条件：登录账号后查看</span><span>建议标注：活动截止日期</span></div><div class="benefit-actions"><a class="btn btn-primary" href="generator.html">配置入口</a><button class="btn btn-secondary" type="button" onclick="reportInvalid(this)">失效反馈</button></div></article>
+        <article class="card benefit" data-tags="阿里 即将结束 容量 任务"><div class="benefit-top"><div class="platform">阿里云盘</div><span class="badge soon">即将结束</span></div><h3>容量任务与福利码</h3><p>适合展示容量任务、福利码说明、领取路径和有效期。</p><div class="benefit-meta"><span>领取条件：完成活动任务</span><span>建议标注：剩余天数</span></div><div class="benefit-actions"><a class="btn btn-primary" href="generator.html">配置入口</a><button class="btn btn-secondary" type="button" onclick="reportInvalid(this)">失效反馈</button></div></article>
+        <article class="card benefit" data-tags="迅雷 可领取 试用 加速"><div class="benefit-top"><div class="platform">迅雷云盘</div><span class="badge">可领取</span></div><h3>下载加速试用活动</h3><p>适合放公开试用、下载权益、云盘空间权益等入口。</p><div class="benefit-meta"><span>领取条件：以官方页面为准</span><span>建议标注：权益内容</span></div><div class="benefit-actions"><a class="btn btn-primary" href="generator.html">配置入口</a><button class="btn btn-secondary" type="button" onclick="reportInvalid(this)">失效反馈</button></div></article>
+        <article class="card benefit" data-tags="移动 可领取 容量"><div class="benefit-top"><div class="platform">中国移动云盘</div><span class="badge">可领取</span></div><h3>运营商云盘容量福利</h3><p>适合整理运营商活动、签到容量、会员兑换等合规入口。</p><div class="benefit-meta"><span>领取条件：手机号登录</span><span>建议标注：地区限制</span></div><div class="benefit-actions"><a class="btn btn-primary" href="generator.html">配置入口</a><button class="btn btn-secondary" type="button" onclick="reportInvalid(this)">失效反馈</button></div></article>
+        <article class="card benefit" data-tags="历史 已失效 百度 阿里"><div class="benefit-top"><div class="platform">历史活动</div><span class="badge off">已失效</span></div><h3>过期福利归档</h3><p>把已经结束但用户常问的活动放这里，减少重复咨询。</p><div class="benefit-meta"><span>领取条件：不可领取</span><span>建议标注：替代活动</span></div><div class="benefit-actions"><a class="btn btn-secondary" href="resources.html">查看其他资源</a></div></article>
+      </div>
+    </section>
+
+    <section class="card panel">
       <h2>建议页面功能</h2>
       <div class="list">
         <div class="list-item"><span class="dot">1</span><span>每个福利卡片展示平台、领取条件、有效期、领取按钮和最后验证时间。</span></div>
@@ -90,5 +131,27 @@
 
     <div class="notice">说明：本页仅适合发布官方活动、公开试用和合规福利信息，不建议提供多人共用账号或任何可能违反平台规则的内容。</div>
   </div>
+  <script>
+    const benefitFilters = Array.from(document.querySelectorAll('#benefitFilters .filter'));
+    const benefitCards = Array.from(document.querySelectorAll('.benefit'));
+    const benefitEmpty = document.getElementById('benefitEmpty');
+    benefitFilters.forEach(filter => {
+      filter.addEventListener('click', () => {
+        const key = filter.dataset.filter;
+        let count = 0;
+        benefitFilters.forEach(item => item.classList.toggle('active', item === filter));
+        benefitCards.forEach(card => {
+          const visible = key === 'all' || card.dataset.tags.includes(key);
+          card.classList.toggle('is-hidden', !visible);
+          if (visible) count++;
+        });
+        benefitEmpty.classList.toggle('show', count === 0);
+      });
+    });
+    function reportInvalid(button) {
+      button.textContent = '已记录反馈';
+      button.disabled = true;
+    }
+  </script>
 </body>
 </html>

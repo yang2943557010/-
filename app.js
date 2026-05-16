@@ -528,7 +528,8 @@ const UrlHandler = {
               t: parts[3] || '',
               a: parts[4] || '',
               at: parts[5] || '',
-              wx: parts[6] || ''
+              wx: parts[6] || '',
+              home: parts[7] || ''
             };
           }
         }
@@ -544,6 +545,7 @@ const UrlHandler = {
           adText: data.a || '',
           adDuration: Math.min(Math.max(parseInt(data.at) || 2, 1), 5),
           wxArticleId: data.wx || '',
+          homePageId: data.home || params.get('home') || '',
           isValid: true
         };
       }
@@ -567,6 +569,7 @@ const UrlHandler = {
           adText: data.a || '',
           adDuration: Math.min(Math.max(parseInt(data.at) || 2, 1), 5),
           wxArticleId: params.get('wx') || data.wx || '',
+          homePageId: params.get('home') || data.home || '',
           isValid: true
         };
       }
@@ -587,6 +590,7 @@ const UrlHandler = {
       template,
       adText: adText ? decodeURIComponent(adText) : '',
       adDuration: Math.min(Math.max(adDuration, 1), 5),
+      homePageId: params.get('home') || '',
       isValid: !!targetUrl
     };
   }
@@ -700,6 +704,16 @@ const PageRenderer = {
     document.getElementById('extractCode').textContent = extractCode;
     document.getElementById('scanTip').innerHTML = `打开 <span class="app-name">${diskConfig.appName}</span> - 点击搜索框相机 - 扫码`;
     document.getElementById('bottomAppName').textContent = diskConfig.appName;
+
+    const homeLinkWrap = document.getElementById('homeLinkWrap');
+    const homePageId = String(params.homePageId || '').trim();
+    if (homeLinkWrap && /^[A-Za-z0-9_-]+$/.test(homePageId)) {
+      homeLinkWrap.style.display = 'block';
+      homeLinkWrap.innerHTML = `<a class="home-link-btn" href="https://vlink.cc/${homePageId}" target="_blank" rel="noopener"><span>🏠</span><span>分享人主页</span></a>`;
+    } else if (homeLinkWrap) {
+      homeLinkWrap.style.display = 'none';
+      homeLinkWrap.replaceChildren();
+    }
     
     const guideRight = document.getElementById('guideRight');
     if (diskConfig.guide) {

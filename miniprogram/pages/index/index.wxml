@@ -1,9 +1,8 @@
 <!--pages/index/index.wxml-->
-<view class="page-container" style="background: {{bgColor}}; padding-bottom: {{isMobile ? '160rpx' : '80rpx'}};">
+<view class="page-container" style="background: {{bgColor}};">
   
   <!-- 广告弹窗 -->
   <view class="ad-overlay {{adThemeClass}}" wx:if="{{showAd}}" style="opacity: {{adOpacity}};">
-    <!-- 动态背景 -->
     <view class="ad-bg-animation" wx:if="{{!isMobile}}">
       <view class="circle"></view>
       <view class="circle"></view>
@@ -11,7 +10,6 @@
       <view class="circle"></view>
     </view>
     
-    <!-- 装饰元素 -->
     <view class="ad-decoration sparkle" wx:if="{{!isMobile}}"></view>
     <view class="ad-decoration sparkle" wx:if="{{!isMobile}}"></view>
     
@@ -52,7 +50,6 @@
           <text>免费生成链接</text>
         </navigator>
         
-        <!-- 底部推广链接（桌面端） -->
         <view class="promo-link" wx:if="{{!isMobile}}">
           <navigator url="/pages/generator/generator" open-type="navigate">
             <text>🔗</text>
@@ -76,9 +73,10 @@
     <!-- 二维码卡片 -->
     <view class="card" wx:if="{{showCard}}">
       <text class="resource-title">资源名称：{{resourceName}}</text>
-      <view class="extract-code">
+      <view class="extract-code" bindtap="copyExtractCode">
         <text>提取码：</text>
         <text class="code-value">{{extractCode}}</text>
+        <text class="copy-hint">点击复制</text>
       </view>
       <text class="sub-text">打开 <text class="app-name">{{appName}}</text> - 点击搜索框相机 - 扫码</text>
       <view class="qr" bindtap="copyLink">
@@ -107,7 +105,7 @@
       <text class="error-title">{{errorMessage}}</text>
       <text class="error-desc">请检查链接是否完整或联系分享者重新获取</text>
       <view class="error-promo">
-        <text class="error-promo-text">想要分享自己的资源？担心不是有效分享？试试这款转链工具让用户只能移动端打开，让每次分享都有效</text>
+        <text class="error-promo-text">想要分享自己的资源？试试这款转链工具</text>
         <navigator url="/pages/generator/generator" class="error-promo-btn" open-type="navigate">
           <text>🔗</text>
           <text>免费生成分享链接</text>
@@ -118,17 +116,16 @@
 
   <!-- 底部推广条 -->
   <view class="page-promo">
-    <text class="page-promo-text">📢 想要分享自己的资源？担心不是有效分享？试试这款转链工具让用户只能移动端打开，让每次分享都有效</text>
+    <text class="page-promo-text">📢 想要分享自己的资源？试试这款转链工具</text>
     <navigator url="/pages/generator/generator" class="page-promo-btn" open-type="navigate">
       <text>🔗</text>
-      <text>免费生成链接</text>
+      <text>免费生成</text>
     </navigator>
   </view>
 
   <!-- 免责声明 -->
   <view class="disclaimer">
     <text class="disclaimer-title">⚠️ 免责声明</text>
-    <text class="disclaimer-content">本页面仅提供链接跳转服务，不存储任何资源文件。所有资源均由第三方网盘托管，本站不对资源内容的合法性、准确性、安全性负责。</text>
-    <text class="disclaimer-content">用户应自行判断资源的合法性，因使用本服务产生的任何法律责任由用户自行承担。如有侵权，请联系资源分享者删除。</text>
+    <text class="disclaimer-content">本页面仅提供链接跳转服务，不存储任何资源文件。所有资源均由第三方网盘托管，本站不对资源内容负责。</text>
   </view>
 </view>

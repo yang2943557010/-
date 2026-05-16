@@ -1,4 +1,6 @@
 {
   "usingComponents": {},
-  "navigationBarTitleText": "生成分享链接"
+  "navigationBarTitleText": "链接生成器",
+  "navigationBarBackgroundColor": "#f8fafc",
+  "navigationBarTextStyle": "black"
 }
