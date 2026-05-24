@@ -55,6 +55,16 @@ npx wrangler pages deploy . --project-name=netdisk-pages
 
 Dashboard 建议开启：**Speed → Auto Minify**、**Brotli**。
 
+### 连接 GitHub 自动部署（重要）
+
+| 配置项 | 正确填写 |
+|--------|----------|
+| 构建命令 | **留空** |
+| 部署命令 | `npx wrangler pages deploy . --project-name=netdisk-pages` |
+| 或 | `npm run deploy` |
+
+**不要**使用 `npx wrangler deploy`（那是 Worker，会导致 `Missing entry-point` 报错）。
+
 可选 API Worker（短链 / 微信文章代理）：
 
 ```bash

@@ -1,0 +1,9 @@
+{
+  "name": "netdisk-pages",
+  "private": true,
+  "description": "网盘页面展示 - 静态站点",
+  "scripts": {
+    "deploy": "wrangler pages deploy . --project-name=netdisk-pages",
+    "deploy:worker": "wrangler deploy cloudflare-worker.js"
+  }
+}

@@ -1,6 +1,11 @@
-# Cloudflare Pages 部署配置
-# 静态发布: npx wrangler pages deploy . --project-name=<项目名>
-# 或连接 GitHub 后在 Dashboard 开启自动部署
+# Cloudflare Pages 静态站点（不要用 npx wrangler deploy）
+#
+# Dashboard 部署命令请填:
+#   npx wrangler pages deploy . --project-name=netdisk-pages
+# 或:
+#   npm run deploy
+#
+# 构建命令留空，输出目录为仓库根目录 /
 #
 # 性能相关（Dashboard 建议开启）:
 # - Speed → Optimization → Auto Minify (HTML/CSS/JS)
