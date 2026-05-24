@@ -1,0 +1,50 @@
+# Cloudflare Pages 边缘缓存与安全头
+# https://developers.cloudflare.com/pages/configuration/headers/
+
+/generator.html
+  Link: </generator.css>; rel=preload; as=style, </vendor/qr-code-styling.js>; rel=preload; as=script, </generator.js>; rel=preload; as=script
+
+/index.html
+  Link: </app.js>; rel=preload; as=script, </perf-optimized.css>; rel=preload; as=style, </vendor/qrcode.min.js>; rel=preload; as=script
+
+/resources.html
+  Link: </resources.css>; rel=preload; as=style, </resources.js>; rel=preload; as=script
+
+/speed.html
+  Link: </generator.css>; rel=preload; as=style
+
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+  Service-Worker-Allowed: /
+
+/sw-register.js
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/banned-words.js
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/banned-words-worker.js
+  Cache-Control: public, max-age=604800, must-revalidate
+
+/*.html
+  Cache-Control: public, max-age=300, s-maxage=3600, stale-while-revalidate=86400
+
+/*.js
+  Cache-Control: public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400
+
+/*.css
+  Cache-Control: public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400
+
+/vendor/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*
+  Cache-Control: public, max-age=2592000, immutable
+
+/miniprogram/*
+  Cache-Control: public, max-age=3600
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN

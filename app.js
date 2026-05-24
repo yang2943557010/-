@@ -630,13 +630,18 @@ const QRCodeGenerator = {
     if (this.scriptPromise) return this.scriptPromise;
 
     this.scriptPromise = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
-      script.async = true;
-      script.crossOrigin = 'anonymous';
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
+      const attach = (src, allowFallback) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        script.onload = resolve;
+        script.onerror = () => {
+          if (allowFallback) attach('https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js', false);
+          else reject(new Error('QRCode library load failed'));
+        };
+        document.head.appendChild(script);
+      };
+      attach('vendor/qrcode.min.js', true);
     });
 
     return this.scriptPromise;
@@ -955,7 +960,7 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
   const startTime = Date.now();
   const totalMs = duration * 1000;
   
-  // 更新进度条和倒计时
+  // 更新进度条和倒计时（200ms 间隔，减少 DOM 写入频率）
   const updateInterval = setInterval(() => {
     const elapsed = Date.now() - startTime;
     const progress = Math.max(0, 100 - (elapsed / totalMs * 100));
@@ -970,7 +975,7 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
       countdownEl.style.transform = 'scale(1.2)';
       setTimeout(() => countdownEl.style.transform = 'scale(1)', 150);
     }
-  }, 50);
+  }, 200);
   
   // 倒计时结束后跳转
   window._adTimeout = setTimeout(() => {

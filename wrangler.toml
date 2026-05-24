@@ -1,0 +1,17 @@
+# Cloudflare Pages 部署配置
+# 静态发布: npx wrangler pages deploy . --project-name=<项目名>
+# 或连接 GitHub 后在 Dashboard 开启自动部署
+#
+# 性能相关（Dashboard 建议开启）:
+# - Speed → Optimization → Auto Minify (HTML/CSS/JS)
+# - Speed → Optimization → Brotli
+# - Caching → 遵循仓库根目录 _headers 的 Cache-Control
+#
+# API Worker（微信代理/短链）单独部署:
+# npx wrangler deploy cloudflare-worker.js
+
+name = "netdisk-pages"
+compatibility_date = "2024-08-01"
+pages_build_output_dir = "."
+
+# 纯静态站点，无需 build 命令

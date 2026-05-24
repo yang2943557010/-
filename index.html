@@ -6,10 +6,11 @@
   <title>资源分享</title>
   <meta name="description" content="网盘资源分享二维码页面">
   <meta name="robots" content="index, follow">
-  <!-- DNS 预解析 & 预连接 -->
+  <!-- 静态资源走 Cloudflare 边缘缓存，jsDelivr 仅作敏感词库/降级备用 -->
   <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-  <link rel="dns-prefetch" href="//assets.251800.xyz">
-  <link rel="preconnect" href="//cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="//wx.251800.xyz">
+  <link rel="preconnect" href="https://wx.251800.xyz" crossorigin>
   <!-- QR 库预加载（LCP 关键路径） -->
   <script>
     (function(){
@@ -835,7 +836,8 @@
     用户应自行判断资源的合法性，因使用本服务产生的任何法律责任由用户自行承担。如有侵权，请联系资源分享者删除。
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js" defer></script>
   <script src="enhancements.js" defer></script>
+  <script src="sw-register.js" defer></script>
 </body>
 </html>

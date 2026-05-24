@@ -1,101 +1,18 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>更多资源合集 - 资源分享</title>
-  <meta name="description" content="影视、学习、软件、素材等资源合集分类导航。">
-  <style>
-    :root { --bg:#f8fafc; --card:#fff; --text:#1e293b; --text2:#475569; --text3:#94a3b8; --border:#e2e8f0; --primary:#10b981; --primary2:#6366f1; }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; min-height:100vh; background:linear-gradient(180deg,#f0fdf4 0%,#f8fafc 42%,#fff 100%); color:var(--text); padding:24px; }
-    .container { max-width:1180px; margin:0 auto; }
-    .nav { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:22px; }
-    .brand { display:flex; align-items:center; gap:10px; font-weight:800; color:var(--text); text-decoration:none; }
-    .brand-icon { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; background:#f0fdf4; }
-    .nav-links { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-    .nav-links a { color:var(--text2); text-decoration:none; font-size:13px; padding:8px 12px; border:1px solid var(--border); background:rgba(255,255,255,.78); border-radius:999px; }
-    .nav-links a:hover { border-color:var(--primary); color:var(--primary); }
-    .hero { background:rgba(255,255,255,.9); border:1px solid rgba(148,163,184,.2); border-radius:22px; box-shadow:0 18px 50px rgba(15,23,42,.06); padding:34px; margin-bottom:18px; display:grid; grid-template-columns:1fr 320px; gap:22px; align-items:center; }
-    .eyebrow { display:inline-flex; padding:6px 12px; border-radius:999px; background:#f0fdf4; color:#059669; font-size:12px; font-weight:800; margin-bottom:16px; }
-    h1 { font-size:34px; line-height:1.18; margin-bottom:12px; }
-    .lead { color:var(--text2); font-size:15px; line-height:1.8; max-width:680px; }
-    .hero-side { display:grid; gap:10px; }
-    .search-box { display:flex; align-items:center; gap:10px; width:100%; min-height:46px; padding:0 14px; background:#f8fafc; border:1px solid var(--border); border-radius:14px; color:var(--text3); font-size:13px; }
-    .search-box input { width:100%; border:0; outline:0; background:transparent; color:var(--text); font:inherit; }
-    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-    .stat { background:#f8fafc; border:1px solid var(--border); border-radius:14px; padding:10px; }
-    .stat strong { display:block; font-size:18px; color:var(--primary); }
-    .stat span { color:var(--text3); font-size:11px; }
-    .tabs { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
-    .tab { padding:9px 14px; border-radius:999px; background:#fff; border:1px solid var(--border); color:var(--text2); font-size:13px; font-weight:700; cursor:pointer; }
-    .tab.active { color:#fff; background:var(--primary); border-color:var(--primary); }
-    .radar { display:grid; grid-template-columns:1fr 360px; gap:14px; margin:0 0 18px; }
-    .radar-main, .radar-result { background:#fff; border:1px solid var(--border); border-radius:20px; padding:20px; box-shadow:0 14px 36px rgba(15,23,42,.045); }
-    .radar-title { font-size:18px; font-weight:900; margin-bottom:6px; }
-    .radar-sub { color:var(--text2); font-size:13px; line-height:1.7; margin-bottom:14px; }
-    .persona-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-    .persona { text-align:left; border:1px solid var(--border); background:#f8fafc; border-radius:16px; padding:13px; cursor:pointer; color:var(--text); transition:all .18s; }
-    .persona:hover, .persona.active { border-color:rgba(16,185,129,.45); background:#ecfdf5; transform:translateY(-1px); }
-    .persona strong { display:block; font-size:13px; margin-bottom:4px; }
-    .persona span { display:block; color:var(--text3); font-size:11px; line-height:1.5; }
-    .radar-result { display:flex; flex-direction:column; justify-content:space-between; gap:14px; background:linear-gradient(135deg,#ffffff,#f0fdf4); }
-    .route-label { color:#047857; font-size:12px; font-weight:900; margin-bottom:8px; }
-    .route-title { font-size:18px; font-weight:900; margin-bottom:6px; }
-    .route-desc { color:var(--text2); font-size:13px; line-height:1.7; }
-    .route-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
-    .route-tags span { background:#fff; border:1px solid #bbf7d0; color:#047857; border-radius:999px; padding:5px 8px; font-size:11px; font-weight:800; }
-    .route-steps { display:grid; gap:8px; margin-top:14px; }
-    .route-step { display:flex; gap:8px; align-items:flex-start; padding:9px 10px; border:1px solid rgba(187,247,208,.85); background:rgba(255,255,255,.72); border-radius:12px; color:var(--text2); font-size:12px; line-height:1.55; }
-    .route-step b { display:grid; place-items:center; width:20px; height:20px; border-radius:7px; background:#10b981; color:#fff; font-size:11px; flex-shrink:0; }
-    .quick-actions { display:flex; gap:8px; flex-wrap:wrap; }
-    .ghost-btn { border:1px solid var(--border); background:#fff; border-radius:999px; padding:8px 12px; color:var(--text2); font-size:12px; font-weight:800; cursor:pointer; }
-    .section-head { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin:26px 0 12px; }
-    .section-title { font-size:22px; font-weight:900; display:flex; align-items:center; gap:8px; }
-    .section-desc { color:var(--text3); font-size:12px; margin-top:4px; }
-    .section-link { color:var(--primary); text-decoration:none; font-size:13px; font-weight:800; white-space:nowrap; }
-    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:18px; }
-    .card { background:#fff; border:1px solid var(--border); border-radius:18px; padding:20px; box-shadow:0 10px 30px rgba(15,23,42,.04); transition:transform .18s,border-color .18s,box-shadow .18s; }
-    .card:hover { transform:translateY(-2px); border-color:rgba(16,185,129,.35); box-shadow:0 16px 40px rgba(15,23,42,.07); }
-    .card.recommended { border-color:rgba(16,185,129,.65); box-shadow:0 18px 46px rgba(16,185,129,.13); }
-    .card.recommended::before { content:'推荐'; display:inline-flex; margin-bottom:10px; color:#047857; background:#ecfdf5; border:1px solid #bbf7d0; border-radius:999px; padding:4px 8px; font-size:11px; font-weight:900; }
-    .cover { height:86px; border-radius:14px; display:flex; align-items:flex-end; padding:14px; margin-bottom:14px; color:#fff; font-size:28px; background:linear-gradient(135deg,#10b981,#6366f1); }
-    .name { font-size:16px; font-weight:800; margin-bottom:7px; }
-    .desc { color:var(--text2); font-size:13px; line-height:1.7; margin-bottom:14px; }
-    .chips { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 14px; }
-    .chip { font-size:11px; color:#047857; background:#ecfdf5; border:1px solid #bbf7d0; border-radius:999px; padding:5px 8px; }
-    .meta { display:flex; justify-content:space-between; align-items:center; gap:10px; color:var(--text3); font-size:12px; border-top:1px solid #f1f5f9; padding-top:12px; }
-    .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; color:#fff; background:var(--primary); border-radius:999px; text-decoration:none; padding:7px 12px; font-size:12px; font-weight:800; }
-    .panel { background:#fff; border:1px solid var(--border); border-radius:18px; padding:22px; margin-bottom:18px; }
-    .panel h2 { font-size:20px; margin-bottom:12px; }
-    .guide { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-    .guide-item { background:#f8fafc; border:1px solid var(--border); border-radius:14px; padding:14px; }
-    .guide-title { font-weight:800; margin-bottom:6px; }
-    .guide-desc { color:var(--text2); font-size:12px; line-height:1.7; }
-    .workspace { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-    .workspace-card { background:#f8fafc; border:1px solid var(--border); border-radius:16px; padding:16px; min-height:150px; }
-    .workspace-card.wide { grid-column:1 / -1; }
-    .workspace-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-    .workspace-title { font-weight:900; }
-    .route-list { display:flex; flex-wrap:wrap; gap:8px; }
-    .route-pill { border:1px solid #bbf7d0; background:#fff; color:#047857; border-radius:999px; padding:7px 10px; font-size:12px; font-weight:800; cursor:pointer; }
-    .route-empty { color:var(--text3); font-size:12px; line-height:1.7; }
-    .maintenance-list { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-    .maintenance-item { background:#fff; border:1px solid var(--border); border-radius:14px; padding:12px; }
-    .maintenance-item strong { display:block; font-size:13px; margin-bottom:5px; }
-    .maintenance-item span { color:var(--text2); font-size:12px; line-height:1.6; }
-    .notice { color:var(--text3); font-size:12px; line-height:1.8; padding:14px 16px; background:#f8fafc; border:1px solid var(--border); border-radius:14px; }
-    .is-hidden { display:none !important; }
-    .empty { display:none; text-align:center; padding:34px; color:var(--text3); background:#fff; border:1px dashed var(--border); border-radius:18px; margin-bottom:18px; }
-    .empty.show { display:block; }
-    .path-dock { position:sticky; top:12px; z-index:5; display:none; align-items:center; justify-content:space-between; gap:12px; margin:0 0 14px; padding:10px 14px; border:1px solid rgba(16,185,129,.22); border-radius:16px; background:rgba(255,255,255,.86); box-shadow:0 12px 36px rgba(15,23,42,.06); backdrop-filter:blur(12px); }
-    .path-dock.show { display:flex; }
-    .path-dock strong { font-size:13px; }
-    .path-dock span { color:var(--text2); font-size:12px; }
-    @media (max-width:900px) { body { padding:16px; } .hero, .grid, .guide, .radar, .persona-grid, .workspace, .maintenance-list { grid-template-columns:1fr; } .workspace-card.wide { grid-column:auto; } .hero { padding:24px; } .search-box { width:100%; } h1 { font-size:28px; } .nav { align-items:flex-start; flex-direction:column; } .section-head { align-items:flex-start; flex-direction:column; } }
-  </style>
+  <meta name="description" content="全网网盘资源搜索中转站，聚合多网盘搜索引擎，支持百度/夸克/阿里/迅雷等平台。">
+  <link rel="dns-prefetch" href="//www.upyunso.com">
+  <link rel="dns-prefetch" href="//pansou.cc">
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+  <link rel="preload" href="resources.css" as="style">
+  <link rel="stylesheet" href="resources.css">
+  <link rel="preload" href="resources.js" as="script">
 </head>
-<body>
+<body class="mode-global">
   <div class="container">
     <nav class="nav">
       <a class="brand" href="index.html"><span class="brand-icon">📚</span><span>更多资源合集</span></a>
@@ -108,21 +25,70 @@
 
     <section class="hero">
       <div>
-        <div class="eyebrow">资源路线规划 · 场景推荐 · 持续更新</div>
-        <h1>不用翻目录，先告诉我你要做什么</h1>
-        <p class="lead">这里不只是资源分类页，而是按用户场景自动推荐路径：想看、想学、想办公、想创作、手机可用、链接补档，都能直接收敛到对应入口。</p>
+        <div class="eyebrow">全网搜索 · 分类导航 · 本站仅作中转</div>
+        <h1>搜全网网盘资源，一站跳转</h1>
+        <p class="lead">输入关键词后，本页会自动加载第三方搜索结果（无需再点搜索）。纯前端中转，不存储文件，资源来自 UP云搜 等公开搜索引擎。</p>
       </div>
       <div class="hero-side">
-        <label class="search-box">🔎 <input id="resourceSearch" type="search" placeholder="输入关键词查资源，如 电影、PPT、AI、补档"></label>
+        <div class="search-mode" id="searchMode">
+          <button type="button" class="active" data-mode="global">全网搜索</button>
+          <button type="button" data-mode="local">站内分类</button>
+        </div>
+        <label class="search-box">🔎 <input id="resourceSearch" type="search" placeholder="输入关键词，如 考研资料、4K电影、AI教程"></label>
         <div class="stats">
+          <div class="stat"><strong id="statResultCount">5</strong><span>搜索源</span></div>
           <div class="stat"><strong>10</strong><span>主分类</span></div>
-          <div class="stat"><strong>30</strong><span>细分入口</span></div>
-          <div class="stat"><strong>周更</strong><span>维护建议</span></div>
+          <div class="stat"><strong>多源</strong><span>搜索引擎</span></div>
         </div>
       </div>
     </section>
 
-    <section class="radar" aria-label="资源雷达">
+    <section class="global-panel" id="globalSearchPanel" aria-label="全网网盘搜索">
+      <div class="global-head">
+        <div>
+          <h2>🔍 全网网盘搜索</h2>
+          <p>回车或点「搜索全网」后，下方会自动展示搜索结果；也可切换其他引擎。</p>
+        </div>
+      </div>
+      <div class="global-form">
+        <label class="global-input-wrap">🔎
+          <input id="globalSearchInput" type="search" placeholder="搜索全网网盘资源，回车或点击搜索" autocomplete="off">
+        </label>
+        <button class="search-submit" type="button" id="globalSearchBtn">搜索全网</button>
+      </div>
+      <div class="disk-tabs" id="diskTabs">
+        <button class="disk-tab active" type="button" data-disk="all">全部网盘</button>
+        <button class="disk-tab" type="button" data-disk="baidu">百度网盘</button>
+        <button class="disk-tab" type="button" data-disk="quark">夸克网盘</button>
+        <button class="disk-tab" type="button" data-disk="aliyun">阿里云盘</button>
+        <button class="disk-tab" type="button" data-disk="xunlei">迅雷云盘</button>
+        <button class="disk-tab" type="button" data-disk="115">115网盘</button>
+        <button class="disk-tab" type="button" data-disk="mobile">移动云盘</button>
+      </div>
+      <div class="hot-keys">
+        <span>热门：</span>
+        <button type="button" data-kw="考研">考研</button>
+        <button type="button" data-kw="4K电影">4K电影</button>
+        <button type="button" data-kw="AI教程">AI教程</button>
+        <button type="button" data-kw="办公软件">办公软件</button>
+        <button type="button" data-kw="电子书">电子书</button>
+      </div>
+      <div class="search-status show" id="searchStatus">输入关键词后回车，本页自动加载搜索结果</div>
+      <div class="search-embed" id="searchEmbed">
+        <div class="search-embed-head">
+          <div><strong id="embedTitle">搜索结果</strong> <span id="embedHint">加载中…</span></div>
+          <a class="embed-open" id="embedOpenNew" href="#" target="_blank" rel="noopener noreferrer">新窗口打开 ↗</a>
+        </div>
+        <iframe id="searchFrame" title="网盘搜索结果" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+      <div class="result-groups" id="searchResults"></div>
+      <div class="external-engines">
+        <div class="external-engines-title">选择搜索引擎（点击在本页自动搜索）</div>
+        <div class="engine-grid" id="engineGrid"></div>
+      </div>
+    </section>
+
+    <section class="radar local-only" aria-label="资源雷达">
       <div class="radar-main">
         <div class="radar-title">资源雷达：先说你要做什么</div>
         <div class="radar-sub">普通资源站让你翻分类，这里按使用场景直接推荐路径。选一个目标，下面会自动筛出更可能有用的入口。</div>
@@ -156,12 +122,12 @@
       </aside>
     </section>
 
-    <div class="path-dock" id="pathDock">
+    <div class="path-dock local-only" id="pathDock">
       <div><strong id="dockTitle">当前路径</strong> <span id="dockDesc">已为你高亮推荐入口</span></div>
       <button class="ghost-btn" type="button" onclick="document.querySelector('.card.recommended')?.scrollIntoView({behavior:'smooth',block:'center'})">跳到推荐</button>
     </div>
 
-    <div class="tabs">
+    <div class="tabs local-only">
       <button class="tab active" type="button" data-filter="all">全部</button>
       <button class="tab" type="button" data-filter="影视">影视</button>
       <button class="tab" type="button" data-filter="学习">学习</button>
@@ -174,139 +140,139 @@
       <button class="tab" type="button" data-filter="AI">AI</button>
       <button class="tab" type="button" data-filter="热门">热门</button>
     </div>
-    <div class="empty" id="emptyState">没有找到匹配的分类，可以换个关键词试试。</div>
+    <div class="empty local-only" id="emptyState">没有找到匹配的分类，可以换个关键词试试。</div>
 
-    <div class="section-head" data-category="影视">
+    <div class="section-head local-only" data-category="影视">
       <div>
         <div class="section-title">🎬 影视娱乐</div>
         <div class="section-desc">适合按更新时间、清晰度、类型和平台来源维护。</div>
       </div>
       <a class="section-link" href="generator.html">创建影视入口 →</a>
     </div>
-    <section class="grid" data-category="影视">
+    <section class="grid local-only" data-category="影视">
       <article class="card"><div class="cover">🎞️</div><div class="name">电影资源</div><div class="desc">院线、经典、高清、外语、系列电影等入口。</div><div class="chips"><span class="chip">4K</span><span class="chip">蓝光</span><span class="chip">国语</span><span class="chip">合集</span></div><div class="meta"><span>建议每周更新</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#06b6d4,#6366f1);">📺</div><div class="name">剧集资源</div><div class="desc">国产剧、韩剧、美剧、日剧、短剧等连续更新资源。</div><div class="chips"><span class="chip">更新中</span><span class="chip">完结</span><span class="chip">短剧</span><span class="chip">字幕</span></div><div class="meta"><span>适合每日维护</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#64748b,#0f172a);">🎙️</div><div class="name">综艺纪录</div><div class="desc">综艺、纪录片、访谈、公开课视频等内容。</div><div class="chips"><span class="chip">纪录片</span><span class="chip">综艺</span><span class="chip">访谈</span><span class="chip">公开课</span></div><div class="meta"><span>适合专题整理</span><a class="btn" href="generator.html">生成入口</a></div></article>
     </section>
 
-    <div class="section-head" data-category="学习">
+    <div class="section-head local-only" data-category="学习">
       <div>
         <div class="section-title">📘 学习资料</div>
         <div class="section-desc">按考试、职业技能、语言、编程和办公能力拆分。</div>
       </div>
       <a class="section-link" href="generator.html">创建学习入口 →</a>
     </div>
-    <section class="grid" data-category="学习">
+    <section class="grid local-only" data-category="学习">
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);">📝</div><div class="name">考试资料</div><div class="desc">考研、公考、教资、建造师、会计、法考等。</div><div class="chips"><span class="chip">真题</span><span class="chip">讲义</span><span class="chip">押题</span><span class="chip">网课</span></div><div class="meta"><span>按年份维护</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#2563eb,#14b8a6);">💻</div><div class="name">编程技术</div><div class="desc">前端、后端、AI、数据分析、运维和项目实战。</div><div class="chips"><span class="chip">前端</span><span class="chip">Python</span><span class="chip">AI</span><span class="chip">项目</span></div><div class="meta"><span>建议加难度</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);">🌐</div><div class="name">语言与办公</div><div class="desc">英语、日语、PPT、Excel、Word、职场能力提升。</div><div class="chips"><span class="chip">英语</span><span class="chip">日语</span><span class="chip">PPT</span><span class="chip">Excel</span></div><div class="meta"><span>适合长期收藏</span><a class="btn" href="generator.html">生成入口</a></div></article>
     </section>
 
-    <div class="section-head" data-category="软件">
+    <div class="section-head local-only" data-category="软件">
       <div>
         <div class="section-title">🧰 软件工具</div>
         <div class="section-desc">重点标注系统、版本、是否需要安装、使用说明和风险提示。</div>
       </div>
       <a class="section-link" href="tools.html">查看工具箱 →</a>
     </div>
-    <section class="grid" data-category="软件">
+    <section class="grid local-only" data-category="软件">
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#f97316,#ef4444);">🪟</div><div class="name">Windows 工具</div><div class="desc">系统维护、压缩解压、下载、截图、播放器、效率软件。</div><div class="chips"><span class="chip">系统</span><span class="chip">效率</span><span class="chip">下载</span><span class="chip">办公</span></div><div class="meta"><span>注意版本说明</span><a class="btn" href="tools.html">看工具箱</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#0f172a,#475569);">🍎</div><div class="name">Mac 软件</div><div class="desc">Mac 办公、设计、开发、清理、媒体处理工具。</div><div class="chips"><span class="chip">办公</span><span class="chip">设计</span><span class="chip">开发</span><span class="chip">媒体</span></div><div class="meta"><span>标注芯片类型</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#22c55e,#84cc16);">📱</div><div class="name">安卓应用</div><div class="desc">阅读、影音、工具、文件管理、学习类应用入口。</div><div class="chips"><span class="chip">影音</span><span class="chip">阅读</span><span class="chip">工具</span><span class="chip">学习</span></div><div class="meta"><span>建议写来源</span><a class="btn" href="generator.html">生成入口</a></div></article>
     </section>
 
-    <div class="section-head" data-category="素材">
+    <div class="section-head local-only" data-category="素材">
       <div>
         <div class="section-title">🎨 素材模板</div>
         <div class="section-desc">适合做专题页，按用途、格式、版权说明拆分。</div>
       </div>
       <a class="section-link" href="generator.html">创建素材入口 →</a>
     </div>
-    <section class="grid" data-category="素材">
+    <section class="grid local-only" data-category="素材">
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);">🖼️</div><div class="name">图片与图标</div><div class="desc">壁纸、背景图、图标、插画、免抠元素等。</div><div class="chips"><span class="chip">壁纸</span><span class="chip">图标</span><span class="chip">插画</span><span class="chip">免抠</span></div><div class="meta"><span>建议标注版权</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#f43f5e,#f59e0b);">📊</div><div class="name">PPT 与模板</div><div class="desc">PPT、简历、合同、表格、海报、电商模板等。</div><div class="chips"><span class="chip">PPT</span><span class="chip">简历</span><span class="chip">表格</span><span class="chip">海报</span></div><div class="meta"><span>适合做专题</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#06b6d4,#3b82f6);">🎧</div><div class="name">视频音频素材</div><div class="desc">转场、片头、音效、配乐、字幕模板和剪辑工程。</div><div class="chips"><span class="chip">音效</span><span class="chip">配乐</span><span class="chip">转场</span><span class="chip">字幕</span></div><div class="meta"><span>按格式分类</span><a class="btn" href="generator.html">生成入口</a></div></article>
     </section>
 
-    <div class="section-head" data-category="电子书">
+    <div class="section-head local-only" data-category="电子书">
       <div>
         <div class="section-title">📖 电子书与文档</div>
         <div class="section-desc">适合按主题、格式、语言、是否可检索来维护。</div>
       </div>
       <a class="section-link" href="generator.html">创建电子书入口 →</a>
     </div>
-    <section class="grid" data-category="电子书">
+    <section class="grid local-only" data-category="电子书">
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#14b8a6,#22c55e);">📚</div><div class="name">技术书籍</div><div class="desc">编程、产品、设计、运维、数据和 AI 相关书籍。</div><div class="chips"><span class="chip">PDF</span><span class="chip">EPUB</span><span class="chip">AI</span><span class="chip">编程</span></div><div class="meta"><span>建议加版本</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#6366f1,#a855f7);">📄</div><div class="name">行业报告</div><div class="desc">互联网、营销、电商、教育、消费、AI 等行业资料。</div><div class="chips"><span class="chip">报告</span><span class="chip">白皮书</span><span class="chip">研报</span><span class="chip">数据</span></div><div class="meta"><span>按年份维护</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">📕</div><div class="name">小说与教材</div><div class="desc">小说合集、教材教辅、公开课讲义和阅读资料。</div><div class="chips"><span class="chip">小说</span><span class="chip">教材</span><span class="chip">讲义</span><span class="chip">合集</span></div><div class="meta"><span>适合加备注</span><a class="btn" href="generator.html">生成入口</a></div></article>
     </section>
 
-    <div class="section-head" data-category="音乐">
+    <div class="section-head local-only" data-category="音乐">
       <div>
         <div class="section-title">🎵 音频音乐</div>
         <div class="section-desc">按音乐、播客、有声书、音效和学习音频拆分。</div>
       </div>
       <a class="section-link" href="generator.html">创建音乐入口 →</a>
     </div>
-    <section class="grid" data-category="音乐">
+    <section class="grid local-only" data-category="音乐">
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#f43f5e,#8b5cf6);">🎧</div><div class="name">无损音乐</div><div class="desc">专辑、歌单、演唱会、OST、Hi-Res 和无损音源合集。</div><div class="chips"><span class="chip">FLAC</span><span class="chip">APE</span><span class="chip">OST</span><span class="chip">歌单</span></div><div class="meta"><span>建议标注格式</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#06b6d4,#3b82f6);">📻</div><div class="name">播客电台</div><div class="desc">知识播客、访谈节目、电台合集和音频课程。</div><div class="chips"><span class="chip">播客</span><span class="chip">访谈</span><span class="chip">电台</span><span class="chip">课程</span></div><div class="meta"><span>适合系列整理</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#10b981,#84cc16);">🔊</div><div class="name">音效素材</div><div class="desc">剪辑音效、环境声、配乐包、短视频常用 BGM。</div><div class="chips"><span class="chip">BGM</span><span class="chip">音效</span><span class="chip">环境声</span><span class="chip">剪辑</span></div><div class="meta"><span>按用途分类</span><a class="btn" href="generator.html">生成入口</a></div></article>
     </section>
 
-    <div class="section-head" data-category="游戏">
+    <div class="section-head local-only" data-category="游戏">
       <div>
         <div class="section-title">🎮 游戏娱乐</div>
         <div class="section-desc">按平台、补丁、存档、MOD 和攻略内容维护。</div>
       </div>
       <a class="section-link" href="generator.html">创建游戏入口 →</a>
     </div>
-    <section class="grid" data-category="游戏">
+    <section class="grid local-only" data-category="游戏">
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#0f172a,#6366f1);">🕹️</div><div class="name">单机游戏</div><div class="desc">PC 单机、独立游戏、经典游戏、整合版和补丁包。</div><div class="chips"><span class="chip">PC</span><span class="chip">独立</span><span class="chip">补丁</span><span class="chip">整合</span></div><div class="meta"><span>标注版本</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#ef4444,#f97316);">🧩</div><div class="name">MOD 与存档</div><div class="desc">游戏 MOD、通关存档、汉化补丁、材质包和工具。</div><div class="chips"><span class="chip">MOD</span><span class="chip">存档</span><span class="chip">汉化</span><span class="chip">材质</span></div><div class="meta"><span>需写适配版本</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#22c55e,#14b8a6);">📜</div><div class="name">攻略资料</div><div class="desc">攻略文档、地图、图鉴、配置方案和游戏资料库。</div><div class="chips"><span class="chip">攻略</span><span class="chip">地图</span><span class="chip">图鉴</span><span class="chip">配置</span></div><div class="meta"><span>适合收藏</span><a class="btn" href="generator.html">生成入口</a></div></article>
     </section>
 
-    <div class="section-head" data-category="手机">
+    <div class="section-head local-only" data-category="手机">
       <div>
         <div class="section-title">📱 手机应用</div>
         <div class="section-desc">按安卓、iOS、插件、主题和移动端工具拆分。</div>
       </div>
       <a class="section-link" href="generator.html">创建手机入口 →</a>
     </div>
-    <section class="grid" data-category="手机">
+    <section class="grid local-only" data-category="手机">
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#22c55e,#06b6d4);">🤖</div><div class="name">安卓软件</div><div class="desc">工具、阅读、影音、效率、文件管理和学习应用。</div><div class="chips"><span class="chip">工具</span><span class="chip">阅读</span><span class="chip">影音</span><span class="chip">效率</span></div><div class="meta"><span>建议写版本</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#111827,#64748b);">📲</div><div class="name">iOS 资源</div><div class="desc">快捷指令、配置文件、壁纸、小组件和使用教程。</div><div class="chips"><span class="chip">快捷指令</span><span class="chip">壁纸</span><span class="chip">小组件</span><span class="chip">教程</span></div><div class="meta"><span>适合教程化</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);">🎭</div><div class="name">主题美化</div><div class="desc">手机主题、字体、图标包、桌面布局和美化素材。</div><div class="chips"><span class="chip">主题</span><span class="chip">字体</span><span class="chip">图标</span><span class="chip">桌面</span></div><div class="meta"><span>适合做合集</span><a class="btn" href="generator.html">生成入口</a></div></article>
     </section>
 
-    <div class="section-head" data-category="AI">
+    <div class="section-head local-only" data-category="AI">
       <div>
         <div class="section-title">🤖 AI 工具与提示词</div>
         <div class="section-desc">按模型工具、提示词、插件、工作流和素材生成拆分。</div>
       </div>
       <a class="section-link" href="generator.html">创建 AI 入口 →</a>
     </div>
-    <section class="grid" data-category="AI">
+    <section class="grid local-only" data-category="AI">
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#6366f1,#06b6d4);">✨</div><div class="name">AI 工具箱</div><div class="desc">写作、绘图、编程、办公、翻译、视频和自动化工具。</div><div class="chips"><span class="chip">写作</span><span class="chip">绘图</span><span class="chip">编程</span><span class="chip">办公</span></div><div class="meta"><span>建议按用途</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#a855f7,#f43f5e);">💬</div><div class="name">提示词合集</div><div class="desc">写作、设计、运营、编程、学习和办公提示词模板。</div><div class="chips"><span class="chip">Prompt</span><span class="chip">模板</span><span class="chip">办公</span><span class="chip">运营</span></div><div class="meta"><span>适合长期更新</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#0ea5e9,#10b981);">⚙️</div><div class="name">AI 工作流</div><div class="desc">自动化流程、插件配置、知识库模板和实战案例。</div><div class="chips"><span class="chip">工作流</span><span class="chip">插件</span><span class="chip">知识库</span><span class="chip">案例</span></div><div class="meta"><span>建议写步骤</span><a class="btn" href="generator.html">生成入口</a></div></article>
     </section>
 
-    <div class="section-head" data-category="热门">
+    <div class="section-head local-only" data-category="热门">
       <div>
         <div class="section-title">⭐ 热门与运营位</div>
         <div class="section-desc">用于承接首页推荐、最近更新、高转化资源和用户反馈。</div>
       </div>
       <a class="section-link" href="generator.html">创建推荐入口 →</a>
     </div>
-    <section class="grid" data-category="热门">
+    <section class="grid local-only" data-category="热门">
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#64748b,#0f172a);">🔥</div><div class="name">热门推荐</div><div class="desc">把当前访问量高、转化好的资源集中到一个入口。</div><div class="chips"><span class="chip">高访问</span><span class="chip">高转化</span><span class="chip">精选</span><span class="chip">置顶</span></div><div class="meta"><span>适合首页推荐</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">🆕</div><div class="name">最近更新</div><div class="desc">专门放新整理、新补档、新上架的资源。</div><div class="chips"><span class="chip">今日</span><span class="chip">本周</span><span class="chip">补档</span><span class="chip">新上架</span></div><div class="meta"><span>提升回访</span><a class="btn" href="generator.html">生成入口</a></div></article>
       <article class="card"><div class="cover" style="background:linear-gradient(135deg,#8b5cf6,#06b6d4);">🛠️</div><div class="name">失效反馈</div><div class="desc">放反馈入口、补链说明、资源求助和联系渠道。</div><div class="chips"><span class="chip">补链</span><span class="chip">求助</span><span class="chip">反馈</span><span class="chip">联系</span></div><div class="meta"><span>建议常驻</span><a class="btn" href="generator.html">生成入口</a></div></article>
     </section>
 
-    <section class="panel">
+    <section class="panel local-only">
       <h2>我的资源工作台</h2>
       <div class="workspace">
         <div class="workspace-card">
@@ -340,253 +306,9 @@
       </div>
     </section>
 
-    <div class="notice">提示：请确保发布的资源内容合法合规。本页适合作为分类导航和入口展示，不建议直接堆满无说明的链接。</div>
+    <div class="notice">本站不存储任何网盘文件，搜索功能为纯前端跳转至第三方公开搜索引擎，无需部署后端。资源由他人分享、第三方站点索引，请自行判断合法性并遵守各平台用户协议。</div>
   </div>
-  <script>
-    const tabs = Array.from(document.querySelectorAll('.tab'));
-    const searchInput = document.getElementById('resourceSearch');
-    const emptyState = document.getElementById('emptyState');
-    const routeTitle = document.getElementById('routeTitle');
-    const routeDesc = document.getElementById('routeDesc');
-    const routeTags = document.getElementById('routeTags');
-    const routeSteps = document.getElementById('routeSteps');
-    const pathDock = document.getElementById('pathDock');
-    const dockTitle = document.getElementById('dockTitle');
-    const dockDesc = document.getElementById('dockDesc');
-    const personas = Array.from(document.querySelectorAll('.persona'));
-    const recentRoutesElement = document.getElementById('recentRoutes');
-    const savedRoutesElement = document.getElementById('savedRoutes');
-    const storageKeys = {
-      recent: 'resourceRadarRecentRoutes',
-      saved: 'resourceRadarSavedRoutes'
-    };
-    const routes = {
-      watch: {
-        title: '影视优先路径',
-        desc: '先看电影和剧集，如果想找长期更新内容，再看综艺纪录和热门推荐。',
-        category: '影视',
-        keyword: '',
-        terms: ['电影', '剧集', '综艺', '纪录', '热门'],
-        tags: ['电影资源', '剧集资源', '综艺纪录', '热门推荐'],
-        steps: ['先看剧集/电影是否已有入口', '再按清晰度或更新状态筛选', '找不到就去热门推荐看替代']
-      },
-      learn: {
-        title: '学习成长路径',
-        desc: '先按目标选择考试、编程或语言办公，再用标签区分真题、讲义、项目和模板。',
-        category: '学习',
-        keyword: '',
-        terms: ['考试', '编程', '语言', '办公', '电子书', '报告'],
-        tags: ['考试资料', '编程技术', '语言与办公', '技术书籍'],
-        steps: ['先按学习目标选考试或技能', '用标签区分真题、讲义或项目', '把常用资料生成固定入口']
-      },
-      work: {
-        title: '效率工具路径',
-        desc: '适合想快速找软件、办公模板、AI 工具和自动化工作流的用户。',
-        category: 'all',
-        keyword: '工具',
-        terms: ['工具', '软件', 'PPT', '模板', '工作流'],
-        tags: ['Windows 工具', 'Mac 软件', 'PPT 与模板', 'AI 工作流'],
-        steps: ['先找当前设备可用工具', '再补办公模板或自动化工作流', '把团队常用工具整理成入口']
-      },
-      create: {
-        title: '内容创作路径',
-        desc: '从素材模板开始，再补充音效、配乐、AI 工具和提示词。',
-        category: 'all',
-        keyword: '素材',
-        terms: ['素材', '图片', '音效', '配乐', 'AI', '提示词'],
-        tags: ['图片与图标', '视频音频素材', '音效素材', '提示词合集'],
-        steps: ['先找素材类型', '再补音效或提示词', '按项目主题打包生成分享页']
-      },
-      mobile: {
-        title: '移动端可用路径',
-        desc: '优先看安卓、iOS 和主题美化，也可以搭配手机端网盘扫码使用。',
-        category: '手机',
-        keyword: '',
-        terms: ['安卓', 'iOS', '主题', '快捷指令'],
-        tags: ['安卓软件', 'iOS 资源', '主题美化'],
-        steps: ['先确认安卓或 iOS', '再看应用、主题或快捷指令', '移动端资源优先用扫码入口']
-      },
-      repair: {
-        title: '补档与替代路径',
-        desc: '先看最近更新和热门推荐，找不到再走失效反馈或重新生成入口。',
-        category: '热门',
-        keyword: '',
-        terms: ['最近更新', '补档', '失效', '热门', '反馈'],
-        tags: ['最近更新', '失效反馈', '热门推荐'],
-        steps: ['先看最近更新是否已补档', '再找热门推荐里的替代入口', '最后提交失效反馈或重新生成链接']
-      }
-    };
-    let recommendedTerms = [];
-    let activeCategory = 'all';
-    let activeRouteKey = '';
-
-    function readRouteStore(key) {
-      try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch (_) { return []; }
-    }
-
-    function writeRouteStore(key, value) {
-      localStorage.setItem(key, JSON.stringify(value.slice(0, 6)));
-    }
-
-    function routeButton(routeKey) {
-      const route = routes[routeKey];
-      const btn = document.createElement('button');
-      btn.className = 'route-pill';
-      btn.type = 'button';
-      btn.textContent = route ? route.title : routeKey;
-      btn.addEventListener('click', () => activateRoute(routeKey));
-      return btn;
-    }
-
-    function renderRouteStore() {
-      const recent = readRouteStore(storageKeys.recent);
-      const saved = readRouteStore(storageKeys.saved);
-      recentRoutesElement.replaceChildren(...(recent.length ? recent.map(routeButton) : [emptyRoute('选择一个资源雷达目标后，这里会记录最近路线。')]));
-      savedRoutesElement.replaceChildren(...(saved.length ? saved.map(routeButton) : [emptyRoute('点击“收藏当前路线”，下次可以直接恢复。')]));
-    }
-
-    function emptyRoute(text) {
-      const el = document.createElement('div');
-      el.className = 'route-empty';
-      el.textContent = text;
-      return el;
-    }
-
-    function rememberRecent(routeKey) {
-      const recent = readRouteStore(storageKeys.recent).filter(item => item !== routeKey);
-      recent.unshift(routeKey);
-      writeRouteStore(storageKeys.recent, recent);
-      renderRouteStore();
-    }
-
-    function applyResourceFilter() {
-      const keyword = (searchInput.value || '').trim().toLowerCase();
-      let visibleCards = 0;
-
-      document.querySelectorAll('.grid[data-category]').forEach(grid => {
-        const category = grid.dataset.category;
-        const categoryMatched = activeCategory === 'all' || activeCategory === category;
-        let sectionVisibleCards = 0;
-
-        grid.querySelectorAll('.card').forEach(card => {
-          const text = card.textContent.toLowerCase();
-          const visible = categoryMatched && (!keyword || text.includes(keyword));
-          const recommended = recommendedTerms.some(term => text.includes(term.toLowerCase()));
-          card.classList.toggle('is-hidden', !visible);
-          card.classList.toggle('recommended', visible && recommended);
-          if (visible) {
-            sectionVisibleCards++;
-            visibleCards++;
-          }
-        });
-
-        grid.classList.toggle('is-hidden', sectionVisibleCards === 0);
-        const head = document.querySelector(`.section-head[data-category="${category}"]`);
-        if (head) head.classList.toggle('is-hidden', sectionVisibleCards === 0);
-      });
-
-      emptyState.classList.toggle('show', visibleCards === 0);
-    }
-
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        activeCategory = tab.dataset.filter;
-        recommendedTerms = [];
-        personas.forEach(item => item.classList.remove('active'));
-        tabs.forEach(item => item.classList.toggle('active', item === tab));
-        applyResourceFilter();
-      });
-    });
-    searchInput.addEventListener('input', applyResourceFilter);
-
-    function activateCategory(category) {
-      activeCategory = category;
-      tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.filter === category));
-      if (!tabs.some(tab => tab.classList.contains('active'))) {
-        tabs[0].classList.add('active');
-        activeCategory = 'all';
-      }
-    }
-
-    function renderRoute(route) {
-      routeTitle.textContent = route.title;
-      routeDesc.textContent = route.desc;
-      routeTags.innerHTML = route.tags.map(tag => `<span>${tag}</span>`).join('');
-      routeSteps.innerHTML = route.steps.map((step, index) => `<div class="route-step"><b>${index + 1}</b><span>${step}</span></div>`).join('');
-      dockTitle.textContent = route.title;
-      dockDesc.textContent = route.tags.join(' / ');
-      pathDock.classList.add('show');
-    }
-
-    function activateRoute(routeKey) {
-      const route = routes[routeKey];
-      if (!route) return;
-      activeRouteKey = routeKey;
-      personas.forEach(item => item.classList.toggle('active', item.dataset.route === routeKey));
-      recommendedTerms = route.terms;
-      searchInput.value = route.keyword;
-      activateCategory(route.category);
-      renderRoute(route);
-      rememberRecent(routeKey);
-      applyResourceFilter();
-    }
-
-    personas.forEach(persona => {
-      persona.addEventListener('click', () => activateRoute(persona.dataset.route));
-    });
-
-    document.getElementById('saveRoute').addEventListener('click', () => {
-      if (!activeRouteKey) {
-        alert('请先选择一个资源雷达目标');
-        return;
-      }
-      const saved = readRouteStore(storageKeys.saved).filter(item => item !== activeRouteKey);
-      saved.unshift(activeRouteKey);
-      writeRouteStore(storageKeys.saved, saved);
-      renderRouteStore();
-    });
-
-    function currentChecklist() {
-      const route = routes[activeRouteKey];
-      if (!route) {
-        return '资源维护清单：1. 每周检查热门和最近更新入口；2. 给软件/游戏/AI 资源补充版本和使用说明；3. 保留失效反馈入口；4. 将高访问资源生成固定分享页。';
-      }
-      return `${route.title}维护清单：\n1. ${route.steps[0]}\n2. ${route.steps[1]}\n3. ${route.steps[2]}\n推荐入口：${route.tags.join('、')}`;
-    }
-
-    function copyText(text) {
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => alert('已复制清单'));
-      } else {
-        alert(text);
-      }
-    }
-
-    document.getElementById('copyRoutePlan').addEventListener('click', () => copyText(currentChecklist()));
-    document.getElementById('copyDefaultChecklist').addEventListener('click', () => copyText(currentChecklist()));
-    document.getElementById('clearRecent').addEventListener('click', () => {
-      localStorage.removeItem(storageKeys.recent);
-      renderRouteStore();
-    });
-    document.getElementById('clearSaved').addEventListener('click', () => {
-      localStorage.removeItem(storageKeys.saved);
-      renderRouteStore();
-    });
-
-    document.getElementById('clearRadar').addEventListener('click', () => {
-      personas.forEach(item => item.classList.remove('active'));
-      recommendedTerms = [];
-      activeRouteKey = '';
-      searchInput.value = '';
-      activateCategory('all');
-      routeTitle.textContent = '先选一个目标';
-      routeDesc.textContent = '我会把搜索词和推荐入口自动整理好，帮用户少走几步。';
-      routeTags.innerHTML = '<span>场景化找资源</span><span>自动高亮</span>';
-      routeSteps.innerHTML = '<div class="route-step"><b>1</b><span>选择一个目标</span></div><div class="route-step"><b>2</b><span>查看推荐入口</span></div><div class="route-step"><b>3</b><span>生成或维护分享链接</span></div>';
-      pathDock.classList.remove('show');
-      applyResourceFilter();
-    });
-    renderRouteStore();
-  </script>
+  <script src="resources.js" defer></script>
+  <script src="sw-register.js" defer></script>
 </body>
 </html>

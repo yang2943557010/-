@@ -56,6 +56,11 @@ const DynamicBackground = {
   visibilityHandler: null,
   
   init() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      this.current = 'none';
+      localStorage.setItem('bgEffect', 'none');
+      return;
+    }
     this.current = localStorage.getItem('bgEffect') || 'none';
     if (!this.visibilityHandler) {
       this.visibilityHandler = () => {
@@ -98,7 +103,11 @@ const DynamicBackground = {
     this.ctx = this.canvas.getContext('2d');
     this.resize();
     if (!this.resizeHandler) {
-      this.resizeHandler = () => this.resize();
+      let resizeTimer = null;
+      this.resizeHandler = () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => this.resize(), 150);
+      };
     }
     window.addEventListener('resize', this.resizeHandler);
   },
@@ -132,7 +141,8 @@ const DynamicBackground = {
   // 粒子效果
   initParticles() {
     const particles = [];
-    const count = 50;
+    const isMobile = window.innerWidth < 768;
+    const count = isMobile ? 20 : 50;
     
     for (let i = 0; i < count; i++) {
       particles.push({
@@ -162,19 +172,21 @@ const DynamicBackground = {
         this.ctx.fill();
       });
       
-      // 连线
-      particles.forEach((p1, i) => {
-        particles.slice(i + 1).forEach(p2 => {
-          const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-          if (dist < 120) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(p1.x, p1.y);
-            this.ctx.lineTo(p2.x, p2.y);
-            this.ctx.strokeStyle = isDark ? `rgba(129,140,248,${0.1 * (1 - dist/120)})` : `rgba(99,102,241,${0.1 * (1 - dist/120)})`;
-            this.ctx.stroke();
-          }
+      // 连线（移动端跳过以降低 CPU）
+      if (!isMobile) {
+        particles.forEach((p1, i) => {
+          particles.slice(i + 1).forEach(p2 => {
+            const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+            if (dist < 120) {
+              this.ctx.beginPath();
+              this.ctx.moveTo(p1.x, p1.y);
+              this.ctx.lineTo(p2.x, p2.y);
+              this.ctx.strokeStyle = isDark ? `rgba(129,140,248,${0.1 * (1 - dist/120)})` : `rgba(99,102,241,${0.1 * (1 - dist/120)})`;
+              this.ctx.stroke();
+            }
+          });
         });
-      });
+      }
       
       this.animationId = requestAnimationFrame(animate);
     };
@@ -440,11 +452,9 @@ const BatchExporter = {
     
     const ctx = canvas.getContext('2d');
     
-    // 背景
     ctx.fillStyle = colorLight;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // 边框样式
     if (style === 'rounded') {
       ctx.strokeStyle = '#e2e8f0';
       ctx.lineWidth = 3;
@@ -456,23 +466,9 @@ const BatchExporter = {
       ctx.shadowOffsetY = 5;
     }
     
-    // 生成二维码
-    const qrCanvas = document.createElement('canvas');
-    new QRCode(qrCanvas, {
-      text: link,
-      width: size,
-      height: size,
-      colorDark,
-      colorLight,
-      correctLevel: QRCode.CorrectLevel.H
-    });
-    
-    await new Promise(r => setTimeout(r, 100));
-    
-    const qrImg = qrCanvas.querySelector('canvas') || qrCanvas;
+    const qrImg = await this.renderQRImage(link, size, colorDark, colorLight);
     ctx.drawImage(qrImg, padding, padding, size, size);
     
-    // 名称
     if (name) {
       ctx.shadowColor = 'transparent';
       ctx.fillStyle = colorDark;
@@ -482,6 +478,46 @@ const BatchExporter = {
     }
     
     return canvas;
+  },
+
+  async renderQRImage(link, size, colorDark, colorLight) {
+    if (typeof QRCodeStyling !== 'undefined') {
+      const qr = new QRCodeStyling({
+        width: size,
+        height: size,
+        type: 'canvas',
+        data: link,
+        dotsOptions: { color: colorDark, type: 'rounded' },
+        cornersSquareOptions: { type: 'extra-rounded', color: colorDark },
+        cornersDotOptions: { type: 'dot', color: colorDark },
+        backgroundOptions: { color: colorLight },
+        qrOptions: { errorCorrectionLevel: 'H' }
+      });
+      const blob = await qr.getRawData('png');
+      return await this.blobToImage(blob);
+    }
+
+    const qrCanvas = document.createElement('canvas');
+    new QRCode(qrCanvas, {
+      text: link,
+      width: size,
+      height: size,
+      colorDark,
+      colorLight,
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    await new Promise(r => setTimeout(r, 50));
+    return qrCanvas.querySelector('canvas') || qrCanvas;
+  },
+
+  blobToImage(blob) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = reject;
+      img.src = url;
+    });
   },
   
   roundRect(ctx, x, y, w, h, r) {
@@ -502,7 +538,7 @@ const BatchExporter = {
   async exportAsPDF(items, options = {}) {
     // 动态加载jsPDF
     if (!window.jspdf) {
-      await this.loadScript('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
+      await this.loadScript('vendor/jspdf.umd.min.js', 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
     }
     
     const { jsPDF } = window.jspdf;
@@ -536,13 +572,19 @@ const BatchExporter = {
     return pdf.output('blob');
   },
   
-  loadScript(src) {
+  loadScript(localSrc, cdnSrc) {
     return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = src;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
+      const attach = (src, allowFallback) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = () => {
+          if (allowFallback && cdnSrc && src !== cdnSrc) attach(cdnSrc, false);
+          else reject(new Error('Script load failed: ' + src));
+        };
+        document.head.appendChild(script);
+      };
+      attach(localSrc, !!cdnSrc);
     });
   }
 };

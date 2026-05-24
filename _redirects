@@ -1,0 +1,6 @@
+# Cloudflare Pages 路由
+/generator /generator.html 200
+/tools /tools.html 200
+/resources /resources.html 200
+/vip /vip.html 200
+/speed /speed.html 200

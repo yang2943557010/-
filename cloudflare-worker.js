@@ -1,7 +1,14 @@
 /**
  * Cloudflare Worker - 微信文章代理 + 短链接服务
  *
- * 部署步骤：
+ * 部署步骤（Cloudflare Pages 静态站点 + 独立 Worker）：
+ * 1. Pages：连接 GitHub 或 `npx wrangler pages deploy . --project-name=xxx`
+ *    根目录需包含 _headers / _redirects / wrangler.toml
+ * 2. Worker（本文件）：Workers & Pages → Create Worker → Deploy
+ * 3. KV Binding：Variable name = KV
+ * 4. 将 Worker 域名填入 app.js 的 WX_PROXY_URL
+ *
+ * 原步骤：
  * 1. 登录 https://dash.cloudflare.com
  * 2. Workers & Pages → Create Worker → 粘贴本文件内容 → Deploy
  * 3. 进入 Worker → Settings → Bindings → KV Namespace Bindings
