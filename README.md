@@ -86,10 +86,16 @@ npx wrangler deploy cloudflare-worker.js
 
 仓库名：**网盘页面展示**（账号 `yang2943557010`）
 
+若提示 **「无法将 gh 识别为 cmdlet」**：先关闭并重新打开终端，或执行：
+
+```powershell
+$env:Path = "C:\Program Files\GitHub CLI;$env:Path"
+```
+
 1. 登录 GitHub（首次需授权）：
 
 ```powershell
-gh auth login
+& "C:\Program Files\GitHub CLI\gh.exe" auth login
 ```
 
 2. 一键创建仓库并推送：
@@ -98,10 +104,29 @@ gh auth login
 .\scripts\push-github.ps1
 ```
 
-或手动：
+### 若 `gh auth login` 连接超时
+
+说明本机访问 `github.com:443` 不稳定，可改用 **Token + HTTPS**（无需 gh 浏览器登录）：
+
+1. 浏览器打开 https://github.com/new ，仓库名 **网盘页面展示**，Public，**不要**勾选 README  
+2. https://github.com/settings/tokens → Generate new token (classic) → 勾选 **repo**  
+3. PowerShell 执行：
 
 ```powershell
-gh repo create 网盘页面展示 --public --source . --remote github --push
+cd "D:\刘立样\OneDrive\桌面\网盘页面展示"
+git remote set-url github https://github.com/yang2943557010/网盘页面展示.git
+git push -u github main
+```
+
+- 用户名：`yang2943557010`  
+- 密码：粘贴 **Token**（不是 QQ 邮箱密码）
+
+### 若提示 Permission denied (publickey)
+
+说明误用了 SSH 地址，请执行：
+
+```powershell
+git remote set-url github https://github.com/yang2943557010/网盘页面展示.git
 ```
 
 ## 许可证

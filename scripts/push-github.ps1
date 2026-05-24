@@ -1,30 +1,58 @@
-# 将本项目推送到 GitHub 仓库「网盘页面展示」
-# 用法：在 PowerShell 中执行  .\scripts\push-github.ps1
+﻿# Push to GitHub: .\scripts\push-github.ps1
 
-$ErrorActionPreference = "Stop"
 Set-Location (Resolve-Path (Join-Path $PSScriptRoot ".."))
 
-if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
-  Write-Host "请先安装 GitHub CLI: winget install GitHub.cli" -ForegroundColor Yellow
-  exit 1
+$ghDir = "C:\Program Files\GitHub CLI"
+if ((Test-Path "$ghDir\gh.exe") -and ($env:Path -notlike "*$ghDir*")) {
+  $env:Path = "$ghDir;$env:Path"
 }
 
-$auth = gh auth status 2>&1
-if ($LASTEXITCODE -ne 0) {
-  Write-Host "尚未登录 GitHub，正在打开设备授权..." -ForegroundColor Cyan
-  gh auth login --hostname github.com --git-protocol https --web
+function Get-GhExe {
+  if (Test-Path "$ghDir\gh.exe") { return "$ghDir\gh.exe" }
+  $cmd = Get-Command gh -ErrorAction SilentlyContinue
+  if ($cmd) { return $cmd.Source }
+  return $null
 }
 
-$repoName = "网盘页面展示"
-$exists = gh repo view "yang2943557010/$repoName" 2>$null
-if (-not $exists) {
-  Write-Host "创建仓库: $repoName" -ForegroundColor Green
-  gh repo create $repoName --public --description "网盘分享链接生成、扫码落地页、资源搜索中转" --source . --remote github --push
+function Show-TokenHelp {
+  param([string]$User, [string]$Repo)
+  Write-Host ""
+  Write-Host "Manual steps:" -ForegroundColor Cyan
+  Write-Host "  1. https://github.com/settings/tokens  (classic, repo)"
+  Write-Host "  2. git push -u github main"
+  Write-Host "     user: $User"
+  Write-Host "     pass: paste TOKEN"
+  Write-Host "  Repo: https://github.com/$User/$Repo"
+  Write-Host ""
+}
+
+$repoName = (Get-Content (Join-Path $PSScriptRoot "repo-name.txt") -Raw -Encoding UTF8).Trim()
+$user = "yang2943557010"
+$httpsUrl = "https://github.com/$user/$repoName.git"
+
+if (git remote get-url github 2>$null) {
+  git remote set-url github $httpsUrl
 } else {
-  if (-not (git remote get-url github 2>$null)) {
-    git remote add github "https://github.com/yang2943557010/$repoName.git"
-  }
-  git push -u github main
+  git remote add github $httpsUrl
 }
 
-Write-Host "完成。仓库地址: https://github.com/yang2943557010/$repoName" -ForegroundColor Green
+Write-Host "Remote: $httpsUrl"
+Write-Host "Pushing branch main ..."
+
+git push -u github main
+
+if ($LASTEXITCODE -eq 0) {
+  Write-Host ""
+  Write-Host "OK: https://github.com/$user/$repoName" -ForegroundColor Green
+  exit 0
+}
+
+Write-Host ""
+Write-Host "Push failed (code $LASTEXITCODE)." -ForegroundColor Red
+$gh = Get-GhExe
+if ($gh) {
+  & $gh auth status 2>&1
+  Write-Host "Login:  `$t='TOKEN'; `$t | & '$gh' auth login --with-token" -ForegroundColor Yellow
+}
+Show-TokenHelp -User $user -Repo $repoName
+exit $LASTEXITCODE
