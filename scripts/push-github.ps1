@@ -26,9 +26,11 @@ function Show-TokenHelp {
   Write-Host ""
 }
 
-$repoName = (Get-Content (Join-Path $PSScriptRoot "repo-name.txt") -Raw -Encoding UTF8).Trim()
 $user = "yang2943557010"
-$httpsUrl = "https://github.com/$user/$repoName.git"
+# GitHub 上当前仓库 slug 为 "-"（创建时中文名编码异常），代码已可正常推送
+$repoSlug = "-"
+$repoName = (Get-Content (Join-Path $PSScriptRoot "repo-name.txt") -Raw -Encoding UTF8).Trim()
+$httpsUrl = "https://github.com/$user/$repoSlug.git"
 
 if (git remote get-url github 2>$null) {
   git remote set-url github $httpsUrl
@@ -43,7 +45,8 @@ git push -u github main
 
 if ($LASTEXITCODE -eq 0) {
   Write-Host ""
-  Write-Host "OK: https://github.com/$user/$repoName" -ForegroundColor Green
+  Write-Host "OK: https://github.com/$user/$repoSlug" -ForegroundColor Green
+  Write-Host "     (可在 GitHub 仓库 Settings 中改名为: $repoName)" -ForegroundColor Gray
   exit 0
 }
 
