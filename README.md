@@ -82,6 +82,28 @@ npx wrangler deploy cloudflare-worker.js
 - 敏感词库支持本地缓存 + 远程更新（jsDelivr）
 - 分享人主页支持 [VLink](https://vlink.cc/) 个人聚合页
 
+## 推送到 GitHub
+
+仓库名：**网盘页面展示**（账号 `yang2943557010`）
+
+1. 登录 GitHub（首次需授权）：
+
+```powershell
+gh auth login
+```
+
+2. 一键创建仓库并推送：
+
+```powershell
+.\scripts\push-github.ps1
+```
+
+或手动：
+
+```powershell
+gh repo create 网盘页面展示 --public --source . --remote github --push
+```
+
 ## 许可证
 
 仅供学习与交流使用，请遵守各网盘平台用户协议与当地法律法规。
