@@ -1,5 +1,5 @@
 // Cloudflare Pages：HTML 网络优先；静态资源 stale-while-revalidate（配合 _headers 边缘缓存）
-const CACHE_VERSION = 'netdisk-cf-v3';
+const CACHE_VERSION = 'netdisk-cf-v4';
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const PRECACHE = [
@@ -13,7 +13,7 @@ const PRECACHE = [
   './banned-words.js'
 ];
 
-const SKIP_PATH_PREFIXES = ['/miniprogram/', '/1-验证码/'];
+const SKIP_PATH_PREFIXES = ['/scripts/'];
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();

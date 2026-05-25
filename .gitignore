@@ -20,11 +20,6 @@ dist/
 .env
 .env.*
 *.pem
-project.private.config.json
 
-# 误下载的 HTML 伪装图标（体积大且无效）
+# 误下载的 HTML 伪装图标
 assets/logos/*.ico
-
-# 小程序私有配置（含 appid 等）
-miniprogram/project.private.config.json
-2-miniprogram/project.private.config.json
