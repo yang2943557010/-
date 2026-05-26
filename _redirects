@@ -1,6 +1,7 @@
-# Cloudflare Pages 路由
-/generator /generator.html 200
-/tools /tools.html 200
-/resources /resources.html 200
-/vip /vip.html 200
-/speed /speed.html 200
+# Cloudflare Pages 静态站点：请使用带 .html 的地址，避免重定向循环
+# 例如 /generator.html 而不是 /generator
+#
+# 若 /generator 出现 ERR_TOO_MANY_REDIRECTS：
+# 1. 请改用 https://你的域名/generator.html
+# 2. 检查 Cloudflare「页面规则」是否把 *.html 301 到无后缀路径（需关闭）
+# 3. SSL/TLS 设为「完全」或「完全(严格)」，不要用「灵活」

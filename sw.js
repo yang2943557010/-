@@ -1,5 +1,5 @@
 // Cloudflare Pages：HTML 网络优先；静态资源 stale-while-revalidate（配合 _headers 边缘缓存）
-const CACHE_VERSION = 'netdisk-cf-v4';
+const CACHE_VERSION = 'netdisk-cf-v5';
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const PRECACHE = [
@@ -71,7 +71,7 @@ async function staleWhileRevalidate(request) {
 async function networkFirst(request) {
   try {
     const response = await fetch(request);
-    if (response.ok) {
+    if (response.ok && !response.redirected && response.type === 'basic') {
       const cache = await caches.open(RUNTIME_CACHE);
       cache.put(request, response.clone());
     }
