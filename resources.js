@@ -10,6 +10,7 @@
       all: 'upyunso', baidu: 'pansoucc', quark: 'upyunso', aliyun: 'upyunso',
       xunlei: 'upyunso', '115': 'upyunso', mobile: 'upyunso'
     };
+    const EMBED_LOAD_TIMEOUT = 12000;
 
     const globalSearchInput = document.getElementById('globalSearchInput');
     const globalSearchBtn = document.getElementById('globalSearchBtn');
@@ -24,10 +25,19 @@
     const embedTitle = document.getElementById('embedTitle');
     const embedHint = document.getElementById('embedHint');
     const embedOpenNew = document.getElementById('embedOpenNew');
+    const embedReload = document.getElementById('embedReload');
+    const embedLoading = document.getElementById('embedLoading');
+    const embedFallback = document.getElementById('embedFallback');
+    const embedFallbackOpen = document.getElementById('embedFallbackOpen');
+    const embedFallbackRetry = document.getElementById('embedFallbackRetry');
+    const embedEngineBar = document.getElementById('embedEngineBar');
     let activeEngineId = DISK_DEFAULT_ENGINE.all;
     let activeDisk = 'all';
     let searchModeValue = 'global';
     let lastKeyword = '';
+    let embedLoadTimer = null;
+    let embedCurrentUrl = '';
+    let dnsPrefetched = false;
 
     function buildEngineUrl(engine, kw) {
       if (engine.id === 'upyunso') {
@@ -44,17 +54,103 @@
       return getEnginesForDisk(activeDisk).find(e => e.id === defaultId) || getEnginesForDisk(activeDisk)[0];
     }
 
+    function prefetchSearchHosts() {
+      if (dnsPrefetched) return;
+      dnsPrefetched = true;
+      ['www.upyunso.com', 'pansou.cc', 'sosop.cn', 'www.alipansou.com', 'www.xiongdipan.com'].forEach(host => {
+        const link = document.createElement('link');
+        link.rel = 'dns-prefetch';
+        link.href = `//${host}`;
+        document.head.appendChild(link);
+      });
+    }
+
+    function clearEmbedTimers() {
+      if (embedLoadTimer) {
+        clearTimeout(embedLoadTimer);
+        embedLoadTimer = null;
+      }
+    }
+
+    function setEmbedLoading(loading) {
+      searchEmbed.classList.toggle('is-loading', loading);
+      embedLoading.hidden = !loading;
+      if (loading) {
+        searchEmbed.classList.remove('has-fallback');
+        embedFallback.hidden = true;
+      }
+    }
+
+    function showEmbedFallback(show) {
+      searchEmbed.classList.toggle('has-fallback', show);
+      embedFallback.hidden = !show;
+      if (show) setEmbedLoading(false);
+    }
+
+    function highlightActiveEngine(engineId) {
+      activeEngineId = engineId;
+      document.querySelectorAll('.engine-card[data-engine-id]').forEach(card => {
+        card.classList.toggle('active', card.dataset.engineId === engineId);
+      });
+      document.querySelectorAll('.embed-engine-pill').forEach(pill => {
+        pill.classList.toggle('active', pill.dataset.engineId === engineId);
+      });
+    }
+
+    function renderEmbedEngineBar(keyword) {
+      const kw = buildSearchKeyword(keyword || lastKeyword);
+      const engines = getEnginesForDisk(activeDisk);
+      if (!kw || !engines.length) {
+        embedEngineBar.hidden = true;
+        embedEngineBar.innerHTML = '';
+        return;
+      }
+      embedEngineBar.hidden = false;
+      embedEngineBar.innerHTML = engines.map(engine => `
+        <button type="button" class="embed-engine-pill${engine.id === activeEngineId ? ' active' : ''}" data-engine-id="${engine.id}">${escapeHtml(engine.name)}</button>
+      `).join('');
+      embedEngineBar.querySelectorAll('[data-engine-id]').forEach(btn => {
+        btn.onclick = () => {
+          const engine = SEARCH_ENGINES.find(e => e.id === btn.dataset.engineId);
+          if (engine) loadSearchEmbed(engine, kw);
+        };
+      });
+    }
+
     function loadSearchEmbed(engine, kw) {
-      if (!engine) return;
+      if (!engine || !kw) return;
+      prefetchSearchHosts();
+      clearEmbedTimers();
       const url = buildEngineUrl(engine, kw);
-      activeEngineId = engine.id;
+      embedCurrentUrl = url;
+      highlightActiveEngine(engine.id);
       embedTitle.textContent = `${engine.name} · 「${kw}」`;
       embedHint.textContent = '正在加载搜索结果…';
       embedOpenNew.href = url;
+      embedFallbackOpen.href = url;
       searchEmbed.classList.add('show');
-      searchFrame.onload = () => { embedHint.textContent = '若下方空白，请点击右上角「新窗口打开」'; };
+      setEmbedLoading(true);
+      showEmbedFallback(false);
+      searchFrame.onload = () => {
+        clearEmbedTimers();
+        setEmbedLoading(false);
+        showEmbedFallback(false);
+        embedHint.textContent = '若下方空白，请点「新窗口打开」或切换其他引擎';
+      };
+      searchFrame.onerror = () => {
+        setEmbedLoading(false);
+        showEmbedFallback(true);
+        embedHint.textContent = '本页嵌入失败，请用新窗口打开';
+      };
+      searchFrame.removeAttribute('src');
       searchFrame.src = url;
-      setSearchStatus(`已自动搜索 · ${engine.name} · 也可切换下方其他引擎`, false);
+      embedLoadTimer = setTimeout(() => {
+        setEmbedLoading(false);
+        showEmbedFallback(true);
+        embedHint.textContent = '加载较慢或禁止嵌入，建议新窗口打开';
+      }, EMBED_LOAD_TIMEOUT);
+      setSearchStatus(`已搜索 · ${engine.name} · 可切换上方引擎或下方列表`, false);
+      renderEmbedEngineBar(kw);
     }
 
     function escapeHtml(str) {
@@ -71,6 +167,10 @@
 
     function renderJumpPanel(keyword) {
       const kw = buildSearchKeyword(keyword);
+      if (!kw) {
+        searchResults.innerHTML = '';
+        return;
+      }
       const engines = getEnginesForDisk(activeDisk);
       const defaultId = DISK_DEFAULT_ENGINE[activeDisk] || 'upyunso';
       searchResults.innerHTML = `
@@ -84,7 +184,7 @@
               <article class="result-item">
                 <div>
                   <div class="result-title">${escapeHtml(engine.name)}${engine.id === defaultId ? ' · 默认' : ''}</div>
-                  <div class="result-meta">${escapeHtml(engine.desc)} · 点击「在本页搜索」自动出结果</div>
+                  <div class="result-meta">${escapeHtml(engine.desc)}</div>
                 </div>
                 <div class="result-actions">
                   <button class="result-btn primary" type="button" data-engine-id="${engine.id}">在本页搜索</button>
@@ -98,6 +198,7 @@
 
     function bindEngineActions(kw) {
       document.querySelectorAll('[data-engine-id]').forEach(btn => {
+        if (btn.tagName === 'A') return;
         btn.onclick = () => {
           const engine = SEARCH_ENGINES.find(e => e.id === btn.dataset.engineId);
           if (engine) loadSearchEmbed(engine, kw);
@@ -110,7 +211,7 @@
       const engines = getEnginesForDisk(activeDisk);
       statResultCount.textContent = String(engines.length);
       engineGrid.innerHTML = engines.map(engine => `
-        <button type="button" class="engine-card" data-engine-id="${engine.id}">
+        <button type="button" class="engine-card${engine.id === activeEngineId ? ' active' : ''}" data-engine-id="${engine.id}">
           <strong>${escapeHtml(engine.name)}</strong>
           <span>${escapeHtml(engine.desc)}${kw ? ` · 搜「${escapeHtml(kw)}」` : ' · 输入关键词后搜索'}</span>
         </button>`).join('');
@@ -123,10 +224,17 @@
       searchStatus.classList.toggle('error', !!isError);
     }
 
+    function focusPrimarySearch() {
+      const el = searchModeValue === 'global' ? globalSearchInput : searchInput;
+      el.focus();
+      el.select();
+    }
+
     function searchGlobalPan(keyword, reloadEmbed = true) {
       const raw = (keyword || '').trim();
       if (!raw) {
         setSearchStatus('请输入搜索关键词', true);
+        focusPrimarySearch();
         return;
       }
       lastKeyword = raw;
@@ -140,6 +248,8 @@
       if (reloadEmbed) {
         loadSearchEmbed(getDefaultEngine(), kw);
         searchEmbed.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        renderEmbedEngineBar(kw);
       }
     }
 
@@ -148,7 +258,8 @@
       document.body.classList.toggle('mode-global', mode === 'global');
       document.body.classList.toggle('mode-local', mode === 'local');
       searchMode.querySelectorAll('button').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
-      document.getElementById('globalSearchPanel').style.display = mode === 'global' ? 'block' : 'none';
+      const panel = document.getElementById('globalSearchPanel');
+      if (panel) panel.style.display = mode === 'global' ? 'block' : 'none';
     }
 
     globalSearchBtn.addEventListener('click', () => searchGlobalPan(globalSearchInput.value));
@@ -169,6 +280,30 @@
       if (!btn) return;
       setPageMode(btn.dataset.mode);
       if (btn.dataset.mode === 'local') applyResourceFilter();
+      else if (lastKeyword) searchGlobalPan(lastKeyword, false);
+    });
+
+    embedReload.addEventListener('click', () => {
+      if (!lastKeyword || !embedCurrentUrl) return;
+      const engine = SEARCH_ENGINES.find(e => e.id === activeEngineId) || getDefaultEngine();
+      loadSearchEmbed(engine, buildSearchKeyword(lastKeyword));
+    });
+    embedFallbackRetry.addEventListener('click', () => embedReload.click());
+
+    document.getElementById('focusSearch').addEventListener('click', () => {
+      if (searchModeValue === 'global') setPageMode('global');
+      focusPrimarySearch();
+    });
+
+    document.getElementById('routeGlobalSearch').addEventListener('click', () => {
+      const route = routes[activeRouteKey];
+      const kw = (route && route.keyword) || (route && route.terms && route.terms[0]) || searchInput.value.trim();
+      if (!kw) {
+        alert('请先选择资源雷达场景，或输入搜索词');
+        return;
+      }
+      setPageMode('global');
+      searchGlobalPan(kw);
     });
 
     const tabs = Array.from(document.querySelectorAll('.tab'));
@@ -192,7 +327,7 @@
         title: '影视优先路径',
         desc: '先看电影和剧集，如果想找长期更新内容，再看综艺纪录和热门推荐。',
         category: '影视',
-        keyword: '',
+        keyword: '4K电影',
         terms: ['电影', '剧集', '综艺', '纪录', '热门'],
         tags: ['电影资源', '剧集资源', '综艺纪录', '热门推荐'],
         steps: ['先看剧集/电影是否已有入口', '再按清晰度或更新状态筛选', '找不到就去热门推荐看替代']
@@ -201,7 +336,7 @@
         title: '学习成长路径',
         desc: '先按目标选择考试、编程或语言办公，再用标签区分真题、讲义、项目和模板。',
         category: '学习',
-        keyword: '',
+        keyword: '考研资料',
         terms: ['考试', '编程', '语言', '办公', '电子书', '报告'],
         tags: ['考试资料', '编程技术', '语言与办公', '技术书籍'],
         steps: ['先按学习目标选考试或技能', '用标签区分真题、讲义或项目', '把常用资料生成固定入口']
@@ -210,7 +345,7 @@
         title: '效率工具路径',
         desc: '适合想快速找软件、办公模板、AI 工具和自动化工作流的用户。',
         category: 'all',
-        keyword: '工具',
+        keyword: '办公软件',
         terms: ['工具', '软件', 'PPT', '模板', '工作流'],
         tags: ['Windows 工具', 'Mac 软件', 'PPT 与模板', 'AI 工作流'],
         steps: ['先找当前设备可用工具', '再补办公模板或自动化工作流', '把团队常用工具整理成入口']
@@ -219,7 +354,7 @@
         title: '内容创作路径',
         desc: '从素材模板开始，再补充音效、配乐、AI 工具和提示词。',
         category: 'all',
-        keyword: '素材',
+        keyword: '视频素材',
         terms: ['素材', '图片', '音效', '配乐', 'AI', '提示词'],
         tags: ['图片与图标', '视频音频素材', '音效素材', '提示词合集'],
         steps: ['先找素材类型', '再补音效或提示词', '按项目主题打包生成分享页']
@@ -228,7 +363,7 @@
         title: '移动端可用路径',
         desc: '优先看安卓、iOS 和主题美化，也可以搭配手机端网盘扫码使用。',
         category: '手机',
-        keyword: '',
+        keyword: '安卓应用',
         terms: ['安卓', 'iOS', '主题', '快捷指令'],
         tags: ['安卓软件', 'iOS 资源', '主题美化'],
         steps: ['先确认安卓或 iOS', '再看应用、主题或快捷指令', '移动端资源优先用扫码入口']
@@ -237,7 +372,7 @@
         title: '补档与替代路径',
         desc: '先看最近更新和热门推荐，找不到再走失效反馈或重新生成入口。',
         category: '热门',
-        keyword: '',
+        keyword: '最近更新',
         terms: ['最近更新', '补档', '失效', '热门', '反馈'],
         tags: ['最近更新', '失效反馈', '热门推荐'],
         steps: ['先看最近更新是否已补档', '再找热门推荐里的替代入口', '最后提交失效反馈或重新生成链接']
@@ -378,7 +513,7 @@
       activeRouteKey = routeKey;
       personas.forEach(item => item.classList.toggle('active', item.dataset.route === routeKey));
       recommendedTerms = route.terms;
-      searchInput.value = route.keyword;
+      if (route.keyword) searchInput.value = route.keyword;
       activateCategory(route.category);
       renderRoute(route);
       rememberRecent(routeKey);

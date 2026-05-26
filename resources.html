@@ -15,11 +15,11 @@
 <body class="mode-global">
   <div class="container">
     <nav class="nav">
-      <a class="brand" href="index.html"><span class="brand-icon">📚</span><span>更多资源合集</span></a>
+      <a class="brand" href="/index.html"><span class="brand-icon">📚</span><span>更多资源合集</span></a>
       <div class="nav-links">
-        <a href="speed.html">网盘解除限速</a>
-        <a href="vip.html">免费会员账号</a>
-        <a href="generator.html">生成分享链接</a>
+        <a href="/speed.html">网盘解除限速</a>
+        <a href="/vip.html">免费会员账号</a>
+        <a href="/generator.html">生成分享链接</a>
       </div>
     </nav>
 
@@ -34,7 +34,7 @@
           <button type="button" class="active" data-mode="global">全网搜索</button>
           <button type="button" data-mode="local">站内分类</button>
         </div>
-        <label class="search-box">🔎 <input id="resourceSearch" type="search" placeholder="输入关键词，如 考研资料、4K电影、AI教程"></label>
+        <label class="search-box hero-search-box">🔎 <input id="resourceSearch" type="search" placeholder="输入关键词，如 考研资料、4K电影、AI教程"></label>
         <div class="stats">
           <div class="stat"><strong id="statResultCount">5</strong><span>搜索源</span></div>
           <div class="stat"><strong>10</strong><span>主分类</span></div>
@@ -74,18 +74,39 @@
         <button type="button" data-kw="电子书">电子书</button>
       </div>
       <div class="search-status show" id="searchStatus">输入关键词后回车，本页自动加载搜索结果</div>
+      <div class="external-engines">
+        <div class="external-engines-title">切换搜索引擎（点击即在本页重新搜索）</div>
+        <div class="engine-grid" id="engineGrid"></div>
+      </div>
       <div class="search-embed" id="searchEmbed">
         <div class="search-embed-head">
-          <div><strong id="embedTitle">搜索结果</strong> <span id="embedHint">加载中…</span></div>
-          <a class="embed-open" id="embedOpenNew" href="#" target="_blank" rel="noopener noreferrer">新窗口打开 ↗</a>
+          <div class="search-embed-head-main">
+            <strong id="embedTitle">搜索结果</strong>
+            <span id="embedHint">输入关键词后开始搜索</span>
+          </div>
+          <div class="search-embed-actions">
+            <button type="button" class="embed-action-btn" id="embedReload" title="重新加载">↻ 刷新</button>
+            <a class="embed-open" id="embedOpenNew" href="#" target="_blank" rel="noopener noreferrer">新窗口打开 ↗</a>
+          </div>
+        </div>
+        <div class="embed-engine-bar" id="embedEngineBar" hidden></div>
+        <div class="embed-loading" id="embedLoading" hidden>
+          <div class="embed-loading-spinner"></div>
+          <span>正在加载第三方搜索结果…</span>
+        </div>
+        <div class="embed-fallback" id="embedFallback" hidden>
+          <p>部分搜索引擎禁止在 iframe 内展示，或加载较慢。</p>
+          <div class="embed-fallback-actions">
+            <a class="search-submit embed-fallback-btn" id="embedFallbackOpen" href="#" target="_blank" rel="noopener noreferrer">在新窗口打开搜索结果</a>
+            <button type="button" class="ghost-btn" id="embedFallbackRetry">重试本页加载</button>
+          </div>
         </div>
         <iframe id="searchFrame" title="网盘搜索结果" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
-      <div class="result-groups" id="searchResults"></div>
-      <div class="external-engines">
-        <div class="external-engines-title">选择搜索引擎（点击在本页自动搜索）</div>
-        <div class="engine-grid" id="engineGrid"></div>
-      </div>
+      <details class="engine-more" id="engineMore">
+        <summary>更多搜索入口（列表视图）</summary>
+        <div class="result-groups" id="searchResults"></div>
+      </details>
     </section>
 
     <section class="radar local-only" aria-label="资源雷达">
@@ -117,7 +138,8 @@
           <button class="ghost-btn" type="button" id="saveRoute">收藏当前路线</button>
           <button class="ghost-btn" type="button" id="copyRoutePlan">复制维护清单</button>
           <button class="ghost-btn" type="button" id="clearRadar">清除推荐</button>
-          <button class="ghost-btn" type="button" onclick="document.getElementById('resourceSearch').focus()">手动搜索</button>
+          <button class="ghost-btn" type="button" id="routeGlobalSearch">用推荐词搜全网</button>
+          <button class="ghost-btn" type="button" id="focusSearch">聚焦搜索框</button>
         </div>
       </aside>
     </section>
