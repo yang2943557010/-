@@ -32,8 +32,6 @@
 .modal-close:hover { background:var(--primary); color:#fff; }
 
 @media (max-width: 900px) {
-  .header { flex-wrap:wrap; }
-  .workspace-mode-toggle { order:3; width:100%; margin-left:0; justify-content:center; }
   .guide-head { flex-direction:column; }
   .guide-actions { align-items:flex-start; width:100%; }
   .guide-badges { justify-content:flex-start; }
@@ -41,7 +39,8 @@
   .guide-faq { grid-template-columns:1fr; }
   .help-list { grid-template-columns:1fr; }
   .next-step-card { flex-direction:column; align-items:flex-start; }
-  .next-step-actions { justify-content:flex-start; }
+  .next-step-actions { justify-content:flex-start; width:100%; }
+  .next-step-actions .btn { flex:1 1 auto; }
 }
 
 #previewModal .modal-box { display:flex; flex-direction:column; }
@@ -65,11 +64,104 @@
     grid-template-columns: 1fr !important;
     gap: 12px !important;
   }
-  .form-group.full > div[style*="padding:16px"] .form-group[style*="width:100px"] {
+  .form-group.full > div[style*="padding:16px"] .form-group[style*="width:100px"],
+  .form-group.full > div[style*="padding:16px"] .form-group[style*="width:90px"] {
     width: 100% !important;
   }
   #panel-upload table { font-size: 13px; }
   #panel-upload table td { padding: 8px 12px; }
+  .result-card {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+    gap: 12px;
+    padding: 14px;
+  }
+  .result-card .qr {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+  }
+  .result-card .actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+  .result-card .actions .btn {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    min-height: 40px;
+  }
+  .history-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .history-card .actions,
+  .history-card > div:last-child {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .history-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .history-toolbar .btn {
+    width: 100%;
+    min-height: 40px;
+  }
+  .batch-export-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #copyFormatsList {
+    grid-template-columns: 1fr !important;
+  }
+  #copyFormatsList .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+  #panel-batch textarea {
+    min-height: 140px;
+    font-size: 16px;
+  }
+  .modal {
+    padding: 12px;
+    padding-top: max(12px, env(safe-area-inset-top));
+    align-items: flex-end;
+  }
+  .modal-box {
+    max-height: 92vh;
+    border-radius: 16px 16px 0 0;
+    padding: 18px;
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
+  }
+  #previewModal .modal-box {
+    height: 92vh !important;
+    max-height: 92vh !important;
+    border-radius: 16px 16px 0 0;
+  }
+  #previewModal .preview-header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  #previewModal .preview-device-switch {
+    width: 100%;
+  }
+  #previewModal .preview-device-switch .btn {
+    flex: 1;
+  }
+  #previewModal[data-device="mobile"] .preview-viewport {
+    width: 100%;
+    max-width: 100%;
+  }
+  .poster-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
   .toast {
     left: 16px;
     right: 16px;
@@ -78,23 +170,17 @@
     text-align: center;
   }
   .toast.show { transform: translateY(0); }
-  .empty { padding: 60px 20px; }
-  .empty .icon { font-size: 56px; }
+  .empty { padding: 48px 16px; }
+  .empty .icon { font-size: 48px; }
 }
 
-@media (max-width: 380px) {
-  body { padding: 8px; }
-  .header h1 { font-size: 16px; }
-  .tab { padding: 12px 8px; font-size: 12px; min-width: 50px; }
-  .panel { padding: 14px; }
-  .btn { padding: 12px 16px; font-size: 14px; }
-  .result-card .qr {
-    width: 70px;
-    height: 70px;
-    align-self: center;
-    margin-bottom: 8px;
+@media (max-width: 480px) {
+  .result-card .actions .btn {
+    flex: 1 1 100%;
   }
-  .poster-grid { grid-template-columns: 1fr; }
+  .poster-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (hover: none) and (pointer: coarse) {

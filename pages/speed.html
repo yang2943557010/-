@@ -2,11 +2,11 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>网盘解除限速 - GitHub 开源工具指南</title>
   <meta name="description" content="基于 GitHub 开源项目的网盘直链下载指南，配合 Tampermonkey、Motrix、Aria2 等多线程下载工具。">
-  <link rel="preload" href="generator.css" as="style">
-  <link rel="stylesheet" href="generator.css">
+  <link rel="preload" href="/css/generator.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/css/generator.css"></noscript>
   <style>
     :root {
       --speed-bg: #f5f7fb;
@@ -342,7 +342,13 @@
     }
 
     @media (max-width: 560px) {
-      body { padding: 12px; }
+      body {
+        padding: 12px;
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+        overflow-x: hidden;
+      }
       .nav { align-items: stretch; margin-bottom: 16px; }
       .brand { width: 100%; }
       .nav-links { width: 100%; display: grid; grid-template-columns: 1fr; }
@@ -358,11 +364,11 @@
 <body>
   <div class="speed-wrap">
     <nav class="nav">
-      <a class="brand" href="index.html"><span class="brand-icon">⚡</span><span>网盘解除限速</span></a>
+      <a class="brand" href="/index.html"><span class="brand-icon">⚡</span><span>网盘解除限速</span></a>
       <div class="nav-links">
-        <a href="vip.html">免费会员账号</a>
-        <a href="resources.html">更多资源合集</a>
-        <a href="generator.html">生成分享链接</a>
+        <a href="/pages/vip.html">免费会员账号</a>
+        <a href="/pages/resources.html">更多资源合集</a>
+        <a href="/pages/generator.html">生成分享链接</a>
       </div>
     </nav>
 
@@ -407,7 +413,7 @@
         <div class="step">
           <div class="step-num">4</div>
           <div class="step-title">分享资源给用户</div>
-          <div class="step-desc">需要分发链接时，用本站 <a href="generator.html">链接生成器</a> 制作二维码分享页，降低打开门槛。</div>
+          <div class="step-desc">需要分发链接时，用本站 <a href="/pages/generator.html">链接生成器</a> 制作二维码分享页，降低打开门槛。</div>
         </div>
       </div>
     </section>
@@ -572,6 +578,7 @@
     renderTools();
     renderTips();
   </script>
-  <script src="sw-register.js" defer></script>
+  <script src="/js/site-prefetch.js" defer></script>
+  <script src="/js/sw-register.js" defer></script>
 </body>
 </html>

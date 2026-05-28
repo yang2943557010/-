@@ -1,7 +1,11 @@
 /**
- * 增强功能模块
- * 包含：二维码边框、动态背景、深色模式、短链接、批量导出、分享卡片、快捷键、拖拽排序、模板预设
+ * 增强功能模块（仅链接生成器页使用）
  */
+if (!/\/pages\/generator\.html$/i.test(location.pathname) && !location.pathname.endsWith('/generator.html') && location.pathname !== '/generator') {
+  if (typeof window !== 'undefined') {
+    window.__enhancementsSkipped = true;
+  }
+} else {
 
 // ==================== 1. 二维码边框样式 ====================
 const QRBorderStyles = {
@@ -538,7 +542,7 @@ const BatchExporter = {
   async exportAsPDF(items, options = {}) {
     // 动态加载jsPDF
     if (!window.jspdf) {
-      await this.loadScript('vendor/jspdf.umd.min.js', 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
+      await this.loadScript('/vendor/jspdf.umd.min.js', 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
     }
     
     const { jsPDF } = window.jspdf;
@@ -1154,6 +1158,7 @@ const TemplatePresets = {
 
 // ==================== 初始化所有增强功能 ====================
 function initEnhancements() {
+  if (window.__enhancementsSkipped) return;
   QRBorderStyles.init();
   DarkModeEnhanced.init();
   ShortLinkGenerator.init();
@@ -1186,4 +1191,5 @@ if (typeof window !== 'undefined') {
   window.KeyboardShortcuts = KeyboardShortcuts;
   window.DragSortable = DragSortable;
   window.TemplatePresets = TemplatePresets;
+}
 }

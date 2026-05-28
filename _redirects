@@ -1,7 +1,29 @@
-# Cloudflare Pages 静态站点：请使用带 .html 的地址，避免重定向循环
-# 例如 /generator.html 而不是 /generator
-#
-# 若 /generator 出现 ERR_TOO_MANY_REDIRECTS：
-# 1. 请改用 https://你的域名/generator.html
-# 2. 检查 Cloudflare「页面规则」是否把 *.html 301 到无后缀路径（需关闭）
-# 3. SSL/TLS 设为「完全」或「完全(严格)」，不要用「灵活」
+# Cloudflare Pages 静态站点
+# 旧根路径 → 新目录（保持书签与外链可用）
+/generator.html /pages/generator.html 301
+/resources.html /pages/resources.html 301
+/speed.html /pages/speed.html 301
+/vip.html /pages/vip.html 301
+/tools.html /pages/tools.html 301
+/generator /pages/generator.html 301
+/resources /pages/resources.html 301
+/speed /pages/speed.html 301
+/vip /pages/vip.html 301
+/tools /pages/tools.html 301
+
+/app.js /js/app.js 301
+/generator.js /js/generator.js 301
+/resources.js /js/resources.js 301
+/enhancements.js /js/enhancements.js 301
+/banned-words.js /js/banned-words.js 301
+/banned-words-worker.js /js/banned-words-worker.js 301
+/sw-register.js /js/sw-register.js 301
+
+/perf-optimized.css /css/perf-optimized.css 301
+/styles.css /css/perf-optimized.css 301
+/generator.css /css/generator.css 301
+/generator-deferred.css /css/generator-deferred.css 301
+/resources.css /css/resources.css 301
+
+# 若 /generator 出现 ERR_TOO_MANY_REDIRECTS：检查 CF 页面规则是否去掉 .html
+# SSL 建议「完全」或「完全(严格)」

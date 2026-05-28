@@ -846,3 +846,12 @@
     min-height: 0;
   }
 }
+
+/* 视口外延后绘制，减轻首屏主线程压力 */
+.guide-right:not(:empty),
+.wx-article-panel,
+.top-promo,
+.disclaimer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 320px;
+}

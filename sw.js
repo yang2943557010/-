@@ -1,19 +1,16 @@
-// Cloudflare Pages：HTML 网络优先；静态资源 stale-while-revalidate（配合 _headers 边缘缓存）
-const CACHE_VERSION = 'netdisk-cf-v6';
+// Cloudflare Pages：HTML 网络优先；静态资源 stale-while-revalidate / cache-first
+const CACHE_VERSION = 'netdisk-cf-v9';
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const PRECACHE = [
-  './sw-register.js',
-  './perf-optimized.css',
-  './generator.css',
-  './resources.css',
-  './resources.js',
-  './vendor/qr-code-styling.js',
-  './vendor/qrcode.min.js',
-  './banned-words.js'
+  './js/sw-register.js',
+  './js/site-prefetch.js',
+  './css/perf-optimized.css',
+  './js/app.js',
+  './vendor/qrcode.min.js'
 ];
 
-const SKIP_PATH_PREFIXES = ['/scripts/'];
+const SKIP_PATH_PREFIXES = ['/scripts/', '/extras/'];
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
@@ -47,6 +44,19 @@ function isHtmlRequest(request, url) {
   return request.mode === 'navigate'
     || url.pathname.endsWith('.html')
     || url.pathname.endsWith('/');
+}
+
+function isImmutableAsset(pathname) {
+  return pathname.startsWith('/vendor/') || pathname.startsWith('/assets/');
+}
+
+async function cacheFirst(request) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response.ok) cache.put(request, response.clone());
+  return response;
 }
 
 async function staleWhileRevalidate(request) {
@@ -92,6 +102,11 @@ self.addEventListener('fetch', (event) => {
 
   if (isHtmlRequest(event.request, url)) {
     event.respondWith(networkFirst(event.request));
+    return;
+  }
+
+  if (isImmutableAsset(url.pathname)) {
+    event.respondWith(cacheFirst(event.request));
     return;
   }
 

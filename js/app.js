@@ -230,127 +230,127 @@ const DISK_CONFIG = {
   baidu: {
     name: '百度网盘',
     keywords: ['pan.baidu.com', 'yun.baidu.com'],
-    logo: 'assets/logos/baidu.png',
-    guide: 'assets/images/guides/baidu-guide.png',
+    logo: '/assets/logos/baidu.png',
+    guide: '/assets/images/guides/baidu-guide.png',
     appName: '百度网盘APP',
     color: '#06a7ff'
   },
   quark: {
     name: '夸克网盘',
     keywords: ['pan.quark.cn', 'quark.cn'],
-    logo: 'assets/logos/quark.png',
-    guide: 'assets/images/guides/quark-guide.png',
+    logo: '/assets/logos/quark.png',
+    guide: '/assets/images/guides/quark-guide.png',
     appName: '夸克APP',
     color: '#1890ff'
   },
   aliyun: {
     name: '阿里云盘',
     keywords: ['aliyundrive.com', 'alipan.com'],
-    logo: 'assets/logos/aliyun.ico',
-    guide: 'assets/images/guides/aliyun-guide.svg',
+    logo: '/assets/logos/aliyun.ico',
+    guide: '/assets/images/guides/aliyun-guide.svg',
     appName: '阿里云盘APP',
     color: '#ff6a00'
   },
   xunlei: {
     name: '迅雷云盘',
     keywords: ['pan.xunlei.com', 'xl.xunlei.com'],
-    logo: 'assets/logos/xunlei.ico',
-    guide: 'assets/images/guides/xunlei-guide.svg',
+    logo: '/assets/logos/xunlei.ico',
+    guide: '/assets/images/guides/xunlei-guide.svg',
     appName: '迅雷APP',
     color: '#0078d4'
   },
   '115': {
     name: '115网盘',
     keywords: ['115.com', '115cdn.com'],
-    logo: 'assets/logos/115.ico',
-    guide: 'assets/images/guides/115-guide.svg',
+    logo: '/assets/logos/115.ico',
+    guide: '/assets/images/guides/115-guide.svg',
     appName: '115APP',
     color: '#2b579a'
   },
   lanzou: {
     name: '蓝奏云',
     keywords: ['lanzou', 'lanzoui', 'lanzoux', 'lanzoucloud'],
-    logo: 'assets/logos/lanzou.ico',
-    guide: 'assets/images/guides/lanzou-guide.svg',
+    logo: '/assets/logos/lanzou.ico',
+    guide: '/assets/images/guides/lanzou-guide.svg',
     appName: '手机浏览器',
     color: '#0099ff'
   },
   tianyi: {
     name: '天翼云盘',
     keywords: ['cloud.189.cn', 'e.189.cn', 'b.189.cn'],
-    logo: 'assets/logos/tianyi.ico',
-    guide: 'assets/images/guides/tianyi-guide.svg',
+    logo: '/assets/logos/tianyi.ico',
+    guide: '/assets/images/guides/tianyi-guide.svg',
     appName: '天翼云盘APP',
     color: '#21a9e1'
   },
   weiyun: {
     name: '腾讯微云',
     keywords: ['weiyun.com', 'share.weiyun.com'],
-    logo: 'assets/logos/weiyun.ico',
-    guide: 'assets/images/guides/weiyun-guide.svg',
+    logo: '/assets/logos/weiyun.ico',
+    guide: '/assets/images/guides/weiyun-guide.svg',
     appName: '微云APP',
     color: '#07c160'
   },
   jianguoyun: {
     name: '坚果云',
     keywords: ['jianguoyun.com', 'nutstore.net'],
-    logo: 'assets/logos/jianguoyun.ico',
-    guide: 'assets/images/guides/jianguoyun-guide.svg',
+    logo: '/assets/logos/jianguoyun.ico',
+    guide: '/assets/images/guides/jianguoyun-guide.svg',
     appName: '坚果云APP',
     color: '#f5a623'
   },
   caiyun: {
     name: '中国移动云盘',
     keywords: ['caiyun.139.com', 'yun.139.com', '139.com/w'],
-    logo: 'assets/logos/caiyun.svg',
-    guide: 'assets/images/guides/caiyun-guide.svg',
+    logo: '/assets/logos/caiyun.svg',
+    guide: '/assets/images/guides/caiyun-guide.svg',
     appName: '中国移动云盘APP',
     color: '#00a0e9'
   },
   wocloud: {
     name: '联通云盘',
     keywords: ['pan.wo.cn', 'cloud.wo.cn', 'wo.cn/pan'],
-    logo: 'assets/logos/wocloud.ico',
-    guide: 'assets/images/guides/wocloud-guide.svg',
+    logo: '/assets/logos/wocloud.ico',
+    guide: '/assets/images/guides/wocloud-guide.svg',
     appName: '联通云盘APP',
     color: '#e60012'
   },
   ctyun: {
     name: '天翼企业云盘',
     keywords: ['ctyun.cn', 'oos.ctyun.cn'],
-    logo: 'assets/logos/tianyi.ico',
-    guide: 'assets/images/guides/tianyi-guide.svg',
+    logo: '/assets/logos/tianyi.ico',
+    guide: '/assets/images/guides/tianyi-guide.svg',
     appName: '手机浏览器',
     color: '#0066cc'
   },
   uc: {
     name: 'UC网盘',
     keywords: ['drive.uc.cn', 'uc.cn/pan'],
-    logo: 'assets/logos/uc.ico',
-    guide: 'assets/images/guides/uc-guide.svg',
+    logo: '/assets/logos/uc.ico',
+    guide: '/assets/images/guides/uc-guide.svg',
     appName: 'UC浏览器',
     color: '#ff6600'
   },
   pikpak: {
     name: 'PikPak',
     keywords: ['mypikpak.com', 'pikpak.com'],
-    logo: 'assets/logos/pikpak.ico',
-    guide: 'assets/images/guides/pikpak-guide.svg',
+    logo: '/assets/logos/pikpak.ico',
+    guide: '/assets/images/guides/pikpak-guide.svg',
     appName: 'PikPak APP',
     color: '#7c3aed'
   },
   '123pan': {
     name: '123云盘',
     keywords: ['123pan.com', '123684.com', '123865.com'],
-    logo: 'assets/logos/123pan.svg',
-    guide: 'assets/images/guides/123pan-guide.svg',
+    logo: '/assets/logos/123pan.svg',
+    guide: '/assets/images/guides/123pan-guide.svg',
     appName: '123云盘APP',
     color: '#ff4d4f'
   },
   ctfile: {
     name: '城通网盘',
     keywords: ['ctfile.com', 'u.ctfile.com'],
-    logo: 'assets/logos/ctfile.ico',
+    logo: '/assets/logos/ctfile.ico',
     guide: '',
     appName: '手机浏览器',
     color: '#1677ff'
@@ -375,39 +375,39 @@ const DISK_CONFIG = {
   onedrive: {
     name: 'OneDrive',
     keywords: ['onedrive.live.com', '1drv.ms', 'sharepoint.com'],
-    logo: 'assets/logos/onedrive.png',
-    guide: 'assets/images/guides/onedrive-guide.svg',
+    logo: '/assets/logos/onedrive.png',
+    guide: '/assets/images/guides/onedrive-guide.svg',
     appName: 'OneDrive APP',
     color: '#0078d4'
   },
   googledrive: {
     name: 'Google Drive',
     keywords: ['drive.google.com', 'docs.google.com', 'photos.google.com'],
-    logo: 'assets/logos/googledrive.png',
-    guide: 'assets/images/guides/googledrive-guide.svg',
+    logo: '/assets/logos/googledrive.png',
+    guide: '/assets/images/guides/googledrive-guide.svg',
     appName: 'Google Drive APP',
     color: '#4285f4'
   },
   dropbox: {
     name: 'Dropbox',
     keywords: ['dropbox.com', 'db.tt'],
-    logo: 'assets/logos/dropbox.ico',
-    guide: 'assets/images/guides/dropbox-guide.svg',
+    logo: '/assets/logos/dropbox.ico',
+    guide: '/assets/images/guides/dropbox-guide.svg',
     appName: 'Dropbox APP',
     color: '#0061ff'
   },
   mega: {
     name: 'MEGA',
     keywords: ['mega.nz', 'mega.co.nz'],
-    logo: 'assets/logos/mega.ico',
-    guide: 'assets/images/guides/mega-guide.svg',
+    logo: '/assets/logos/mega.ico',
+    guide: '/assets/images/guides/mega-guide.svg',
     appName: 'MEGA APP',
     color: '#d9272e'
   },
   mediafire: {
     name: 'MediaFire',
     keywords: ['mediafire.com'],
-    logo: 'assets/logos/mediafire.ico',
+    logo: '/assets/logos/mediafire.ico',
     guide: '',
     appName: '手机浏览器',
     color: '#1d6fa4'
@@ -415,7 +415,7 @@ const DISK_CONFIG = {
   box: {
     name: 'Box',
     keywords: ['box.com', 'app.box.com'],
-    logo: 'assets/logos/box.ico',
+    logo: '/assets/logos/box.ico',
     guide: '',
     appName: 'Box APP',
     color: '#0061d5'
@@ -423,7 +423,7 @@ const DISK_CONFIG = {
   icloud: {
     name: 'iCloud',
     keywords: ['icloud.com'],
-    logo: 'assets/logos/icloud.ico',
+    logo: '/assets/logos/icloud.ico',
     guide: '',
     appName: '手机浏览器',
     color: '#3478f6'
@@ -431,7 +431,7 @@ const DISK_CONFIG = {
   pcloud: {
     name: 'pCloud',
     keywords: ['pcloud.com', 'u.pcloud.com'],
-    logo: 'assets/logos/pcloud.svg',
+    logo: '/assets/logos/pcloud.svg',
     guide: '',
     appName: '手机浏览器',
     color: '#20b2aa'
@@ -641,7 +641,7 @@ const QRCodeGenerator = {
         };
         document.head.appendChild(script);
       };
-      attach('vendor/qrcode.min.js', true);
+      attach('/vendor/qrcode.min.js', true);
     });
 
     return this.scriptPromise;
@@ -659,6 +659,7 @@ const QRCodeGenerator = {
   },
 
   render(url, container) {
+    container.removeAttribute('aria-busy');
     try {
       // 使用更高效的二维码配置
       this.qrInstance = new QRCode(container, {
@@ -676,6 +677,7 @@ const QRCodeGenerator = {
   },
 
   renderFallback(url, container) {
+    container.removeAttribute('aria-busy');
     container.innerHTML = `<a href="${url}" style="word-break: break-all; color: #1890ff;">${url}</a>`;
   }
 };
@@ -738,13 +740,17 @@ const PageRenderer = {
       guideRight.style.display = 'none';
     }
 
-    // 加载微信文章（桌面端，仅当有文章ID时）
-    if (params.wxArticleId) {
-      loadWxArticles(params.wxArticleId);
-    }
-    
     const qrContainer = document.getElementById('qrContainer');
     QRCodeGenerator.generate(targetUrl, qrContainer);
+
+    if (params.wxArticleId) {
+      const runWx = () => loadWxArticles(params.wxArticleId);
+      if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(runWx, { timeout: 2500 });
+      } else {
+        setTimeout(runWx, 400);
+      }
+    }
     
     document.getElementById('qrCard').style.display = 'block';
     document.getElementById('errorContainer').style.display = 'none';
@@ -782,6 +788,9 @@ function processInit() {
   const isMobile = previewDevice === 'mobile'
     ? true
     : (previewDevice === 'desktop' ? false : DeviceDetector.isMobile());
+  if (!isMobile) {
+    QRCodeGenerator.loadLibrary();
+  }
   if (isMobile) {
     // 检查是否有广告设置
     if (params.adText) {
@@ -819,8 +828,6 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
   const isInIFrame = window.self !== window.top;
   const shouldManualOpen = isPreviewMode && isInIFrame;
   
-  // 🚀 预加载目标页面 - 在广告显示期间提前加载
-  let preloadFrame = null;
   if (!shouldManualOpen) {
     try {
       const targetOrigin = new URL(targetUrl).origin;
@@ -831,18 +838,15 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
       preloadLink.href = targetOrigin;
       document.head.appendChild(preloadLink);
       
-      // DNS预解析
       const dnsLink = document.createElement('link');
       dnsLink.rel = 'dns-prefetch';
       dnsLink.href = targetOrigin;
       document.head.appendChild(dnsLink);
-      
-      // 预加载页面（使用隐藏iframe）
-      preloadFrame = document.createElement('iframe');
-      preloadFrame.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;';
-      preloadFrame.src = targetUrl;
-      preloadFrame.loading = 'lazy'; // 使用懒加载属性
-      document.body.appendChild(preloadFrame);
+
+      const prefetchLink = document.createElement('link');
+      prefetchLink.rel = 'prefetch';
+      prefetchLink.href = targetUrl;
+      document.head.appendChild(prefetchLink);
     } catch (e) {
       console.warn('预加载失败:', e);
     }
@@ -937,7 +941,6 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
     }
     if (adHint) adHint.textContent = '预览模式下目标站点禁止在弹窗打开，手机端正常自己跳转，电脑端需要点击按钮在新标签页打开';
     window._adTargetUrl = targetUrl;
-    window._preloadFrame = preloadFrame;
     return;
   }
 
@@ -954,7 +957,6 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
   
   // 保存跳转目标供跳过按钮使用
   window._adTargetUrl = targetUrl;
-  window._preloadFrame = preloadFrame;
   
   let remaining = duration;
   const startTime = Date.now();
@@ -1004,11 +1006,6 @@ function doRedirect(targetUrl) {
     }
     window._adTargetUrl = targetUrl;
     return;
-  }
-  
-  // 清理预加载iframe
-  if (window._preloadFrame) {
-    window._preloadFrame.remove();
   }
   
   // 快速淡出（200ms）
@@ -1130,10 +1127,21 @@ function createWxCoverPlaceholder() {
 }
 
 // 加载多篇文章（ids 为逗号分隔的ID字符串）
+function ensureWxPreconnect() {
+  if (document.querySelector('link[data-wx-preconnect]')) return;
+  const link = document.createElement('link');
+  link.rel = 'preconnect';
+  link.href = 'https://wx.251800.xyz';
+  link.crossOrigin = 'anonymous';
+  link.setAttribute('data-wx-preconnect', '');
+  document.head.appendChild(link);
+}
+
 function loadWxArticles(wxIds) {
   const panel = document.getElementById('wxArticlePanel');
   if (!panel || !wxIds) return;
 
+  ensureWxPreconnect();
   const ids = wxIds.split(',').map(s => s.trim()).filter(Boolean).slice(0, 3);
   if (!ids.length) return;
 

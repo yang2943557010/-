@@ -172,4 +172,30 @@
     .engine-more .result-groups { margin-top:12px; }
 
     @media (max-width:900px) { body { padding:16px; } .hero, .grid, .guide, .radar, .persona-grid, .workspace, .maintenance-list, .engine-grid { grid-template-columns:1fr; } .workspace-card.wide { grid-column:auto; } .hero { padding:24px 20px; } .search-box { width:100%; } h1 { font-size:28px; } .nav { align-items:flex-start; flex-direction:column; } .section-head { align-items:flex-start; flex-direction:column; } .result-item { grid-template-columns:1fr; align-items:start; } .result-actions { justify-content:flex-start; } .search-embed iframe { min-height:60vh; } }
-    @media (max-width:560px) { body { padding:12px; } .nav { align-items:stretch; margin-bottom:16px; } .brand, .nav-links { width:100%; } .nav-links { display:grid; grid-template-columns:1fr; } .nav-links a { text-align:center; } .hero, .global-panel, .radar-main, .radar-result, .panel { padding:20px; } .stats { grid-template-columns:1fr; } .global-form .search-submit, .result-actions .result-btn, .meta .btn { width:100%; } .tabs, .disk-tabs { overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none; } .tabs::-webkit-scrollbar, .disk-tabs::-webkit-scrollbar { display:none; } .tab, .disk-tab { flex:0 0 auto; } .meta { align-items:flex-start; flex-direction:column; } }
+    @media (max-width:560px) {
+      body {
+        padding:12px;
+        padding-left:max(12px, env(safe-area-inset-left));
+        padding-right:max(12px, env(safe-area-inset-right));
+        padding-bottom:max(12px, env(safe-area-inset-bottom));
+        overflow-x:hidden;
+      }
+      .nav { align-items:stretch; margin-bottom:16px; }
+      .brand, .nav-links { width:100%; }
+      .nav-links { display:grid; grid-template-columns:1fr; }
+      .nav-links a { text-align:center; min-height:44px; align-items:center; display:flex; justify-content:center; }
+      .hero, .global-panel, .radar-main, .radar-result, .panel { padding:20px; }
+      .stats { grid-template-columns:1fr; }
+      .global-form { flex-direction:column; align-items:stretch; }
+      .global-form .search-submit, .result-actions .result-btn, .meta .btn, .quick-actions .ghost-btn { width:100%; min-height:44px; }
+      .search-box input, .global-input-wrap input, #resourceSearch, #globalSearchInput { font-size:16px; }
+      .global-input-wrap { min-height:48px; }
+      .tabs, .disk-tabs { overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+      .tabs::-webkit-scrollbar, .disk-tabs::-webkit-scrollbar { display:none; }
+      .tab, .disk-tab { flex:0 0 auto; min-height:40px; }
+      .meta { align-items:flex-start; flex-direction:column; }
+      .path-dock { flex-direction:column; align-items:flex-start; }
+    }
+
+    /* 长列表区域：视口外跳过绘制（勿对 .local-only 用 hidden，否则切换「站内分类」后不显示） */
+    .radar, .grid, .panel, .engine-grid, .search-embed { content-visibility: auto; contain-intrinsic-size: auto 360px; }

@@ -5,19 +5,21 @@
 ## 项目结构
 
 ```
-├── index.html              # 扫码落地页
-├── generator.html          # 链接生成器
-├── resources.html          # 资源搜索中转
-├── speed.html              # 解除限速指南
-├── vip.html / tools.html   # 福利与工具页
-├── app.js / generator.js / enhancements.js
-├── resources.js / resources.css
-├── banned-words.js / banned-words-worker.js
-├── styles.css / generator.css / generator-deferred.css / perf-optimized.css
-├── assets/ / vendor/         # 图片与第三方库（懒加载）
-├── sw.js / sw-register.js    # Service Worker
-├── _headers / _redirects     # Cloudflare Pages 缓存与路由
-└── scripts/                  # 本地 Git 推送脚本（不部署到线上）
+├── index.html              # 扫码落地页（根目录入口）
+├── pages/                  # 子页面 HTML
+│   ├── generator.html      # 链接生成器
+│   ├── resources.html      # 资源搜索中转
+│   ├── speed.html          # 解除限速指南
+│   ├── vip.html            # 会员福利
+│   └── tools.html          # 实用工具
+├── css/                    # 样式表
+├── js/                     # 脚本（app、generator、site-prefetch、vip 等）
+├── assets/                 # 图片与图标
+├── vendor/                 # 第三方库（懒加载）
+├── sw.js                   # Service Worker（须保留在根目录）
+├── _headers / _redirects   # Cloudflare Pages 缓存、预加载与旧路径重定向
+├── scripts/                # 本地 Git 推送脚本（不部署）
+└── extras/                 # 小程序等待部署附属项目（SW 不缓存）
 ```
 
 ## 本地预览
@@ -48,11 +50,22 @@ npx serve .
 | 路径 | 页面 |
 |------|------|
 | `/` | 扫码落地 |
-| `/generator` | 链接生成器 |
-| `/resources` | 资源搜索 |
-| `/speed` | 解除限速 |
-| `/vip` | 会员福利 |
-| `/tools` | 实用工具 |
+| `/pages/generator.html` | 链接生成器 |
+| `/pages/resources.html` | 资源搜索 |
+| `/pages/speed.html` | 解除限速 |
+| `/pages/vip.html` | 会员福利 |
+| `/pages/tools.html` | 实用工具 |
+
+旧路径（如 `/generator.html`、`/generator`、`/app.js`）会通过 `_redirects` 自动 301 到新位置。
+
+## 性能与缓存（近期）
+
+- 首页不再加载 `enhancements.js`（仅生成器需要）
+- Service Worker 预缓存仅保留首页关键资源；`/vendor/`、`/assets/` 使用 cache-first（`CACHE_VERSION` 见 `sw.js`）
+- 全站 `site-prefetch.js`：空闲时预取常用子页，悬停链接时预取 HTML
+- 首页优先生成二维码，微信文章 idle 后再加载
+- 子页 CSS 异步加载；生成器增强脚本 idle 后加载
+- Cloudflare Dashboard 建议开启 **Auto Minify**、**Brotli**
 
 ## 推送到 GitHub
 
@@ -67,7 +80,7 @@ $env:Path = "C:\Program Files\GitHub CLI;$env:Path"
 ## 技术说明
 
 - 纯静态前端，无后端；网盘搜索为 iframe 跳转第三方
-- 微信文章代理使用 `app.js` 中的 `WX_PROXY_URL`（外部服务）
+- 微信文章代理使用 `js/app.js` 中的 `WX_PROXY_URL`（外部服务）
 - 分享人主页支持 [VLink](https://vlink.cc/)
 
 ## 许可证

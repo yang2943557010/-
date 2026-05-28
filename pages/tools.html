@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>实用工具 - 链接生成器</title>
   <style>
     :root { --bg:#f8fafc; --card:#fff; --text:#1e293b; --text2:#475569; --text3:#94a3b8; --border:#e2e8f0; --primary:#6366f1; --primary-light:#818cf8; }
@@ -61,21 +61,39 @@
     .disclaimer { margin-top:40px; padding:16px 20px; background:var(--bg); border:1px solid var(--border); border-radius:12px; font-size:11px; color:var(--text3); line-height:1.8; }
     .disclaimer strong { color:var(--text2); }
     
+    .top-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+    .top-bar .back-link { margin-bottom:0; }
     @media (max-width: 768px) {
-      body { padding:16px; }
+      body {
+        padding:16px;
+        padding-left:max(16px, env(safe-area-inset-left));
+        padding-right:max(16px, env(safe-area-inset-right));
+        padding-bottom:max(16px, env(safe-area-inset-bottom));
+        overflow-x:hidden;
+      }
       .tools-grid { grid-template-columns:1fr; }
       .page-title { font-size:20px; }
       .tool-card { padding:20px; }
+      .tool-actions { flex-direction:column; }
+      .tool-actions .btn { width:100%; min-height:44px; }
+      .top-bar { flex-direction:column; align-items:stretch; }
+      .top-bar .header-actions { justify-content:flex-end; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <a href="generator.html" class="back-link">
-      <span>←</span>
-      <span>返回链接生成器</span>
-    </a>
-    
+    <div class="top-bar">
+      <a href="/pages/generator.html" class="back-link">
+        <span>←</span>
+        <span>返回链接生成器</span>
+      </a>
+      <div class="header-actions" style="display:flex;gap:8px;">
+        <a href="/index.html" class="icon-btn" title="首页">🏠</a>
+        <a href="/pages/resources.html" class="icon-btn" title="资源合集">📚</a>
+      </div>
+    </div>
+
     <h1 class="page-title">
       <span>🧰</span>
       实用工具箱
@@ -438,6 +456,7 @@
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
   </script>
-  <script src="sw-register.js" defer></script>
+  <script src="/js/site-prefetch.js" defer></script>
+  <script src="/js/sw-register.js" defer></script>
 </body>
 </html>

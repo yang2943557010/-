@@ -4,31 +4,31 @@ const BASE_URL = window.location.origin + '/index.html';
 
 const DISK_CONFIG = {
   // ===== 国内主流网盘 =====
-  baidu: { name: '百度网盘', keywords: ['pan.baidu.com', 'yun.baidu.com'], logo: 'assets/logos/baidu.png', color: '#06a7ff' },
-  quark: { name: '夸克网盘', keywords: ['pan.quark.cn', 'quark.cn'], logo: 'assets/logos/quark.png', color: '#1890ff' },
-  aliyun: { name: '阿里云盘', keywords: ['aliyundrive.com', 'alipan.com'], logo: 'assets/logos/aliyun.ico', color: '#ff6a00' },
-  xunlei: { name: '迅雷云盘', keywords: ['pan.xunlei.com', 'xl.xunlei.com'], logo: 'assets/logos/xunlei.ico', color: '#0078d4' },
-  '115': { name: '115网盘', keywords: ['115.com', '115cdn.com'], logo: 'assets/logos/115.ico', color: '#2b579a' },
-  lanzou: { name: '蓝奏云', keywords: ['lanzou', 'lanzoui', 'lanzoux', 'lanzouv', 'lanzouy', 'lanzoucloud'], logo: 'assets/logos/lanzou.ico', color: '#0099ff' },
-  tianyi: { name: '天翼云盘', keywords: ['cloud.189.cn', 'e.189.cn', 'b.189.cn'], logo: 'assets/logos/tianyi.ico', color: '#21a9e1' },
-  weiyun: { name: '腾讯微云', keywords: ['weiyun.com', 'share.weiyun.com'], logo: 'assets/logos/weiyun.ico', color: '#07c160' },
-  jianguoyun: { name: '坚果云', keywords: ['jianguoyun.com', 'nutstore.net'], logo: 'assets/logos/jianguoyun.ico', color: '#f5a623' },
-  caiyun: { name: '中国移动云盘', keywords: ['caiyun.139.com', 'yun.139.com', '139.com/w'], logo: 'assets/logos/caiyun.svg', color: '#00a0e9' },
-  wocloud: { name: '联通云盘', keywords: ['pan.wo.cn', 'cloud.wo.cn', 'wo.cn/pan'], logo: 'assets/logos/wocloud.ico', color: '#e60012' },
-  uc: { name: 'UC网盘', keywords: ['drive.uc.cn', 'uc.cn/pan'], logo: 'assets/logos/uc.ico', color: '#ff6600' },
-  pikpak: { name: 'PikPak', keywords: ['mypikpak.com', 'pikpak.com'], logo: 'assets/logos/pikpak.ico', color: '#7c3aed' },
-  '123pan': { name: '123云盘', keywords: ['123pan.com', '123684.com', '123865.com'], logo: 'assets/logos/123pan.svg', color: '#ff4d4f' },
-  ctfile: { name: '城通网盘', keywords: ['ctfile.com', 'u.ctfile.com'], logo: 'assets/logos/ctfile.ico', color: '#1677ff' },
+  baidu: { name: '百度网盘', keywords: ['pan.baidu.com', 'yun.baidu.com'], logo: '/assets/logos/baidu.png', color: '#06a7ff' },
+  quark: { name: '夸克网盘', keywords: ['pan.quark.cn', 'quark.cn'], logo: '/assets/logos/quark.png', color: '#1890ff' },
+  aliyun: { name: '阿里云盘', keywords: ['aliyundrive.com', 'alipan.com'], logo: '/assets/logos/aliyun.ico', color: '#ff6a00' },
+  xunlei: { name: '迅雷云盘', keywords: ['pan.xunlei.com', 'xl.xunlei.com'], logo: '/assets/logos/xunlei.ico', color: '#0078d4' },
+  '115': { name: '115网盘', keywords: ['115.com', '115cdn.com'], logo: '/assets/logos/115.ico', color: '#2b579a' },
+  lanzou: { name: '蓝奏云', keywords: ['lanzou', 'lanzoui', 'lanzoux', 'lanzouv', 'lanzouy', 'lanzoucloud'], logo: '/assets/logos/lanzou.ico', color: '#0099ff' },
+  tianyi: { name: '天翼云盘', keywords: ['cloud.189.cn', 'e.189.cn', 'b.189.cn'], logo: '/assets/logos/tianyi.ico', color: '#21a9e1' },
+  weiyun: { name: '腾讯微云', keywords: ['weiyun.com', 'share.weiyun.com'], logo: '/assets/logos/weiyun.ico', color: '#07c160' },
+  jianguoyun: { name: '坚果云', keywords: ['jianguoyun.com', 'nutstore.net'], logo: '/assets/logos/jianguoyun.ico', color: '#f5a623' },
+  caiyun: { name: '中国移动云盘', keywords: ['caiyun.139.com', 'yun.139.com', '139.com/w'], logo: '/assets/logos/caiyun.svg', color: '#00a0e9' },
+  wocloud: { name: '联通云盘', keywords: ['pan.wo.cn', 'cloud.wo.cn', 'wo.cn/pan'], logo: '/assets/logos/wocloud.ico', color: '#e60012' },
+  uc: { name: 'UC网盘', keywords: ['drive.uc.cn', 'uc.cn/pan'], logo: '/assets/logos/uc.ico', color: '#ff6600' },
+  pikpak: { name: 'PikPak', keywords: ['mypikpak.com', 'pikpak.com'], logo: '/assets/logos/pikpak.ico', color: '#7c3aed' },
+  '123pan': { name: '123云盘', keywords: ['123pan.com', '123684.com', '123865.com'], logo: '/assets/logos/123pan.svg', color: '#ff4d4f' },
+  ctfile: { name: '城通网盘', keywords: ['ctfile.com', 'u.ctfile.com'], logo: '/assets/logos/ctfile.ico', color: '#1677ff' },
   feijipan: { name: '飞机盘', keywords: ['feijipan.com'], logo: '', color: '#1890ff' },
   // ===== 国际主流网盘 =====
-  onedrive: { name: 'OneDrive', keywords: ['onedrive.live.com', '1drv.ms', 'sharepoint.com'], logo: 'assets/logos/onedrive.png', color: '#0078d4' },
-  googledrive: { name: 'Google Drive', keywords: ['drive.google.com', 'docs.google.com', 'photos.google.com'], logo: 'assets/logos/googledrive.png', color: '#4285f4' },
-  dropbox: { name: 'Dropbox', keywords: ['dropbox.com', 'db.tt'], logo: 'assets/logos/dropbox.ico', color: '#0061ff' },
-  mega: { name: 'MEGA', keywords: ['mega.nz', 'mega.co.nz'], logo: 'assets/logos/mega.ico', color: '#d9272e' },
-  mediafire: { name: 'MediaFire', keywords: ['mediafire.com'], logo: 'assets/logos/mediafire.ico', color: '#1d6fa4' },
-  box: { name: 'Box', keywords: ['box.com', 'app.box.com'], logo: 'assets/logos/box.ico', color: '#0061d5' },
-  icloud: { name: 'iCloud', keywords: ['icloud.com'], logo: 'assets/logos/icloud.ico', color: '#3478f6' },
-  pcloud: { name: 'pCloud', keywords: ['pcloud.com', 'u.pcloud.com'], logo: 'assets/logos/pcloud.svg', color: '#20b2aa' },
+  onedrive: { name: 'OneDrive', keywords: ['onedrive.live.com', '1drv.ms', 'sharepoint.com'], logo: '/assets/logos/onedrive.png', color: '#0078d4' },
+  googledrive: { name: 'Google Drive', keywords: ['drive.google.com', 'docs.google.com', 'photos.google.com'], logo: '/assets/logos/googledrive.png', color: '#4285f4' },
+  dropbox: { name: 'Dropbox', keywords: ['dropbox.com', 'db.tt'], logo: '/assets/logos/dropbox.ico', color: '#0061ff' },
+  mega: { name: 'MEGA', keywords: ['mega.nz', 'mega.co.nz'], logo: '/assets/logos/mega.ico', color: '#d9272e' },
+  mediafire: { name: 'MediaFire', keywords: ['mediafire.com'], logo: '/assets/logos/mediafire.ico', color: '#1d6fa4' },
+  box: { name: 'Box', keywords: ['box.com', 'app.box.com'], logo: '/assets/logos/box.ico', color: '#0061d5' },
+  icloud: { name: 'iCloud', keywords: ['icloud.com'], logo: '/assets/logos/icloud.ico', color: '#3478f6' },
+  pcloud: { name: 'pCloud', keywords: ['pcloud.com', 'u.pcloud.com'], logo: '/assets/logos/pcloud.svg', color: '#20b2aa' },
   default: { name: '资源分享', keywords: [], logo: '', color: '#6366f1' }
 };
 
@@ -523,7 +523,7 @@ function loadBannedWordsBase() {
   if (window.BASE_BANNED_WORDS) return Promise.resolve();
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = 'banned-words.js';
+    script.src = '/js/banned-words.js';
     script.defer = true;
     script.onload = () => {
       BASE_BANNED_WORDS = window.BASE_BANNED_WORDS || [];
@@ -671,7 +671,7 @@ function initBannedWordsWorker() {
   }
   resetBannedWordsWorker();
   try {
-    bannedWordsWorker = new Worker('banned-words-worker.js');
+    bannedWordsWorker = new Worker('/js/banned-words-worker.js');
     bannedWordsWorker.onmessage = (event) => {
       const msg = event.data || {};
       if (msg.type === 'ready') {
@@ -1330,7 +1330,7 @@ function generateBatch() {
       batchResultContainer.insertBefore(nextStepElement, batchRenderContainer);
 
       const exportBarElement = document.createElement('div');
-      exportBarElement.style.cssText = 'display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0;padding:12px;background:var(--bg);border-radius:10px;';
+      exportBarElement.className = 'toolbar-row batch-export-bar';
       exportBarElement.innerHTML = `
         <button class="btn btn-success btn-sm" onclick="exportBatchResultsCSV()">📤 导出CSV</button>
         <button class="btn btn-secondary btn-sm" onclick="copyAllBatchLinks()">📋 复制全部链接</button>
@@ -1615,7 +1615,7 @@ async function handleFileUpload(e) {
 
       // 导出按钮
       window._uploadResults = results;
-      let html = `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+      let html = `<div class="toolbar-row">
         <button class="btn btn-success btn-sm" onclick="exportUploadResultsCSV()">📤 导出CSV</button>
         <button class="btn btn-secondary btn-sm" onclick="copyAllUploadLinks()">📋 复制全部链接</button>
       </div>`;
@@ -3043,15 +3043,15 @@ async function ensureLib(name) {
   if (window._lazyLibs[name]) return;
   const libs = {
     html2canvas: {
-      local: 'vendor/html2canvas.min.js',
+      local: '/vendor/html2canvas.min.js',
       cdn: 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'
     },
     jszip: {
-      local: 'vendor/jszip.min.js',
+      local: '/vendor/jszip.min.js',
       cdn: 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js'
     },
     xlsx: {
-      local: 'vendor/xlsx.full.min.js',
+      local: '/vendor/xlsx.full.min.js',
       cdn: 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
     }
   };

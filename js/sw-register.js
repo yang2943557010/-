@@ -7,7 +7,7 @@
   if (isLocal) return;
 
   function registerSW() {
-    navigator.serviceWorker.register('./sw.js', { scope: './' })
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
       .then(function (reg) {
         reg.addEventListener('updatefound', function () {
           var worker = reg.installing;

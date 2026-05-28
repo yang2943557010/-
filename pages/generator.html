@@ -2,15 +2,15 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>链接生成器</title>
   <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preload" href="generator.css" as="style">
-  <link rel="preload" href="vendor/qr-code-styling.js" as="script">
-  <link rel="stylesheet" href="generator.css">
-  <link rel="preload" href="generator-deferred.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="generator-deferred.css"></noscript>
+  <link rel="preload" href="/css/generator.css" as="style">
+  <link rel="preload" href="/vendor/qr-code-styling.js" as="script">
+  <link rel="stylesheet" href="/css/generator.css">
+  <link rel="preload" href="/css/generator-deferred.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/css/generator-deferred.css"></noscript>
   <script>
     try {
       if (localStorage.getItem('hideGuidePanel') === 'true') {
@@ -24,8 +24,8 @@
       }
     });
   </script>
-  <script src="vendor/qr-code-styling.js" defer onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js'"></script>
-  <link rel="preload" href="generator.js" as="script">
+  <script src="/vendor/qr-code-styling.js" defer onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js'"></script>
+  <link rel="preload" href="/js/generator.js" as="script">
   <style>
     :root { --bg:#f8fafc; --card:#fff; --text:#1e293b; --text2:#475569; --text3:#94a3b8; --border:#e2e8f0; --primary:#6366f1; --primary-light:#818cf8; }
     [data-theme="dark"] { --bg:#0f172a; --card:#1e293b; --text:#f1f5f9; --text2:#cbd5e1; --text3:#64748b; --border:#334155; --primary:#818cf8; --primary-light:#a5b4fc; }
@@ -39,7 +39,7 @@
     .toast { position:fixed; opacity:0; pointer-events:none; z-index:10001; }
 </style>
 </head>
-<body>
+<body class="generator-page">
   <div class="toast" id="toast"></div>
   
   <!-- 页面三栏布局 -->
@@ -68,7 +68,7 @@
         <div class="ad-desc">首单免费在线打印<br>满1.9元包邮</div>
         <span class="ad-highlight">🔥 首单免费</span>
         <div class="ad-qr zoomable-qr" id="printAdQr" ondblclick="zoomQR(this, '打印拉新')">
-          <img src="assets/images/qrcodes/print-qr.png" alt="刺猬云印小程序码" width="100" height="100" style="width:100px;height:100px;display:block;" loading="lazy" fetchpriority="low" decoding="async">
+          <img src="/assets/images/qrcodes/print-qr.png" alt="刺猬云印小程序码" width="100" height="100" style="width:100px;height:100px;display:block;" loading="lazy" fetchpriority="low" decoding="async">
         </div>
        <div class="ad-tip">双击放大 · 扫码打印资源</div>
         <div class="ad-features">
@@ -86,21 +86,25 @@
     <!-- 主内容区 -->
     <main class="main-content">
       <div class="container">
-        <div class="header">
-      <h1><span style="font-size:24px;">🔗</span> 链接生成器</h1>
+        <header class="header">
+      <div class="header-top">
+        <h1><span class="header-emoji" aria-hidden="true">🔗</span> 链接生成器</h1>
+        <div class="header-actions">
+        <a href="/index.html" class="icon-btn" title="扫码落地页" style="text-decoration:none;">🏠</a>
+        <a href="/pages/resources.html" class="icon-btn" title="资源合集" style="text-decoration:none;">📚</a>
+        <a href="/pages/tools.html" class="icon-btn" title="实用工具" style="text-decoration:none;">🧰</a>
+        <button class="icon-btn" onclick="toggleTheme()" title="切换主题">🌓</button>
+        <button class="icon-btn" onclick="showShortcuts()" title="快捷键">⌨️</button>
+        </div>
+      </div>
       <button class="guide-toggle guide-restore" id="guideRestore" type="button" onclick="toggleGuidePanel(false)">💡 显示新手说明</button>
       <div class="workspace-mode-toggle" aria-label="界面显示模式">
         <button class="workspace-mode-btn active" id="fullModeBtn" type="button" onclick="setWorkspaceMode('full')" aria-pressed="true">完整版</button>
         <button class="workspace-mode-btn" id="simpleModeBtn" type="button" onclick="setWorkspaceMode('simple')" aria-pressed="false">极简版</button>
       </div>
-      <div class="header-actions">
-        <a href="tools.html" class="icon-btn" title="实用工具" style="text-decoration:none;">🧰</a>
-        <button class="icon-btn" onclick="toggleTheme()" title="切换主题">🌓</button>
-        <button class="icon-btn" onclick="showShortcuts()" title="快捷键">⌨️</button>
-      </div>
-    </div>
+    </header>
     
-    <div class="tabs">
+    <div class="tabs" role="tablist" aria-label="功能切换">
       <div class="tab active" onclick="switchTab('single')">单个生成</div>
       <div class="tab" onclick="switchTab('batch')">批量生成</div>
       <div class="tab" onclick="switchTab('upload')">表格导入</div>
@@ -275,7 +279,7 @@
             </label>
           </div>
           <div id="adSettings" style="display:none;">
-            <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;">
+            <div class="marketing-ad-grid">
               <div class="form-group" style="margin:0;">
                 <label>广告文字（最多30字，支持换行）</label>
                 <textarea id="adText" maxlength="30" rows="3" placeholder="正在为您跳转...&#10;请稍候" style="resize:vertical;min-height:60px;font-size:13px;line-height:1.5;">正在为您跳转...</textarea>
@@ -347,7 +351,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
               <label class="switch"><input type="checkbox" id="batchAdEnabled"><span class="slider"></span></label>
             </div>
             <div id="batchAdSettings" style="display:none;">
-              <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;">
+              <div class="marketing-ad-grid">
                 <div class="form-group" style="margin:0;"><label>广告文字（最多30字，支持换行）</label><textarea id="batchAdText" maxlength="30" rows="2" placeholder="正在为您跳转..." style="resize:vertical;min-height:50px;font-size:13px;">正在为您跳转...</textarea></div>
                 <div class="form-group" style="margin:0;width:90px;"><label>显示时长</label><select id="batchAdDuration"><option value="1">1秒</option><option value="2">2秒</option><option value="3">3秒</option><option value="4">4秒</option><option value="5">5秒</option></select></div>
               </div>
@@ -422,7 +426,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
               <label class="switch"><input type="checkbox" id="uploadAdEnabled"><span class="slider"></span></label>
             </div>
             <div id="uploadAdSettings" style="display:none;">
-              <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;">
+              <div class="marketing-ad-grid">
                 <div class="form-group" style="margin:0;"><label>广告文字（最多30字，支持换行）</label><textarea id="uploadAdText" maxlength="30" rows="2" placeholder="正在为您跳转..." style="resize:vertical;min-height:50px;font-size:13px;">正在为您跳转...</textarea></div>
                 <div class="form-group" style="margin:0;width:90px;"><label>显示时长</label><select id="uploadAdDuration"><option value="1">1秒</option><option value="2">2秒</option><option value="3">3秒</option><option value="4">4秒</option><option value="5">5秒</option></select></div>
               </div>
@@ -456,10 +460,10 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
 
     <!-- 历史记录 -->
     <div class="panel" id="panel-history">
-      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-        <input type="text" id="searchInput" placeholder="🔍 搜索..." style="flex:1;min-width:160px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--card);color:var(--text);" oninput="filterHistory()">
-        <select id="filterGroup" style="padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--card);color:var(--text);" onchange="filterHistory()"><option value="">全部分组</option></select>
-        <select id="filterDisk" style="padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--card);color:var(--text);" onchange="filterHistory()"><option value="">全部网盘</option></select>
+      <div class="toolbar-row history-toolbar" style="margin-bottom:16px;">
+        <input type="text" id="searchInput" placeholder="🔍 搜索..." oninput="filterHistory()">
+        <select id="filterGroup" onchange="filterHistory()"><option value="">全部分组</option></select>
+        <select id="filterDisk" onchange="filterHistory()"><option value="">全部网盘</option></select>
         <button class="btn btn-secondary btn-sm" onclick="exportHistory()">导出</button>
         <button class="btn btn-secondary btn-sm" onclick="document.getElementById('importFile').click()">导入</button>
         <input type="file" id="importFile" accept=".json" style="display:none" onchange="importHistory(event)">
@@ -550,7 +554,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         <!-- 预设样式 -->
         <div style="margin-top:16px;">
           <label style="font-size:12px;font-weight:500;color:var(--text2);display:block;margin-bottom:8px;">快速预设</label>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <div class="qr-preset-row">
             <button class="btn btn-secondary btn-sm" onclick="applyQRPreset('classic')">经典黑白</button>
             <button class="btn btn-secondary btn-sm" onclick="applyQRPreset('blue')">科技蓝</button>
             <button class="btn btn-secondary btn-sm" onclick="applyQRPreset('purple')">梦幻紫</button>
@@ -590,8 +594,8 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       
       <div style="padding-top:20px;margin-top:20px;border-top:1px solid var(--border);">
         <h3 style="font-size:14px;font-weight:600;margin-bottom:16px;">🏷️ 自定义分组</h3>
-        <div style="display:flex;gap:10px;">
-          <input type="text" id="newGroup" placeholder="输入分组名称" style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--card);color:var(--text);">
+        <div class="settings-group-row">
+          <input type="text" id="newGroup" placeholder="输入分组名称">
           <button class="btn btn-primary btn-sm" onclick="addGroup()">添加</button>
         </div>
         <div id="groupList" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;"></div>
@@ -618,7 +622,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     
     <!-- 模板预设 -->
     <div class="panel" id="panel-presets">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div class="presets-header">
         <h3 style="font-size:14px;font-weight:600;">📋 我的预设</h3>
         <button class="btn btn-primary btn-sm" onclick="saveCurrentAsPreset()">💾 保存当前配置</button>
       </div>
@@ -650,7 +654,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         <div class="ad-title" style="font-size:14px;">微信号</div>
         <div style="background:var(--bg);padding:8px 12px;border-radius:8px;margin:8px 0;font-size:13px;font-weight:600;color:var(--primary);user-select:all;cursor:pointer;" onclick="copyWechatId()">cxks25180</div>
         <div class="ad-qr zoomable-qr" id="wechatQr" ondblclick="zoomQR(this, '微信二维码')">
-          <img src="assets/images/qrcodes/wechat-qr.png" alt="微信二维码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
+          <img src="/assets/images/qrcodes/wechat-qr.png" alt="微信二维码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
         </div>
         <div class="ad-tip">双击放大 · 扫码添加好友</div>
       </div>
@@ -661,7 +665,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         <div class="ad-title" style="font-size:14px;">感谢支持</div>
         <div class="ad-desc" style="font-size:11px;">如果觉得有用<br>请作者喝杯咖啡☕</div>
         <div class="ad-qr zoomable-qr" id="donateQr" ondblclick="zoomQR(this, '打赏二维码')">
-          <img src="assets/images/qrcodes/donate-qr.png" alt="打赏二维码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
+          <img src="/assets/images/qrcodes/donate-qr.png" alt="打赏二维码" style="width:100px;height:100px;display:block;" loading="lazy" decoding="async">
         </div>
         <div class="ad-tip">扫码打赏</div>
       </div>
@@ -677,7 +681,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       </div>
       <div id="modalQr" style="display:flex;justify-content:center;padding:20px;background:var(--bg);border-radius:12px;margin:16px 0;"></div>
       <div id="modalRemark" style="display:none;padding:12px;background:var(--bg);border-radius:8px;margin-bottom:16px;font-size:12px;color:var(--text2);"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="modal-actions-grid">
         <button class="btn btn-primary" onclick="downloadQR()">💾 下载二维码</button>
         <button class="btn btn-success" onclick="showPosterModal()">🖼️ 生成海报</button>
         <button class="btn btn-secondary" onclick="copyCurrentLink()">📋 复制链接</button>
@@ -768,8 +772,25 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
       本工具生成的链接仅供个人学习交流使用，严禁用于任何商业用途或传播违法违规内容。
     </div>
     
-  <script src="generator.js" defer></script>
-  <script src="enhancements.js" defer></script>
-  <script src="sw-register.js" defer></script>
+  <script src="/js/generator.js" defer></script>
+  <script>
+    (function () {
+      function loadEnhancements() {
+        if (window.__enhancementsLoading) return;
+        window.__enhancementsLoading = true;
+        var s = document.createElement('script');
+        s.src = '/js/enhancements.js';
+        s.defer = true;
+        document.body.appendChild(s);
+      }
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadEnhancements, { timeout: 2500 });
+      } else {
+        window.addEventListener('load', function () { setTimeout(loadEnhancements, 400); }, { once: true });
+      }
+    })();
+  </script>
+  <script src="/js/site-prefetch.js" defer></script>
+  <script src="/js/sw-register.js" defer></script>
 </body>
 </html>

@@ -2,15 +2,14 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>资源分享</title>
   <meta name="description" content="网盘资源分享二维码页面">
   <meta name="robots" content="index, follow">
   <!-- 静态资源走 Cloudflare 边缘缓存，jsDelivr 仅作敏感词库/降级备用 -->
   <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="dns-prefetch" href="//wx.251800.xyz">
-  <link rel="preconnect" href="https://wx.251800.xyz" crossorigin>
+  <link rel="preload" href="/js/app.js" as="script">
+  <link rel="preload" href="/vendor/qrcode.min.js" as="script">
   <!-- QR 库预加载（LCP 关键路径） -->
   <script>
     (function(){
@@ -54,7 +53,7 @@
         var link = document.createElement('link');
         link.rel = 'preload';
         link.as = 'image';
-        link.href = 'assets/images/guides/' + file;
+        link.href = '/assets/images/guides/' + file;
         link.fetchPriority = 'high';
         document.head.appendChild(link);
       }
@@ -672,8 +671,8 @@
     }
     @keyframes wxspin { to { transform: rotate(360deg); } }
   </style>
-  <link rel="preload" href="perf-optimized.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="perf-optimized.css"></noscript>
+  <link rel="preload" href="/css/perf-optimized.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/css/perf-optimized.css"></noscript>
 </head>
 <body>
   <!-- 广告弹窗 - 增强版 -->
@@ -721,14 +720,14 @@
           <span>⏭️</span>
           <span>跳过</span>
         </button>
-        <a href="/generator.html" class="ad-generate-btn" rel="noopener">
+        <a href="/pages/generator.html" class="ad-generate-btn" rel="noopener">
           <span>🔗</span>
           <span>免费生成链接</span>
         </a>
       </div>
       
       <div class="promo-link">
-        <a href="/generator.html" >
+        <a href="/pages/generator.html" >
           <span>🔗</span>
           <span>免费生成分享链接</span>
           <span>→</span>
@@ -745,21 +744,21 @@
 
   <!-- 顶部推广入口 -->
   <div class="top-promo" id="topPromo" aria-label="推荐服务">
-    <a class="top-promo-item" href="/speed.html" rel="noopener">
+    <a class="top-promo-item" href="/pages/speed.html" rel="noopener">
       <span class="top-promo-icon" style="background:#ecfeff;">⚡</span>
       <span class="top-promo-copy">
         <span class="top-promo-title">网盘解除限速</span>
         <span class="top-promo-desc">提速教程与实用工具合集</span>
       </span>
     </a>
-    <a class="top-promo-item" href="/vip.html" rel="noopener">
+    <a class="top-promo-item" href="/pages/vip.html" rel="noopener">
       <span class="top-promo-icon" style="background:#fff7ed;">💎</span>
       <span class="top-promo-copy">
         <span class="top-promo-title">免费网盘会员账号</span>
         <span class="top-promo-desc">每日更新可用福利入口</span>
       </span>
     </a>
-    <a class="top-promo-item" href="/resources.html" rel="noopener">
+    <a class="top-promo-item" href="/pages/resources.html" rel="noopener">
       <span class="top-promo-icon" style="background:#f0fdf4;">📚</span>
       <span class="top-promo-copy">
         <span class="top-promo-title">更多资源合集</span>
@@ -776,7 +775,7 @@
       <h2 id="resourceName">资源名称：加载中...</h2>
       <div class="extract-code">提取码：<strong id="extractCode">--</strong></div>
       <div class="sub" id="scanTip">打开 <span class="app-name">手机浏览器</span> - 点击搜索框相机 - 扫码</div>
-      <div class="qr" id="qrContainer" style="width:176px;height:176px;"></div>
+      <div class="qr" id="qrContainer" style="width:176px;height:176px;" aria-busy="true"></div>
       <div class="hint">
         由于资源仅允许手机端访问<br>
         <small>请使用 <span class="highlight" id="bottomAppName">手机浏览器</span> 或浏览器扫码打开</small>
@@ -786,7 +785,7 @@
         </div>
       </div>
       <div class="card-promo">
-        <a href="/generator.html" >
+        <a href="/pages/generator.html" >
           <span>✨</span>
           <span>我也要生成分享链接</span>
         </a>
@@ -812,7 +811,7 @@
       <p>请检查链接是否完整或联系分享者重新获取</p>
       <div class="error-promo">
         <p class="error-promo-text">想要分享自己的资源？担心不是有效分享？试试这款转链工具让用户只能移动端打开，让每次分享都有效</p>
-        <a href="/generator.html" class="error-promo-btn">
+        <a href="/pages/generator.html" class="error-promo-btn">
           <span>🔗</span>
           <span>免费生成分享链接</span>
         </a>
@@ -823,7 +822,7 @@
   <!-- 底部推广条 -->
   <div class="page-promo" id="pagePromo">
     <span class="page-promo-text">📢 想要分享自己的资源？担心不是有效分享？试试这款转链工具让用户只能移动端打开，让每次分享都有效</span>
-    <a href="/generator.html" class="page-promo-btn">
+    <a href="/pages/generator.html" class="page-promo-btn">
       <span>🔗</span>
       <span>免费生成链接</span>
     </a>
@@ -836,8 +835,8 @@
     用户应自行判断资源的合法性，因使用本服务产生的任何法律责任由用户自行承担。如有侵权，请联系资源分享者删除。
   </div>
 
-  <script src="app.js" defer></script>
-  <script src="enhancements.js" defer></script>
-  <script src="sw-register.js" defer></script>
+  <script src="/js/app.js" defer></script>
+  <script src="/js/site-prefetch.js" defer></script>
+  <script src="/js/sw-register.js" defer></script>
 </body>
 </html>

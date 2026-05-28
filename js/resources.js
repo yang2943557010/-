@@ -142,6 +142,7 @@
         showEmbedFallback(true);
         embedHint.textContent = '本页嵌入失败，请用新窗口打开';
       };
+      searchFrame.loading = 'lazy';
       searchFrame.removeAttribute('src');
       searchFrame.src = url;
       embedLoadTimer = setTimeout(() => {
@@ -167,7 +168,8 @@
 
     function renderJumpPanel(keyword) {
       const kw = buildSearchKeyword(keyword);
-      if (!kw) {
+      const engineMore = document.getElementById('engineMore');
+      if (!kw || (engineMore && !engineMore.open)) {
         searchResults.innerHTML = '';
         return;
       }
@@ -265,6 +267,13 @@
     globalSearchBtn.addEventListener('click', () => searchGlobalPan(globalSearchInput.value));
     globalSearchInput.addEventListener('keydown', e => { if (e.key === 'Enter') searchGlobalPan(globalSearchInput.value); });
     globalSearchInput.addEventListener('input', () => { searchInput.value = globalSearchInput.value; });
+    globalSearchInput.addEventListener('focus', () => prefetchSearchHosts(), { once: true });
+    const engineMoreEl = document.getElementById('engineMore');
+    if (engineMoreEl) {
+      engineMoreEl.addEventListener('toggle', () => {
+        if (engineMoreEl.open && lastKeyword) renderJumpPanel(lastKeyword);
+      });
+    }
     document.getElementById('diskTabs').addEventListener('click', e => {
       const tab = e.target.closest('.disk-tab');
       if (!tab) return;
