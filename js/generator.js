@@ -37,7 +37,7 @@ let historyDirty = false;
 let groups = JSON.parse(localStorage.getItem('linkGroups') || '["默认","学习","娱乐","工作"]');
 let settings = JSON.parse(localStorage.getItem('qrSettings') || '{"colorDark":"#1e293b","colorLight":"#ffffff","size":180,"dotStyle":"rounded","cornerStyle":"dot","colorMode":"solid","gradient1":"#6366f1","gradient2":"#8b5cf6","gradientType":"linear"}');
 let currentData = null;
-let selectedPosterStyle = 'elegant';
+let selectedPosterStyle = localStorage.getItem('posterStyle') || 'freebie';
 let currentQRCode = null;
 let batchGeneratedResults = [];
 
@@ -2169,99 +2169,294 @@ function shareToSocial() {
   }
 }
 
-// ==================== 海报 ====================
+// ==================== 推广海报（紧凑单屏 750×1060） ====================
+const POSTER_QR_SIZE = 200;
 const POSTER_STYLES = {
-  elegant: { name: '简约白', bg: '#ffffff', text: '#1e293b', accent: '#6366f1' },
-  dark: { name: '暗夜黑', bg: '#0f172a', text: '#f1f5f9', accent: '#818cf8' },
-  warm: { name: '暖阳橙', bg: '#fff7ed', text: '#9a3412', accent: '#f97316' },
-  fresh: { name: '清新绿', bg: '#f0fdf4', text: '#166534', accent: '#22c55e' },
-  ocean: { name: '海洋蓝', bg: '#eff6ff', text: '#1e40af', accent: '#3b82f6' }
+  freebie: { name: '限时免费', layout: 'freebie', tag: '福利' },
+  viral: { name: '爆款推荐', layout: 'viral', tag: '热门' },
+  cinema: { name: '影视专享', layout: 'cinema', tag: '4K' },
+  study: { name: '学习资料', layout: 'study', tag: '干货' },
+  flash: { name: '秒杀福利', layout: 'flash', tag: '秒杀' },
+  vip: { name: '精品专享', layout: 'vip', tag: 'VIP' },
+  daily: { name: '今日上新', layout: 'daily', tag: '更新' },
+  social: { name: '朋友圈风', layout: 'social', tag: '分享' }
 };
 
-function showPosterModal() {
-  if (!currentData) return;
+function getPosterPayload() {
+  if (!currentData) return null;
+  return {
+    name: currentData.name || '精选资源',
+    code: currentData.code || '',
+    remark: currentData.remark || '',
+    diskName: currentData.disk?.name || '网盘资源',
+    diskLogo: currentData.disk?.logo || '',
+    link: currentData.link || currentData.url || ''
+  };
+}
+
+function posterQrHtml(key, sizeClass = '') {
+  return `<div class="poster-qr-zone"><div class="poster-qr ${sizeClass}" id="posterQr-${key}" role="img" aria-label="二维码"></div></div>`;
+}
+
+function posterDiskHtml(payload) {
+  const disk = escapeHtml(payload.diskName);
+  const logo = payload.diskLogo ? escapeHtml(payload.diskLogo) : '';
+  const icon = logo
+    ? `<img src="${logo}" alt="" crossorigin="anonymous">`
+    : `<i>${disk.charAt(0)}</i>`;
+  return `<div class="pl-disk">${icon}<span>${disk}</span></div>`;
+}
+
+function posterFootHtml(code, scanText) {
+  const codeHtml = code
+    ? `<div class="pl-code-line">提取码<b>${escapeHtml(code)}</b></div>`
+    : '';
+  return `<div class="pl-foot">${codeHtml}<div class="pl-scan">${scanText}</div></div>`;
+}
+
+function posterMidQr(key, wrapClass = 'lg') {
+  return `<div class="pl-mid"><div class="pl-qr-wrap ${wrapClass}">${posterQrHtml(key)}</div></div>`;
+}
+
+function buildPosterFreebie(key, payload) {
+  const name = escapeHtml(payload.name);
+  return `
+    <div class="poster-canvas poster-layout-freebie" data-poster-theme="${key}">
+      <div class="pl-bg pl-bg-freebie" aria-hidden="true"></div>
+      <div class="pl-freebie-ribbon">限时免费</div>
+      <div class="pl-top">
+        <div class="pl-freebie-price">0<small>元领取</small></div>
+        ${posterDiskHtml(payload)}
+      </div>
+      <div class="pl-title-box light"><h1>${name}</h1></div>
+      ${posterMidQr(key)}
+      <div class="pl-tags"><span>免转发</span><span>秒获取</span><span>长期有效</span></div>
+      ${posterFootHtml(payload.code, '长按识别二维码 · 立即领取')}
+    </div>`;
+}
+
+function buildPosterViral(key, payload) {
+  const name = escapeHtml(payload.name);
+  return `
+    <div class="poster-canvas poster-layout-viral" data-poster-theme="${key}">
+      <div class="pl-bg pl-bg-viral" aria-hidden="true"></div>
+      <div class="pl-top">
+        <div class="pl-viral-hot">🔥 爆款推荐</div>
+        ${posterDiskHtml(payload)}
+      </div>
+      <div class="pl-viral-num">已有 10万+ 人领取</div>
+      <div class="pl-title-box viral"><h1>${name}</h1></div>
+      ${posterMidQr(key, 'lg ring')}
+      <div class="pl-tags"><span>高清完整</span><span>持续更新</span><span>免费获取</span></div>
+      ${posterFootHtml(payload.code, '扫码获取 · 先到先得')}
+    </div>`;
+}
+
+function buildPosterCinema(key, payload) {
+  const name = escapeHtml(payload.name);
+  return `
+    <div class="poster-canvas poster-layout-cinema" data-poster-theme="${key}">
+      <div class="pl-bg pl-bg-cinema" aria-hidden="true"></div>
+      <div class="pl-top">${posterDiskHtml(payload)}<div class="pl-cinema-label">4K · 超清</div></div>
+      <div class="pl-hook pl-hook-sm">本周必看</div>
+      <div class="pl-title-box cinema"><h1>${name}</h1></div>
+      ${posterMidQr(key, 'lg gold')}
+      ${posterFootHtml(payload.code, '扫码观看 / 立即保存')}
+    </div>`;
+}
+
+function buildPosterStudy(key, payload) {
+  const name = escapeHtml(payload.name);
+  return `
+    <div class="poster-canvas poster-layout-study pl-layout-study" data-poster-theme="${key}">
+      <div class="pl-top">
+        <div class="pl-hook pl-hook-sm">📚 学习资料包</div>
+        ${posterDiskHtml(payload)}
+      </div>
+      <div class="pl-title-box study"><h1>${name}</h1></div>
+      ${posterMidQr(key)}
+      <div class="pl-tags"><span>高清PDF</span><span>可打印</span><span>永久有效</span></div>
+      ${posterFootHtml(payload.code, '扫码领取全套资料')}
+    </div>`;
+}
+
+function buildPosterFlash(key, payload) {
+  const name = escapeHtml(payload.name);
+  return `
+    <div class="poster-canvas poster-layout-flash" data-poster-theme="${key}">
+      <div class="pl-flash-bar">⚡ 福利秒杀 · 限时开放</div>
+      <div class="pl-top">
+        <div class="pl-hook pl-hook-sm">库存有限</div>
+        ${posterDiskHtml(payload)}
+      </div>
+      <div class="pl-flash-timer">⏱ 距结束 02:59:59</div>
+      <div class="pl-title-box flash"><h1>${name}</h1></div>
+      ${posterMidQr(key, 'lg neon')}
+      ${posterFootHtml(payload.code, '立即扫码领取')}
+    </div>`;
+}
+
+function buildPosterVip(key, payload) {
+  const name = escapeHtml(payload.name);
+  return `
+    <div class="poster-canvas poster-layout-vip pl-layout-vip" data-poster-theme="${key}">
+      <div class="pl-top">
+        <div class="pl-vip-icon">👑</div>
+        ${posterDiskHtml(payload)}
+      </div>
+      <div class="pl-hook pl-hook-sm">精品 · 专享资源</div>
+      <div class="pl-title-box vip"><h1>${name}</h1></div>
+      ${posterMidQr(key, 'lg gold')}
+      ${posterFootHtml(payload.code, '扫码解锁精品资源')}
+    </div>`;
+}
+
+function buildPosterDaily(key, payload) {
+  const name = escapeHtml(payload.name);
+  const now = new Date();
+  const m = now.getMonth() + 1;
+  const d = now.getDate();
+  const w = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()];
+  return `
+    <div class="poster-canvas poster-layout-daily" data-poster-theme="${key}">
+      <div class="pl-top">
+        <div>
+          <div class="pl-daily-date">${m}月${d}日 星期${w}</div>
+          <div class="pl-daily-big">新鲜出炉</div>
+        </div>
+        ${posterDiskHtml(payload)}
+      </div>
+      <div class="pl-title-box daily"><h1>${name}</h1></div>
+      ${posterMidQr(key, 'lg')}
+      ${posterFootHtml(payload.code, '扫码获取今日最新')}
+    </div>`;
+}
+
+function buildPosterSocial(key, payload) {
+  const name = escapeHtml(payload.name);
+  const remark = payload.remark ? escapeHtml(payload.remark) : '分享一个好资源，需要的自取～';
+  return `
+    <div class="poster-canvas poster-layout-social pl-layout-social" data-poster-theme="${key}">
+      <div class="pl-moments">
+        <div class="pl-moments-head">
+          ${posterDiskHtml(payload)}
+          <span class="pl-moments-time">刚刚</span>
+        </div>
+        <div class="pl-moments-text">${name}</div>
+        <p class="pl-moments-sub">${remark}</p>
+        <div class="pl-mid">
+          <div class="pl-qr-wrap">${posterQrHtml(key, 'sm')}</div>
+        </div>
+        ${posterFootHtml(payload.code, '长按识别 · 保存发朋友圈')}
+        <div class="pl-moments-meta">❤️ 128 · 💬 36</div>
+      </div>
+    </div>`;
+}
+
+const POSTER_BUILDERS = {
+  freebie: buildPosterFreebie,
+  viral: buildPosterViral,
+  cinema: buildPosterCinema,
+  study: buildPosterStudy,
+  flash: buildPosterFlash,
+  vip: buildPosterVip,
+  daily: buildPosterDaily,
+  social: buildPosterSocial
+};
+
+function buildPosterCanvasHtml(key, style, payload) {
+  const builder = POSTER_BUILDERS[style.layout] || buildPosterFreebie;
+  return builder(key, payload);
+}
+
+function waitForPaint() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+}
+
+async function renderAllPosterQrs(qrData) {
+  await waitForPaint();
+  Object.keys(POSTER_STYLES).forEach((key) => {
+    const container = document.getElementById('posterQr-' + key);
+    if (container) generateStyledQR(qrData, container, POSTER_QR_SIZE);
+  });
+  await new Promise((resolve) => setTimeout(resolve, 280));
+}
+
+function fitPosterPreviewScale() {
+  document.querySelectorAll('.poster-preview-slot').forEach((slot) => {
+    const inner = slot.querySelector('.poster-preview-inner');
+    if (!inner || !slot.clientWidth) return;
+    const scale = slot.clientWidth / 750;
+    inner.style.transform = `scale(${scale})`;
+    inner.style.marginLeft = `${-375 * scale}px`;
+  });
+}
+
+async function showPosterModal() {
+  if (!currentData) return toast('请先生成链接');
+  if (!POSTER_STYLES[selectedPosterStyle]) selectedPosterStyle = 'freebie';
+  const payload = getPosterPayload();
   const grid = document.getElementById('posterGrid');
   grid.innerHTML = Object.entries(POSTER_STYLES).map(([key, style]) => `
     <div class="poster-item ${key === selectedPosterStyle ? 'selected' : ''}" onclick="selectPoster('${key}')" id="poster-${key}">
-      <div style="background:${style.bg};padding:24px;border-radius:12px;">
-        <div style="text-align:center;margin-bottom:16px;">
-          <div style="font-size:16px;font-weight:600;color:${style.text}">${currentData.name}</div>
-          <div style="font-size:12px;color:${style.accent};margin-top:4px;">${currentData.disk?.name || '资源分享'}</div>
+      <div class="poster-preview-slot poster-preview-${key}">
+        <div class="poster-preview-inner">
+          ${buildPosterCanvasHtml(key, style, payload)}
         </div>
-        <div style="background:#fff;padding:12px;border-radius:8px;display:flex;justify-content:center;" id="posterQr-${key}"></div>
-        ${currentData.code ? `<div style="text-align:center;margin-top:12px;font-size:13px;color:${style.text};">提取码：<strong style="color:${style.accent}">${currentData.code}</strong></div>` : ''}
-        <div style="text-align:center;margin-top:8px;font-size:11px;color:${style.text};opacity:.7;">扫码获取资源</div>
       </div>
-      <div style="text-align:center;padding:8px;font-size:12px;color:var(--text2)">${style.name}</div>
+      <div class="poster-style-label">
+        <span class="poster-style-tag">${style.tag}</span>
+        <span>${style.name}</span>
+      </div>
     </div>
   `).join('');
-  
-  // 使用炫酷二维码样式
-  setTimeout(() => {
-    Object.keys(POSTER_STYLES).forEach(key => {
-      const container = document.getElementById('posterQr-' + key);
-      if (container) {
-        container.innerHTML = '';
-        // 使用QRCodeStyling生成炫酷二维码
-        const qrCode = new QRCodeStyling({
-          width: 120,
-          height: 120,
-          type: 'canvas',
-          data: currentData.url,
-          dotsOptions: {
-            type: settings.dotStyle || 'rounded',
-            color: settings.colorDark || '#1e293b'
-          },
-          cornersSquareOptions: {
-            type: settings.cornerStyle || 'dot',
-            color: settings.colorDark || '#1e293b'
-          },
-          cornersDotOptions: {
-            type: 'dot',
-            color: settings.colorDark || '#1e293b'
-          },
-          backgroundOptions: {
-            color: '#ffffff'
-          },
-          qrOptions: {
-            errorCorrectionLevel: 'H'
-          }
-        });
-        qrCode.append(container);
-      }
-    });
-  }, 100);
-  
+
+  await renderAllPosterQrs(payload.link);
+  fitPosterPreviewScale();
   document.getElementById('posterModal').classList.add('show');
 }
 
 function selectPoster(key) {
   selectedPosterStyle = key;
-  document.querySelectorAll('.poster-item').forEach(el => el.classList.remove('selected'));
-  document.getElementById('poster-' + key).classList.add('selected');
+  localStorage.setItem('posterStyle', key);
+  document.querySelectorAll('.poster-item').forEach((el) => el.classList.remove('selected'));
+  document.getElementById('poster-' + key)?.classList.add('selected');
 }
 
 function closePosterModal() { document.getElementById('posterModal').classList.remove('show'); }
 
+function sanitizeFilename(name) {
+  return String(name || '海报').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40);
+}
+
 async function downloadSelectedPoster() {
   const posterEl = document.getElementById('poster-' + selectedPosterStyle);
   if (!posterEl) return;
-  
+  const canvasRoot = posterEl.querySelector('.poster-canvas');
+  if (!canvasRoot) return;
+
   try {
-    // 等待二维码完全渲染
-    await new Promise(r => setTimeout(r, 300));
-    
-    const canvas = await html2canvas(posterEl.querySelector('div'), { 
-      scale: 2, 
+    if (typeof html2canvas !== 'function') {
+      return toast('海报组件加载中，请稍后再试');
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    const canvas = await html2canvas(canvasRoot, {
+      scale: 2,
       backgroundColor: null,
       useCORS: true,
-      allowTaint: true
+      allowTaint: true,
+      logging: false,
+      width: canvasRoot.offsetWidth,
+      height: canvasRoot.offsetHeight
     });
     const a = document.createElement('a');
     a.href = canvas.toDataURL('image/png');
-    a.download = `${currentData?.name || '海报'}_${selectedPosterStyle}.png`;
+    a.download = `${sanitizeFilename(currentData?.name)}_${POSTER_STYLES[selectedPosterStyle]?.name || selectedPosterStyle}_海报.png`;
     a.click();
-    toast('海报已下载');
+    toast('推广海报已下载（1500×2120 高清）');
   } catch (e) {
     toast('生成失败: ' + e.message);
   }
@@ -3071,6 +3266,11 @@ document.addEventListener('DOMContentLoaded', () => {
   window.handleFileUpload = async function(e) {
     await ensureLib('xlsx');
     if (typeof _origHandleFileUpload === 'function') return _origHandleFileUpload(e);
+  };
+  const _origDownloadSelectedPoster = window.downloadSelectedPoster;
+  window.downloadSelectedPoster = async function() {
+    await ensureLib('html2canvas');
+    if (typeof _origDownloadSelectedPoster === 'function') return _origDownloadSelectedPoster();
   };
   const _origShowPosterModal = window.showPosterModal;
   window.showPosterModal = async function() {

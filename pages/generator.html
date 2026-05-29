@@ -9,6 +9,7 @@
   <link rel="preload" href="/css/generator.css" as="style">
   <link rel="preload" href="/vendor/qr-code-styling.js" as="script">
   <link rel="stylesheet" href="/css/generator.css">
+  <link rel="stylesheet" href="/css/poster.css?v=13">
   <link rel="preload" href="/css/generator-deferred.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="/css/generator-deferred.css"></noscript>
   <script>
@@ -87,20 +88,18 @@
     <main class="main-content">
       <div class="container">
         <header class="header">
-      <div class="header-top">
-        <h1><span class="header-emoji" aria-hidden="true">🔗</span> 链接生成器</h1>
-        <div class="header-actions">
+      <h1><span class="header-emoji" aria-hidden="true">🔗</span> 链接生成器</h1>
+      <button class="guide-toggle guide-restore" id="guideRestore" type="button" onclick="toggleGuidePanel(false)">💡 显示新手说明</button>
+      <div class="workspace-mode-toggle" aria-label="界面显示模式">
+        <button class="workspace-mode-btn active" id="fullModeBtn" type="button" onclick="setWorkspaceMode('full')" aria-pressed="true">完整版</button>
+        <button class="workspace-mode-btn" id="simpleModeBtn" type="button" onclick="setWorkspaceMode('simple')" aria-pressed="false">极简版</button>
+      </div>
+      <div class="header-actions">
         <a href="/index.html" class="icon-btn" title="扫码落地页" style="text-decoration:none;">🏠</a>
         <a href="/pages/resources.html" class="icon-btn" title="资源合集" style="text-decoration:none;">📚</a>
         <a href="/pages/tools.html" class="icon-btn" title="实用工具" style="text-decoration:none;">🧰</a>
         <button class="icon-btn" onclick="toggleTheme()" title="切换主题">🌓</button>
         <button class="icon-btn" onclick="showShortcuts()" title="快捷键">⌨️</button>
-        </div>
-      </div>
-      <button class="guide-toggle guide-restore" id="guideRestore" type="button" onclick="toggleGuidePanel(false)">💡 显示新手说明</button>
-      <div class="workspace-mode-toggle" aria-label="界面显示模式">
-        <button class="workspace-mode-btn active" id="fullModeBtn" type="button" onclick="setWorkspaceMode('full')" aria-pressed="true">完整版</button>
-        <button class="workspace-mode-btn" id="simpleModeBtn" type="button" onclick="setWorkspaceMode('simple')" aria-pressed="false">极简版</button>
       </div>
     </header>
     
@@ -693,13 +692,16 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
 
   <!-- 海报弹窗 -->
   <div class="modal" id="posterModal">
-    <div class="modal-box" style="max-width:800px;">
+    <div class="modal-box poster-modal-box">
       <div class="modal-header">
-        <h3>选择海报风格</h3>
+        <div>
+          <h3>选择推广海报</h3>
+          <p class="poster-modal-hint">8 款专业推广海报 · 自动带入网盘 Logo · 导出 1500×2120 高清图</p>
+        </div>
         <button class="modal-close" onclick="closePosterModal()">×</button>
       </div>
       <div class="poster-grid" id="posterGrid"></div>
-      <div style="margin-top:16px;text-align:center;">
+      <div class="poster-modal-actions">
         <button class="btn btn-primary" onclick="downloadSelectedPoster()">💾 下载选中海报</button>
       </div>
     </div>

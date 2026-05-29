@@ -2,7 +2,7 @@
 # https://developers.cloudflare.com/pages/configuration/headers/
 
 /pages/generator.html
-  Link: </css/generator.css>; rel=preload; as=style, </vendor/qr-code-styling.js>; rel=preload; as=script, </js/generator.js>; rel=preload; as=script
+  Link: </css/generator.css>; rel=preload; as=style, </css/poster.css>; rel=preload; as=style, </vendor/qr-code-styling.js>; rel=preload; as=script, </js/generator.js>; rel=preload; as=script
 
 /index.html
   Link: </js/app.js>; rel=preload; as=script, </css/perf-optimized.css>; rel=preload; as=style, </vendor/qrcode.min.js>; rel=preload; as=script

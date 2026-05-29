@@ -11,6 +11,12 @@
 /vip /pages/vip.html 301
 /tools /pages/tools.html 301
 
+/pages/generator /pages/generator.html 301
+/pages/resources /pages/resources.html 301
+/pages/speed /pages/speed.html 301
+/pages/vip /pages/vip.html 301
+/pages/tools /pages/tools.html 301
+
 /app.js /js/app.js 301
 /generator.js /js/generator.js 301
 /resources.js /js/resources.js 301
@@ -22,6 +28,7 @@
 /perf-optimized.css /css/perf-optimized.css 301
 /styles.css /css/perf-optimized.css 301
 /generator.css /css/generator.css 301
+/poster.css /css/poster.css 301
 /generator-deferred.css /css/generator-deferred.css 301
 /resources.css /css/resources.css 301
 

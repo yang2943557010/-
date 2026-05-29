@@ -362,7 +362,6 @@
   display: block;
   /* CLS 优化：固定宽高比，防止图片加载前布局跳动 */
   aspect-ratio: 415 / 640;
-  content-visibility: auto;
 }
 
 /* 广告弹窗样式 - 增强版 */
@@ -847,8 +846,7 @@
   }
 }
 
-/* 视口外延后绘制，减轻首屏主线程压力 */
-.guide-right:not(:empty),
+/* 视口外延后绘制，减轻首屏主线程压力（引导图是 LCP 元素，不可延迟绘制） */
 .wx-article-panel,
 .top-promo,
 .disclaimer {

@@ -725,16 +725,20 @@ const PageRenderer = {
     const guideRight = document.getElementById('guideRight');
     if (diskConfig.guide) {
       guideRight.style.display = 'flex';
-      const guideImg = document.createElement('img');
-      guideImg.src = diskConfig.guide;
-      guideImg.alt = '引导图';
-      guideImg.className = 'guide-img';
-      guideImg.loading = 'eager';
-      guideImg.fetchPriority = 'high';
-      guideImg.decoding = 'async';
-      guideImg.width = 420;
-      guideImg.height = 640;
-      guideRight.replaceChildren(guideImg);
+      guideRight.removeAttribute('aria-hidden');
+      let guideImg = guideRight.querySelector('.guide-img');
+      if (!guideImg || guideImg.getAttribute('src') !== diskConfig.guide) {
+        guideImg = document.createElement('img');
+        guideImg.src = diskConfig.guide;
+        guideImg.alt = '引导图';
+        guideImg.className = 'guide-img';
+        guideImg.loading = 'eager';
+        guideImg.fetchPriority = 'high';
+        guideImg.decoding = 'async';
+        guideImg.width = 420;
+        guideImg.height = 640;
+        guideRight.replaceChildren(guideImg);
+      }
     } else {
       guideRight.replaceChildren();
       guideRight.style.display = 'none';

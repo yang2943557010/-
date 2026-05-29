@@ -74,6 +74,7 @@
         file = guideFromUrl(decodeBase64Url(params.get('u')));
       }
       preloadGuide(file);
+      window.__earlyGuideFile = file || '';
     })();
     document.addEventListener('contextmenu',function(e){e.preventDefault();});
     document.addEventListener('keydown',function(e){
@@ -794,6 +795,27 @@
 
     <!-- 引导图 -->
     <div class="guide-right" id="guideRight" aria-hidden="true"></div>
+    <script>
+      (function () {
+        if (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) return;
+        var file = window.__earlyGuideFile;
+        if (!file) return;
+        var el = document.getElementById('guideRight');
+        if (!el || el.querySelector('.guide-img')) return;
+        el.style.display = 'flex';
+        el.removeAttribute('aria-hidden');
+        var img = document.createElement('img');
+        img.className = 'guide-img';
+        img.src = '/assets/images/guides/' + file;
+        img.alt = '引导图';
+        img.width = 420;
+        img.height = 640;
+        img.loading = 'eager';
+        img.fetchPriority = 'high';
+        img.decoding = 'async';
+        el.appendChild(img);
+      })();
+    </script>
 
     <!-- 微信文章区 -->
     <div class="wx-article-panel" id="wxArticlePanel">
