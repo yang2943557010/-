@@ -1,21 +1,22 @@
 # Cloudflare Pages 静态站点
 # 旧根路径 → 新目录（保持书签与外链可用）
-/generator.html /pages/generator.html 301
-/resources.html /pages/resources.html 301
-/speed.html /pages/speed.html 301
-/vip.html /pages/vip.html 301
-/tools.html /pages/tools.html 301
-/generator /pages/generator.html 301
-/resources /pages/resources.html 301
-/speed /pages/speed.html 301
-/vip /pages/vip.html 301
-/tools /pages/tools.html 301
+/generator.html /pages/generator 301
+/resources.html /pages/resources 301
+/speed.html /pages/speed 301
+/vip.html /pages/vip 301
+/tools.html /pages/tools 301
+/generator /pages/generator 301
+/resources /pages/resources 301
+/speed /pages/speed 301
+/vip /pages/vip 301
+/tools /pages/tools 301
 
-/pages/generator /pages/generator.html 301
-/pages/resources /pages/resources.html 301
-/pages/speed /pages/speed.html 301
-/pages/vip /pages/vip.html 301
-/pages/tools /pages/tools.html 301
+# 无 .html 路径用 200 重写，避免与 CF「去 .html」规则形成 301 死循环
+/pages/generator /pages/generator.html 200
+/pages/resources /pages/resources.html 200
+/pages/speed /pages/speed.html 200
+/pages/vip /pages/vip.html 200
+/pages/tools /pages/tools.html 200
 
 /app.js /js/app.js 301
 /generator.js /js/generator.js 301
@@ -46,5 +47,6 @@
 /generator-deferred.css /css/generator-deferred.css 301
 /resources.css /css/resources.css 301
 
-# 若 /generator 出现 ERR_TOO_MANY_REDIRECTS：检查 CF 页面规则是否去掉 .html
+# 若出现 ERR_TOO_MANY_REDIRECTS：/pages/* 必须用 200 重写，勿对无 .html 路径用 301 到 .html
+# 若仍循环：检查 CF 页面规则是否「去掉 .html」与 _redirects 冲突
 # SSL 建议「完全」或「完全(严格)」
