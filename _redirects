@@ -24,6 +24,19 @@
 /banned-words.js /js/banned-words.js 301
 /banned-words-worker.js /js/banned-words-worker.js 301
 /defer-disclaimer.js /js/defer-disclaimer.js 301
+/defer-aux-scripts.js /js/defer-aux-scripts.js 301
+/site-prefetch.js /js/site-prefetch.js 301
+/disk-data.js /js/disk-data.js 301
+/index-early.js /js/index-early.js 301
+/index-body-init.js /js/index-body-init.js 301
+/index-critical.css /css/index-critical.css 301
+/generator-early.js /js/generator-early.js 301
+/generator-critical.css /css/generator-critical.css 301
+/speed-critical.css /css/speed-critical.css 301
+/resources-critical.css /css/resources-critical.css 301
+/vip-critical.css /css/vip-critical.css 301
+/tools-critical.css /css/tools-critical.css 301
+/page-guard.js /js/page-guard.js 301
 /sw-register.js /js/sw-register.js 301
 
 /perf-optimized.css /css/perf-optimized.css 301

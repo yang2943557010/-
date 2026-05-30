@@ -8,34 +8,7 @@
 
 const CryptoUtil = {
 
-  // ── 网盘代号表 ──────────────────────────────────────────
-  // 格式：代号 → { domain, pathPrefix }
-  // pathPrefix: 大多数网盘分享路径前缀（省略后只存ID）
-  DISK_CODES: {
-    B: { domain: 'pan.baidu.com',       prefix: '/s/' },
-    Q: { domain: 'pan.quark.cn',        prefix: '/s/' },
-    A: { domain: 'alipan.com',          prefix: '/s/' },
-    X: { domain: 'pan.xunlei.com',      prefix: '/s/' },
-    E: { domain: '115.com',             prefix: '/s/' },
-    L: { domain: 'lanzou.com',          prefix: '/b/' },
-    T: { domain: 'cloud.189.cn',        prefix: '/t/' },
-    W: { domain: 'weiyun.com',          prefix: '/s/' },
-    J: { domain: 'jianguoyun.com',      prefix: '/d/' },
-    M: { domain: 'caiyun.139.com',      prefix: '/s/' },
-    U: { domain: 'pan.wo.cn',           prefix: '/s/' },
-    C: { domain: 'drive.uc.cn',         prefix: '/s/' },
-    P: { domain: 'mypikpak.com',        prefix: '/s/' },
-    N: { domain: '123pan.com',          prefix: '/s/' },
-    F: { domain: 'ctfile.com',          prefix: '/f/' },
-    O: { domain: '1drv.ms',             prefix: '/'   },
-    G: { domain: 'drive.google.com',    prefix: '/file/d/' },
-    D: { domain: 'dropbox.com',         prefix: '/s/' },
-    Z: { domain: 'mega.nz',             prefix: '/#!' },
-    R: { domain: 'mediafire.com',       prefix: '/file/' },
-    K: { domain: 'box.com',             prefix: '/s/' },
-    I: { domain: 'icloud.com',          prefix: '/share/' },
-    V: { domain: 'pcloud.com',          prefix: '/share/' },
-  },
+  DISK_CODES: window.DiskData.DISK_CODES,
 
   // 页面风格缩写（default 省略不存）
   STYLE_CODES: {
@@ -117,6 +90,16 @@ const CryptoUtil = {
     }
   },
 
+  // 从完整 URL 读取提取码
+  extractCodeFromUrl(url) {
+    try {
+      const u = new URL(url);
+      return u.searchParams.get('pwd') || u.searchParams.get('password') || u.searchParams.get('code') || '';
+    } catch (e) {
+      return '';
+    }
+  },
+
   // ── 新版解码 ────────────────────────────────────────────
   decryptData(str) {
     try {
@@ -124,21 +107,21 @@ const CryptoUtil = {
       const decoded = this.fromBase64Url(str);
       const parts = decoded.split('|');
       const rawU = parts[0] || '';
-      // 判断是否是压缩格式
       const isCompressed = /^[A-Z]/.test(rawU) && !rawU.startsWith('http');
       const u = isCompressed ? this.decompressUrl(rawU) : rawU;
-      const c = isCompressed ? this.extractCodeFromCompressed(rawU) : (parts[2] || '');
+      const c = isCompressed
+        ? this.extractCodeFromCompressed(rawU)
+        : this.extractCodeFromUrl(u);
       const tCode = parts[2] || '';
-      // 风格：新格式是单字母，旧格式是全名
       const t = this.STYLE_CODES[tCode] || tCode || 'default';
       return {
         u,
         n: parts[1] || '',
-        c: c || parts[2] || '',
+        c,
         t,
         a: parts[3] || '',
         at: parts[4] || '',
-        wx: parts[5] || '' // 兼容旧格式
+        wx: parts[5] || ''
       };
     } catch (e) {
       console.error('解密失败:', e);
@@ -756,14 +739,7 @@ const PageRenderer = {
         guideImg.height = 640;
         guideRight.replaceChildren(guideImg);
       }
-      if (guideImg.getAttribute('src') !== guideSrc) {
-        guideImg.loading = 'eager';
-        guideImg.fetchPriority = 'high';
-        guideImg.decoding = 'sync';
-        guideImg.src = guideSrc;
-      }
-      guideImg.hidden = false;
-      bindGuideImgFallback(guideImg);
+      setGuideImageSrc(guideImg, guideSrc);
     } else {
       guideRight.replaceChildren();
       guideRight.hidden = true;
@@ -816,10 +792,48 @@ function bindGuideImgFallback(img) {
   if (!img || img.dataset.fallbackBound) return;
   img.dataset.fallbackBound = '1';
   img.addEventListener('error', function onGuideError() {
-    if (/\.webp(?:\?|$)/i.test(img.src)) {
+    const attempts = parseInt(img.dataset.fallbackAttempts || '0', 10);
+    img.dataset.fallbackAttempts = String(attempts + 1);
+    const picture = img.closest('picture');
+    const source = picture && picture.querySelector('source[type="image/webp"]');
+    if (attempts === 0 && /\.webp(?:\?|$)/i.test(img.src)) {
       img.src = img.src.replace(/\.webp(\?|$)/i, '.png$1');
+      return;
     }
-  }, { once: true });
+    if (attempts <= 1 && source && source.srcset && !/\.webp/i.test(img.src)) {
+      img.src = source.srcset;
+      return;
+    }
+    img.style.visibility = 'hidden';
+    img.removeAttribute('src');
+    img.removeEventListener('error', onGuideError);
+  });
+}
+
+function setGuideImageSrc(guideImg, guideSrc) {
+  if (!guideImg || !guideSrc) return;
+  const picture = guideImg.closest('picture');
+  const source = picture ? picture.querySelector('source[type="image/webp"]') : null;
+  if (/\.webp(\?|$)/i.test(guideSrc)) {
+    if (source) source.srcset = guideSrc;
+    const pngSrc = guideSrc.replace(/\.webp(\?|$)/i, '.png$1');
+    if (guideImg.getAttribute('src') !== pngSrc) {
+      guideImg.loading = 'eager';
+      guideImg.fetchPriority = 'high';
+      guideImg.decoding = 'sync';
+      guideImg.src = pngSrc;
+    }
+  } else {
+    if (source) source.removeAttribute('srcset');
+    if (guideImg.getAttribute('src') !== guideSrc) {
+      guideImg.loading = 'eager';
+      guideImg.fetchPriority = 'high';
+      guideImg.decoding = 'sync';
+      guideImg.src = guideSrc;
+    }
+  }
+  guideImg.hidden = false;
+  bindGuideImgFallback(guideImg);
 }
 
 function whenGuideReady(callback) {

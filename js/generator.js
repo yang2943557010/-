@@ -1,4 +1,4 @@
-﻿// ==================== 配置 ====================
+// ==================== 配置 ====================
 const SECRET_KEY = 'QrShare2024Key!!';
 const BASE_URL = window.location.origin + '/index.html';
 
@@ -173,32 +173,8 @@ function enqueueQRRender(containerId, url, size) {
 
 // ==================== 加密工具 ====================
 
-// 网盘代号表（与 app.js 保持一致）
-const DISK_CODES = {
-  B: { domain: 'pan.baidu.com',    prefix: '/s/' },
-  Q: { domain: 'pan.quark.cn',     prefix: '/s/' },
-  A: { domain: 'alipan.com',       prefix: '/s/' },
-  X: { domain: 'pan.xunlei.com',   prefix: '/s/' },
-  E: { domain: '115.com',          prefix: '/s/' },
-  L: { domain: 'lanzou.com',       prefix: '/b/' },
-  T: { domain: 'cloud.189.cn',     prefix: '/t/' },
-  W: { domain: 'weiyun.com',       prefix: '/s/' },
-  J: { domain: 'jianguoyun.com',   prefix: '/d/' },
-  M: { domain: 'caiyun.139.com',   prefix: '/s/' },
-  U: { domain: 'pan.wo.cn',        prefix: '/s/' },
-  C: { domain: 'drive.uc.cn',      prefix: '/s/' },
-  P: { domain: 'mypikpak.com',     prefix: '/s/' },
-  N: { domain: '123pan.com',       prefix: '/s/' },
-  F: { domain: 'ctfile.com',       prefix: '/f/' },
-  O: { domain: '1drv.ms',          prefix: '/'   },
-  G: { domain: 'drive.google.com', prefix: '/file/d/' },
-  D: { domain: 'dropbox.com',      prefix: '/s/' },
-  Z: { domain: 'mega.nz',          prefix: '/#!' },
-  R: { domain: 'mediafire.com',    prefix: '/file/' },
-  K: { domain: 'box.com',          prefix: '/s/' },
-  I: { domain: 'icloud.com',       prefix: '/share/' },
-  V: { domain: 'pcloud.com',       prefix: '/share/' },
-};
+// 网盘代号表（来自 disk-data.js）
+const DISK_CODES = window.DiskData.DISK_CODES;
 
 // 域名 → 代号反查
 const DOMAIN_TO_CODE = {};
@@ -298,6 +274,15 @@ function encryptData(data) {
 }
 
 
+function extractCodeFromUrl(url) {
+  try {
+    const u = new URL(url);
+    return u.searchParams.get('pwd') || u.searchParams.get('password') || u.searchParams.get('code') || '';
+  } catch (e) {
+    return '';
+  }
+}
+
 function decryptGeneratedData(str) {
   try {
     if (!str) return null;
@@ -310,7 +295,7 @@ function decryptGeneratedData(str) {
     return {
       u,
       n: parts[1] || '',
-      c: (isCompressed ? extractCodeFromCompressed(rawU) : '') || '',
+      c: isCompressed ? extractCodeFromCompressed(rawU) : extractCodeFromUrl(u),
       t: STYLE_CODES[tCode] || tCode || 'default',
       a: parts[3] || '',
       at: parts[4] || ''

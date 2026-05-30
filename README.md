@@ -12,11 +12,30 @@
 │   ├── speed.html          # 解除限速指南
 │   ├── vip.html            # 会员福利
 │   └── tools.html          # 实用工具
-├── css/                    # 样式表
-├── js/                     # 脚本（app、generator、site-prefetch、vip 等）
+├── css/
+│   ├── index-critical.css      # 分享页首屏（同步）
+│   ├── perf-optimized.css      # 分享页非关键（异步）
+│   ├── generator-critical.css  # 生成器首屏（同步）
+│   ├── generator.css           # 生成器完整（异步）
+│   ├── generator-deferred.css  # 生成器弹窗等（异步）
+│   ├── resources.css           # 资源页（异步）
+│   ├── speed-critical.css      # 限速指南（同步）
+│   ├── vip-critical.css        # VIP 页（同步）
+│   ├── tools-critical.css      # 工具页（同步）
+│   └── poster.css              # 海报（按需）
+├── js/
+│   ├── disk-data.js        # 网盘代号 / 引导图 / 早渲染共享数据
+│   ├── page-guard.js       # 全站页面保护（各页 head 引用）
+│   ├── index-early.js      # 分享页 head：meta、preload、移动早跳转
+│   ├── index-body-init.js  # 分享页 body：引导图、免责声明
+│   ├── generator-early.js  # 生成器 head：guide-hidden 状态
+│   ├── app.js              # 分享页主逻辑
+│   ├── generator.js        # 生成器主逻辑
+│   ├── defer-aux-scripts.js # load 后：prefetch + SW 注册
+│   └── sw-register.js      # SW 更新提示与刷新
 ├── assets/                 # 图片与图标
 ├── vendor/                 # 第三方库（懒加载）
-├── sw.js                   # Service Worker（须保留在根目录）
+├── sw.js                   # Service Worker（须保留在根目录，当前 v24）
 ├── _headers / _redirects   # Cloudflare Pages 缓存、预加载与旧路径重定向
 ├── scripts/                # 本地 Git 推送脚本（不部署）
 └── extras/                 # 小程序等待部署附属项目（SW 不缓存）
@@ -58,14 +77,21 @@ npx serve .
 
 旧路径（如 `/generator.html`、`/generator`、`/app.js`）会通过 `_redirects` 自动 301 到新位置。
 
-## 性能与缓存（近期）
+## 性能策略
 
-- 首页不再加载 `enhancements.js`（仅生成器需要）
-- Service Worker 预缓存仅保留首页关键资源；`/vendor/`、`/assets/` 使用 cache-first（`CACHE_VERSION` 见 `sw.js`）
-- 全站 `site-prefetch.js`：空闲时预取常用子页，悬停链接时预取 HTML
-- 首页优先生成二维码，微信文章 idle 后再加载
-- 子页 CSS 异步加载；生成器增强脚本 idle 后加载
-- Cloudflare Dashboard 建议开启 **Auto Minify**、**Brotli**
+| 页面 | 同步资源 | 异步资源 |
+|------|----------|----------|
+| 分享页 | `disk-data.js`, `index-critical.css` | `perf-optimized.css`, `app.js` |
+| 生成器 | `disk-data.js`, `generator-critical.css` | `generator.css`, `generator-deferred.css` |
+| 资源合集 | `resources-critical.css` | `resources.css` |
+| 限速 / VIP / 工具 | `*-critical.css` | — |
+
+- **移动端无广告分享链**：head 内直接跳转网盘，不下载整页
+- **引导图 LCP**：`<picture>` WebP + PNG 回退，head preload
+- **SW**：空闲注册；新版本显示「点击刷新」提示（`sw-register.js`）
+- **全站 prefetch**：`site-prefetch.js` 空闲预取常用子页
+
+详细变更见 [CHANGELOG.md](./CHANGELOG.md)。
 
 ## 推送到 GitHub
 

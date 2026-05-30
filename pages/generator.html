@@ -6,34 +6,13 @@
   <title>链接生成器</title>
   <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <script src="/js/disk-data.js"></script>
+  <script src="/js/page-guard.js"></script>
+  <script src="/js/generator-early.js"></script>
+  <link rel="stylesheet" href="/css/generator-critical.css">
   <link rel="stylesheet" href="/css/generator.css">
   <link rel="preload" href="/css/generator-deferred.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="/css/generator-deferred.css"></noscript>
-  <script>
-    try {
-      if (localStorage.getItem('hideGuidePanel') === 'true') {
-        document.documentElement.classList.add('guide-hidden');
-      }
-    } catch (e) {}
-    document.addEventListener('contextmenu',function(e){e.preventDefault();});
-    document.addEventListener('keydown',function(e){
-      if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='U')){
-        e.preventDefault();
-      }
-    });
-  </script>
-  <style>
-    :root { --bg:#f8fafc; --card:#fff; --text:#1e293b; --text2:#475569; --text3:#94a3b8; --border:#e2e8f0; --primary:#6366f1; --primary-light:#818cf8; }
-    [data-theme="dark"] { --bg:#0f172a; --card:#1e293b; --text:#f1f5f9; --text2:#cbd5e1; --text3:#64748b; --border:#334155; --primary:#818cf8; --primary-light:#a5b4fc; }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); min-height:100vh; padding:20px; color:var(--text); transition:all .2s; }
-    .container { max-width:1000px; margin:0 auto; }
-    
-    /* 关键：防止异步 CSS 加载前弹窗/Toast 闪现 */
-    .modal { display:none; position:fixed; inset:0; z-index:10000; }
-    .modal.show { display:flex; }
-    .toast { position:fixed; opacity:0; pointer-events:none; z-index:10001; }
-</style>
 </head>
 <body class="generator-page">
   <div class="toast" id="toast"></div>

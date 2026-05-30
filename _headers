@@ -2,17 +2,23 @@
 # https://developers.cloudflare.com/pages/configuration/headers/
 
 /pages/generator.html
-  Link: </css/generator.css>; rel=preload; as=style, </js/generator.js>; rel=preload; as=script
+  Link: </js/disk-data.js>; rel=preload; as=script, </js/generator-early.js>; rel=preload; as=script, </css/generator-critical.css>; rel=preload; as=style, </css/generator.css>; rel=preload; as=style, </js/generator.js>; rel=preload; as=script
 
 /index.html
-  Link: </js/app.js>; rel=preload; as=script, </css/perf-optimized.css>; rel=preload; as=style
+  Link: </js/disk-data.js>; rel=preload; as=script, </js/index-early.js>; rel=preload; as=script, </css/index-critical.css>; rel=preload; as=style, </css/perf-optimized.css>; rel=preload; as=style
   Cache-Control: public, max-age=300, s-maxage=3600, stale-while-revalidate=86400
 
 /pages/resources.html
-  Link: </css/resources.css>; rel=preload; as=style, </js/resources.js>; rel=preload; as=script
+  Link: </css/resources-critical.css>; rel=preload; as=style, </css/resources.css>; rel=preload; as=style, </js/resources.js>; rel=preload; as=script
+
+/pages/vip.html
+  Link: </css/vip-critical.css>; rel=preload; as=style
+
+/pages/tools.html
+  Link: </css/tools-critical.css>; rel=preload; as=style
 
 /pages/speed.html
-  Link: </css/generator.css>; rel=preload; as=style
+  Link: </css/speed-critical.css>; rel=preload; as=style, </css/generator.css>; rel=preload; as=style
 
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate
