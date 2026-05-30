@@ -4,8 +4,8 @@ const BASE_URL = window.location.origin + '/index.html';
 
 const DISK_CONFIG = {
   // ===== 国内主流网盘 =====
-  baidu: { name: '百度网盘', keywords: ['pan.baidu.com', 'yun.baidu.com'], logo: '/assets/logos/baidu.png', color: '#06a7ff' },
-  quark: { name: '夸克网盘', keywords: ['pan.quark.cn', 'quark.cn'], logo: '/assets/logos/quark.png', color: '#1890ff' },
+  baidu: { name: '百度网盘', keywords: ['pan.baidu.com', 'yun.baidu.com'], logo: '/assets/logos/baidu.webp', color: '#06a7ff' },
+  quark: { name: '夸克网盘', keywords: ['pan.quark.cn', 'quark.cn'], logo: '/assets/logos/quark.webp', color: '#1890ff' },
   aliyun: { name: '阿里云盘', keywords: ['aliyundrive.com', 'alipan.com'], logo: '/assets/logos/aliyun.ico', color: '#ff6a00' },
   xunlei: { name: '迅雷云盘', keywords: ['pan.xunlei.com', 'xl.xunlei.com'], logo: '/assets/logos/xunlei.ico', color: '#0078d4' },
   '115': { name: '115网盘', keywords: ['115.com', '115cdn.com'], logo: '/assets/logos/115.ico', color: '#2b579a' },
@@ -21,8 +21,8 @@ const DISK_CONFIG = {
   ctfile: { name: '城通网盘', keywords: ['ctfile.com', 'u.ctfile.com'], logo: '/assets/logos/ctfile.ico', color: '#1677ff' },
   feijipan: { name: '飞机盘', keywords: ['feijipan.com'], logo: '', color: '#1890ff' },
   // ===== 国际主流网盘 =====
-  onedrive: { name: 'OneDrive', keywords: ['onedrive.live.com', '1drv.ms', 'sharepoint.com'], logo: '/assets/logos/onedrive.png', color: '#0078d4' },
-  googledrive: { name: 'Google Drive', keywords: ['drive.google.com', 'docs.google.com', 'photos.google.com'], logo: '/assets/logos/googledrive.png', color: '#4285f4' },
+  onedrive: { name: 'OneDrive', keywords: ['onedrive.live.com', '1drv.ms', 'sharepoint.com'], logo: '/assets/logos/onedrive.webp', color: '#0078d4' },
+  googledrive: { name: 'Google Drive', keywords: ['drive.google.com', 'docs.google.com', 'photos.google.com'], logo: '/assets/logos/googledrive.webp', color: '#4285f4' },
   dropbox: { name: 'Dropbox', keywords: ['dropbox.com', 'db.tt'], logo: '/assets/logos/dropbox.ico', color: '#0061ff' },
   mega: { name: 'MEGA', keywords: ['mega.nz', 'mega.co.nz'], logo: '/assets/logos/mega.ico', color: '#d9272e' },
   mediafire: { name: 'MediaFire', keywords: ['mediafire.com'], logo: '/assets/logos/mediafire.ico', color: '#1d6fa4' },
@@ -32,10 +32,27 @@ const DISK_CONFIG = {
   default: { name: '资源分享', keywords: [], logo: '', color: '#6366f1' }
 };
 
-let history = JSON.parse(localStorage.getItem('linkHistory') || '[]');
+let history = [];
 let historyDirty = false;
-let groups = JSON.parse(localStorage.getItem('linkGroups') || '["默认","学习","娱乐","工作"]');
-let settings = JSON.parse(localStorage.getItem('qrSettings') || '{"colorDark":"#1e293b","colorLight":"#ffffff","size":180,"dotStyle":"rounded","cornerStyle":"dot","colorMode":"solid","gradient1":"#6366f1","gradient2":"#8b5cf6","gradientType":"linear"}');
+let groups = ['默认', '学习', '娱乐', '工作'];
+let settings = {
+  colorDark: '#1e293b',
+  colorLight: '#ffffff',
+  size: 180,
+  dotStyle: 'rounded',
+  cornerStyle: 'dot',
+  colorMode: 'solid',
+  gradient1: '#6366f1',
+  gradient2: '#8b5cf6',
+  gradientType: 'linear'
+};
+try { history = JSON.parse(localStorage.getItem('linkHistory') || '[]'); } catch { history = []; }
+try { groups = JSON.parse(localStorage.getItem('linkGroups') || '["默认","学习","娱乐","工作"]'); } catch { groups = ['默认', '学习', '娱乐', '工作']; }
+try {
+  settings = JSON.parse(localStorage.getItem('qrSettings') || '') || settings;
+} catch {
+  settings = { ...settings };
+}
 let currentData = null;
 let selectedPosterStyle = localStorage.getItem('posterStyle') || 'freebie';
 let currentQRCode = null;
@@ -73,24 +90,82 @@ const qrRenderQueue = [];
 let qrRenderScheduled = false;
 const QR_RENDER_BATCH = 8;
 
+window._lazyLibs = {
+  html2canvas: null,
+  jszip: null,
+  xlsx: null,
+  qrStyling: null
+};
+
+function loadScript(localSrc, cdnSrc) {
+  return new Promise((resolve, reject) => {
+    const attach = (src, allowFallback) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = () => {
+        if (allowFallback && cdnSrc && src !== cdnSrc) attach(cdnSrc, false);
+        else reject(new Error('Script load failed: ' + src));
+      };
+      document.head.appendChild(s);
+    };
+    attach(localSrc, !!cdnSrc);
+  });
+}
+
+async function ensureLib(name) {
+  if (window._lazyLibs[name]) return;
+  const libs = {
+    html2canvas: {
+      local: '/vendor/html2canvas.min.js',
+      cdn: 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'
+    },
+    jszip: {
+      local: '/vendor/jszip.min.js',
+      cdn: 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js'
+    },
+    xlsx: {
+      local: '/vendor/xlsx.full.min.js',
+      cdn: 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
+    },
+    qrStyling: {
+      local: '/vendor/qr-code-styling.js',
+      cdn: 'https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js'
+    }
+  };
+  const lib = libs[name];
+  if (!lib) return;
+  await loadScript(lib.local, lib.cdn);
+  window._lazyLibs[name] = true;
+}
+
+function ensureQRStyling() {
+  if (typeof QRCodeStyling !== 'undefined') return Promise.resolve();
+  return ensureLib('qrStyling');
+}
+window.ensureLib = ensureLib;
+window.ensureQRStyling = ensureQRStyling;
+
 function enqueueQRRender(containerId, url, size) {
   qrRenderQueue.push({ containerId, url, size });
   if (qrRenderScheduled) return;
   qrRenderScheduled = true;
   const runBatch = () => {
-    let count = 0;
-    while (qrRenderQueue.length && count < QR_RENDER_BATCH) {
-      const { containerId: qId, url: targetUrl, size: qrSize } = qrRenderQueue.shift();
-      const qrContainer = document.getElementById(qId);
-      if (qrContainer) generateStyledQR(targetUrl, qrContainer, qrSize);
-      count++;
-    }
-    if (qrRenderQueue.length) {
-      if ('requestIdleCallback' in window) requestIdleCallback(runBatch, { timeout: 100 });
-      else requestAnimationFrame(runBatch);
-    } else {
-      qrRenderScheduled = false;
-    }
+    ensureQRStyling().then(() => {
+      let count = 0;
+      while (qrRenderQueue.length && count < QR_RENDER_BATCH) {
+        const { containerId: qId, url: targetUrl, size: qrSize } = qrRenderQueue.shift();
+        const qrContainer = document.getElementById(qId);
+        if (qrContainer) generateStyledQR(targetUrl, qrContainer, qrSize);
+        count++;
+      }
+      if (qrRenderQueue.length) {
+        if ('requestIdleCallback' in window) requestIdleCallback(runBatch, { timeout: 100 });
+        else requestAnimationFrame(runBatch);
+      } else {
+        qrRenderScheduled = false;
+      }
+    }).catch(() => { qrRenderScheduled = false; });
   };
   if ('requestIdleCallback' in window) requestIdleCallback(runBatch, { timeout: 100 });
   else requestAnimationFrame(runBatch);
@@ -534,24 +609,43 @@ function loadBannedWordsBase() {
   });
 }
 
-function scheduleBannedWordsInit() {
-  const run = () => {
-    loadBannedWordsBase()
-      .then(() => loadRemoteBannedWords())
-      .then(() => {
-        initBannedWordsWorker();
-        setTimeout(() => { if (!bannedWordsWorkerReady) ensureDfaTree(); }, 1500);
-      })
-      .catch(() => {
-        initBannedWordsWorker();
-        setTimeout(() => { if (!bannedWordsWorkerReady) ensureDfaTree(); }, 1500);
-      });
-  };
-  if (typeof requestIdleCallback === 'function') {
-    requestIdleCallback(run, { timeout: 4000 });
-  } else {
-    setTimeout(run, 1200);
-  }
+let bannedWordsInitStarted = false;
+function startBannedWordsInit() {
+  if (bannedWordsInitStarted) return;
+  bannedWordsInitStarted = true;
+  loadBannedWordsBase()
+    .then(() => loadRemoteBannedWords())
+    .then(() => {
+      initBannedWordsWorker();
+      setTimeout(() => { if (!bannedWordsWorkerReady) ensureDfaTree(); }, 1500);
+    })
+    .catch(() => {
+      initBannedWordsWorker();
+      setTimeout(() => { if (!bannedWordsWorkerReady) ensureDfaTree(); }, 1500);
+    });
+}
+
+function bindBannedWordsLazyInit() {
+  const trigger = () => startBannedWordsInit();
+  ['resourceName', 'remarkText', 'batchInput'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('focus', trigger, { once: true });
+    el.addEventListener('input', trigger, { once: true });
+  });
+}
+
+function warmupQRStyling() {
+  if (typeof ensureQRStyling === 'function') ensureQRStyling();
+}
+
+function bindQRStylingWarmup() {
+  const warmup = () => warmupQRStyling();
+  ['targetUrl', 'batchInput'].forEach((id) => {
+    document.getElementById(id)?.addEventListener('focus', warmup, { once: true });
+  });
+  document.querySelector('#panel-single .btn-primary')?.addEventListener('pointerenter', warmup, { once: true, passive: true });
+  document.querySelector('#panel-batch .btn-primary')?.addEventListener('pointerenter', warmup, { once: true, passive: true });
 }
 
 // 加载远程词库
@@ -1170,61 +1264,72 @@ function switchTab(tab) {
   });
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + tab).classList.add('active');
-  if (tab === 'history') { renderHistory(); initDragSort(); }
-  if (tab === 'settings') loadSettings();
-  if (tab === 'presets') renderPresets();
+  if (tab === 'history') {
+    renderHistory();
+    ensureEnhancements().then(() => initDragSort());
+  }
+  if (tab === 'settings') {
+    ensureEnhancements().then(() => {
+      loadSettings();
+      syncEnhancementControls();
+    });
+  }
+  if (tab === 'presets') ensureEnhancements().then(() => renderPresets());
 }
 
 // ==================== 单个生成 ====================
 function generateSingle() {
-  let raw = document.getElementById('targetUrl').value.trim();
-  if (!raw) return toast('请输入链接');
+  try {
+    startBannedWordsInit();
+    let raw = document.getElementById('targetUrl')?.value?.trim();
+    if (!raw) return toast('请输入链接');
 
-  const resolved = resolveShareInput(raw, { populate: true });
-  let url = resolved?.targetUrl || resolveTargetUrlForGeneration(raw) || raw;
-  if (resolved?.targetUrl) document.getElementById('targetUrl').value = url;
-  
-  let name = document.getElementById('resourceName').value.trim() || resolved?.resourceName || '资源';
-  const code = document.getElementById('extractCode').value.trim() || resolved?.extractCode || '';
-  const group = document.getElementById('groupTag').value;
-  let remark = document.getElementById('remarkText').value.trim();
-  const adEnabled = document.getElementById('adEnabled')?.checked || false;
-  let adText = document.getElementById('adText')?.value || '';
-  
-  // 输入验证（URL和提取码格式）
-  const validation = validateInput(url, name, remark, adEnabled ? adText : '', code);
-  if (!validation.valid) {
-    toast(validation.error);
-    return;
-  }
-  
-  // 自动清理违禁内容
-  const sanitized = sanitizeInputData({ 
-    name, 
-    remark, 
-    adText: adEnabled ? adText : '' 
-  });
-  name = sanitized.name;
-  remark = sanitized.remark;
-  adText = sanitized.adText;
-  
-  // 更新输入框显示清理后的内容
-  if (sanitized.hasFiltered) {
-    document.getElementById('resourceName').value = name;
-    document.getElementById('remarkText').value = remark;
-    if (adEnabled) document.getElementById('adText').value = adText;
-    toast('已自动过滤违禁内容');
-  }
-  
-  const link = generateLink(url, name, code, remark);
-  const disk = detectDiskType(url);
-  
-  currentData = { url, name, code, link, disk, group, remark, time: Date.now() };
-  saveToHistory(currentData);
-  
-  const container = document.getElementById('singleResult');
-  const qrId = 'qr-single-' + Date.now();
-  container.innerHTML = `
+    const resolved = resolveShareInput(raw, { populate: true });
+    let url = resolved?.targetUrl || resolveTargetUrlForGeneration(raw) || raw;
+    if (resolved?.targetUrl) document.getElementById('targetUrl').value = url;
+    
+    let name = document.getElementById('resourceName')?.value?.trim() || resolved?.resourceName || '资源';
+    const code = document.getElementById('extractCode')?.value?.trim() || resolved?.extractCode || '';
+    const group = document.getElementById('groupTag')?.value || '';
+    let remark = document.getElementById('remarkText')?.value?.trim() || '';
+    const adEnabled = document.getElementById('adEnabled')?.checked || false;
+    let adText = document.getElementById('adText')?.value || '';
+    
+    const validation = validateInput(url, name, remark, adEnabled ? adText : '', code);
+    if (!validation.valid) {
+      toast(validation.error);
+      return;
+    }
+    
+    const sanitized = sanitizeInputData({ 
+      name, 
+      remark, 
+      adText: adEnabled ? adText : '' 
+    });
+    name = sanitized.name;
+    remark = sanitized.remark;
+    adText = sanitized.adText;
+    
+    if (sanitized.hasFiltered) {
+      document.getElementById('resourceName').value = name;
+      document.getElementById('remarkText').value = remark;
+      if (adEnabled) document.getElementById('adText').value = adText;
+      toast('已自动过滤违禁内容');
+    }
+    
+    const link = generateLink(url, name, code, remark);
+    if (!link || link.includes('?d=null')) {
+      return toast('链接生成失败，请检查目标链接后重试');
+    }
+    const disk = detectDiskType(url);
+    
+    currentData = { url, name, code, link, disk, group, remark, time: Date.now() };
+
+    const container = document.getElementById('singleResult');
+    if (!container) return toast('页面结构异常，请刷新后重试');
+    const qrId = 'qr-single-' + Date.now();
+    const safeLink = escapeHtml(link);
+    container.innerHTML = `
     <div class="next-step-card">
       <div>
         <div class="next-step-title">下一步：复制新链接发给用户</div>
@@ -1239,25 +1344,29 @@ function generateSingle() {
     <div class="result-card">
       <div class="qr" id="${qrId}" style="width:56px;height:56px;"></div>
       <div class="info">
-        <div class="name">${name} <span class="tag" style="background:${disk.color}">${disk.name}</span></div>
-        <div class="link">${link}</div>
-        ${remark ? `<div class="remark">📝 ${remark}</div>` : ''}
+        <div class="name">${escapeHtml(name)} <span class="tag" style="background:${disk.color}">${escapeHtml(disk.name)}</span></div>
+        <div class="link">${safeLink}</div>
+        ${remark ? `<div class="remark">📝 ${escapeHtml(remark)}</div>` : ''}
       </div>
       <div class="actions">
         <button class="btn btn-primary btn-sm" onclick="showQRModal()">查看</button>
-        <button class="btn btn-secondary btn-sm" onclick="copyLink('${link}')">复制</button>
+        <button class="btn btn-secondary btn-sm" onclick="copyLink(currentData.link)">复制</button>
       </div>
     </div>
   `;
-  
-  // 生成小二维码（使用设置中的样式）
-  enqueueQRRender(qrId, url, 56);
-  
-  toast(sanitized.hasFiltered ? '生成成功（已过滤违禁内容）' : '生成成功！');
+    
+    enqueueQRRender(qrId, url, 56);
+    try { saveToHistory(currentData); } catch (e) { console.warn('历史记录保存失败:', e); }
+    toast(sanitized.hasFiltered ? '生成成功（已过滤违禁内容）' : '生成成功！');
+  } catch (err) {
+    console.error('generateSingle failed:', err);
+    toast('生成失败：' + (err?.message || '未知错误'));
+  }
 }
 
 // ==================== 批量生成 ====================
 function generateBatch() {
+  startBannedWordsInit();
   const input = document.getElementById('batchInput').value.trim();
   if (!input) return toast('请输入链接');
   
@@ -1541,6 +1650,7 @@ function resetUploadPicker() {
 
 // ==================== 表格导入处理 ====================
 async function handleFileUpload(e) {
+  startBannedWordsInit();
   const file = e.target.files[0];
   if (!file) return;
   if (typeof ensureLib === 'function') await ensureLib('xlsx');
@@ -1786,6 +1896,7 @@ function importHistory(e) {
 
 async function exportHistoryQR() {
   if (!history.length) return toast('暂无记录');
+  await ensureQRStyling();
   const items = history.slice(0, 50);
   if (history.length > 50) toast('仅导出最近 50 条二维码');
   const zip = new JSZip();
@@ -1909,9 +2020,14 @@ function applyQRPreset(preset) {
 }
 
 // 预览二维码样式（从DOM读取当前设置）
-function previewQRStyle() {
+async function previewQRStyle() {
   const container = document.getElementById('qrPreviewContainer');
   if (!container) return;
+  try {
+    await ensureQRStyling();
+  } catch {
+    return;
+  }
   
   container.innerHTML = '';
   
@@ -2091,10 +2207,10 @@ function showQRModal() {
   if (!currentData) return;
   document.getElementById('modalTitle').textContent = currentData.name;
   const qrBox = document.getElementById('modalQr');
-  
-  // 使用炫酷二维码样式
   qrBox.innerHTML = '';
-  currentQRCode = generateStyledQR(currentData.url, qrBox, settings.size || 180);
+  ensureQRStyling().then(() => {
+    currentQRCode = generateStyledQR(currentData.url, qrBox, settings.size || 180);
+  }).catch(() => toast('二维码组件加载失败'));
   
   const remarkBox = document.getElementById('modalRemark');
   if (currentData.remark) {
@@ -2214,12 +2330,23 @@ function posterFootHtml(code, scanText) {
   return `<div class="pl-foot">${codeHtml}<div class="pl-scan">${scanText}</div></div>`;
 }
 
+function posterSmartTitle(rawName, fallbackTitle) {
+  const name = String(rawName || '').trim();
+  if (!name || name === '资源' || name === '精选资源') return fallbackTitle;
+  if (name.length <= 4 && /资源|资料|合集|文件/.test(name)) return fallbackTitle;
+  return escapeHtml(name);
+}
+
+function posterSubtitleHtml(text) {
+  return `<div class="pl-subtitle">${escapeHtml(text)}</div>`;
+}
+
 function posterMidQr(key, wrapClass = 'lg') {
   return `<div class="pl-mid"><div class="pl-qr-wrap ${wrapClass}">${posterQrHtml(key)}</div></div>`;
 }
 
 function buildPosterFreebie(key, payload) {
-  const name = escapeHtml(payload.name);
+  const name = posterSmartTitle(payload.name, '限时免费资源包');
   return `
     <div class="poster-canvas poster-layout-freebie" data-poster-theme="${key}">
       <div class="pl-bg pl-bg-freebie" aria-hidden="true"></div>
@@ -2228,6 +2355,7 @@ function buildPosterFreebie(key, payload) {
         <div class="pl-freebie-price">0<small>元领取</small></div>
         ${posterDiskHtml(payload)}
       </div>
+      ${posterSubtitleHtml('无需转发 · 扫码即可保存到网盘')}
       <div class="pl-title-box light"><h1>${name}</h1></div>
       ${posterMidQr(key)}
       <div class="pl-tags"><span>免转发</span><span>秒获取</span><span>长期有效</span></div>
@@ -2236,7 +2364,7 @@ function buildPosterFreebie(key, payload) {
 }
 
 function buildPosterViral(key, payload) {
-  const name = escapeHtml(payload.name);
+  const name = posterSmartTitle(payload.name, '爆款资源合集');
   return `
     <div class="poster-canvas poster-layout-viral" data-poster-theme="${key}">
       <div class="pl-bg pl-bg-viral" aria-hidden="true"></div>
@@ -2245,6 +2373,7 @@ function buildPosterViral(key, payload) {
         ${posterDiskHtml(payload)}
       </div>
       <div class="pl-viral-num">已有 10万+ 人领取</div>
+      ${posterSubtitleHtml('热门整理 · 高清完整 · 持续更新')}
       <div class="pl-title-box viral"><h1>${name}</h1></div>
       ${posterMidQr(key, 'lg ring')}
       <div class="pl-tags"><span>高清完整</span><span>持续更新</span><span>免费获取</span></div>
@@ -2253,12 +2382,13 @@ function buildPosterViral(key, payload) {
 }
 
 function buildPosterCinema(key, payload) {
-  const name = escapeHtml(payload.name);
+  const name = posterSmartTitle(payload.name, '本周必看影视资源');
   return `
     <div class="poster-canvas poster-layout-cinema" data-poster-theme="${key}">
       <div class="pl-bg pl-bg-cinema" aria-hidden="true"></div>
       <div class="pl-top">${posterDiskHtml(payload)}<div class="pl-cinema-label">4K · 超清</div></div>
       <div class="pl-hook pl-hook-sm">本周必看</div>
+      ${posterSubtitleHtml('精选片源 · 清晰分类 · 扫码保存')}
       <div class="pl-title-box cinema"><h1>${name}</h1></div>
       ${posterMidQr(key, 'lg gold')}
       ${posterFootHtml(payload.code, '扫码观看 / 立即保存')}
@@ -2266,13 +2396,14 @@ function buildPosterCinema(key, payload) {
 }
 
 function buildPosterStudy(key, payload) {
-  const name = escapeHtml(payload.name);
+  const name = posterSmartTitle(payload.name, '学习资料合集');
   return `
     <div class="poster-canvas poster-layout-study pl-layout-study" data-poster-theme="${key}">
       <div class="pl-top">
         <div class="pl-hook pl-hook-sm">📚 学习资料包</div>
         ${posterDiskHtml(payload)}
       </div>
+      ${posterSubtitleHtml('课程讲义 · 电子文档 · 可打印资料')}
       <div class="pl-title-box study"><h1>${name}</h1></div>
       ${posterMidQr(key)}
       <div class="pl-tags"><span>高清PDF</span><span>可打印</span><span>永久有效</span></div>
@@ -2281,7 +2412,7 @@ function buildPosterStudy(key, payload) {
 }
 
 function buildPosterFlash(key, payload) {
-  const name = escapeHtml(payload.name);
+  const name = posterSmartTitle(payload.name, '限时开放福利资源');
   return `
     <div class="poster-canvas poster-layout-flash" data-poster-theme="${key}">
       <div class="pl-flash-bar">⚡ 福利秒杀 · 限时开放</div>
@@ -2290,6 +2421,7 @@ function buildPosterFlash(key, payload) {
         ${posterDiskHtml(payload)}
       </div>
       <div class="pl-flash-timer">⏱ 距结束 02:59:59</div>
+      ${posterSubtitleHtml('手慢无 · 先到先得 · 一码直达')}
       <div class="pl-title-box flash"><h1>${name}</h1></div>
       ${posterMidQr(key, 'lg neon')}
       ${posterFootHtml(payload.code, '立即扫码领取')}
@@ -2297,7 +2429,7 @@ function buildPosterFlash(key, payload) {
 }
 
 function buildPosterVip(key, payload) {
-  const name = escapeHtml(payload.name);
+  const name = posterSmartTitle(payload.name, '精品专享资源包');
   return `
     <div class="poster-canvas poster-layout-vip pl-layout-vip" data-poster-theme="${key}">
       <div class="pl-top">
@@ -2305,6 +2437,7 @@ function buildPosterVip(key, payload) {
         ${posterDiskHtml(payload)}
       </div>
       <div class="pl-hook pl-hook-sm">精品 · 专享资源</div>
+      ${posterSubtitleHtml('精选整理 · 高价值内容 · 扫码解锁')}
       <div class="pl-title-box vip"><h1>${name}</h1></div>
       ${posterMidQr(key, 'lg gold')}
       ${posterFootHtml(payload.code, '扫码解锁精品资源')}
@@ -2312,7 +2445,7 @@ function buildPosterVip(key, payload) {
 }
 
 function buildPosterDaily(key, payload) {
-  const name = escapeHtml(payload.name);
+  const name = posterSmartTitle(payload.name, '今日新鲜资源');
   const now = new Date();
   const m = now.getMonth() + 1;
   const d = now.getDate();
@@ -2326,6 +2459,7 @@ function buildPosterDaily(key, payload) {
         </div>
         ${posterDiskHtml(payload)}
       </div>
+      ${posterSubtitleHtml('新补档 · 新整理 · 今日推荐')}
       <div class="pl-title-box daily"><h1>${name}</h1></div>
       ${posterMidQr(key, 'lg')}
       ${posterFootHtml(payload.code, '扫码获取今日最新')}
@@ -2333,7 +2467,7 @@ function buildPosterDaily(key, payload) {
 }
 
 function buildPosterSocial(key, payload) {
-  const name = escapeHtml(payload.name);
+  const name = posterSmartTitle(payload.name, '分享一个实用资源');
   const remark = payload.remark ? escapeHtml(payload.remark) : '分享一个好资源，需要的自取～';
   return `
     <div class="poster-canvas poster-layout-social pl-layout-social" data-poster-theme="${key}">
@@ -2376,6 +2510,7 @@ function waitForPaint() {
 }
 
 async function renderAllPosterQrs(qrData) {
+  await ensureQRStyling();
   await waitForPaint();
   Object.keys(POSTER_STYLES).forEach((key) => {
     const container = document.getElementById('posterQr-' + key);
@@ -2386,11 +2521,10 @@ async function renderAllPosterQrs(qrData) {
 
 function fitPosterPreviewScale() {
   document.querySelectorAll('.poster-preview-slot').forEach((slot) => {
-    const inner = slot.querySelector('.poster-preview-inner');
-    if (!inner || !slot.clientWidth) return;
+    const canvas = slot.querySelector('.poster-canvas');
+    if (!canvas || !slot.clientWidth) return;
     const scale = slot.clientWidth / 750;
-    inner.style.transform = `scale(${scale})`;
-    inner.style.marginLeft = `${-375 * scale}px`;
+    canvas.style.transform = `scale(${scale})`;
   });
 }
 
@@ -2414,8 +2548,9 @@ async function showPosterModal() {
   `).join('');
 
   await renderAllPosterQrs(payload.link);
-  fitPosterPreviewScale();
   document.getElementById('posterModal').classList.add('show');
+  await waitForPaint();
+  fitPosterPreviewScale();
 }
 
 function selectPoster(key) {
@@ -2443,15 +2578,22 @@ async function downloadSelectedPoster() {
     }
     await new Promise((resolve) => setTimeout(resolve, 200));
 
-    const canvas = await html2canvas(canvasRoot, {
-      scale: 2,
-      backgroundColor: null,
-      useCORS: true,
-      allowTaint: true,
-      logging: false,
-      width: canvasRoot.offsetWidth,
-      height: canvasRoot.offsetHeight
-    });
+    const previousTransform = canvasRoot.style.transform;
+    let canvas;
+    try {
+      canvasRoot.style.transform = 'none';
+      canvas = await html2canvas(canvasRoot, {
+        scale: 2,
+        backgroundColor: null,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        width: 750,
+        height: 1060
+      });
+    } finally {
+      canvasRoot.style.transform = previousTransform;
+    }
     const a = document.createElement('a');
     a.href = canvas.toDataURL('image/png');
     a.download = `${sanitizeFilename(currentData?.name)}_${POSTER_STYLES[selectedPosterStyle]?.name || selectedPosterStyle}_海报.png`;
@@ -2582,7 +2724,8 @@ function closeAllModals() {
 }
 
 // 多格式复制弹窗
-function showCopyFormatsModal() {
+async function showCopyFormatsModal() {
+  await ensureEnhancements();
   if (!currentData) return toast('请先生成链接');
   const list = document.getElementById('copyFormatsList');
   list.innerHTML = Object.entries(MultiFormatCopy.formats).map(([key, val]) => 
@@ -2607,7 +2750,8 @@ async function copyFormat(format) {
 }
 
 // 快捷键弹窗
-function showShortcutsModal() {
+async function showShortcutsModal() {
+  await ensureEnhancements();
   document.getElementById('shortcutsList').innerHTML = KeyboardShortcuts.showHelp();
   document.getElementById('shortcutsModal').classList.add('show');
 }
@@ -2791,7 +2935,8 @@ function renderPresets() {
   document.getElementById('presetsList').innerHTML = TemplatePresets.getPresetsHTML();
 }
 
-function applyPreset(id) {
+async function applyPreset(id) {
+  await ensureEnhancements();
   const config = TemplatePresets.apply(id);
   if (!config) return toast('预设不存在');
   
@@ -2824,14 +2969,16 @@ function applyPreset(id) {
   toast('已应用预设');
 }
 
-function deletePreset(id) {
+async function deletePreset(id) {
+  await ensureEnhancements();
   if (!confirm('确定删除此预设？')) return;
   TemplatePresets.remove(id);
   renderPresets();
   toast('已删除');
 }
 
-function saveCurrentAsPreset() {
+async function saveCurrentAsPreset() {
+  await ensureEnhancements();
   const name = prompt('请输入预设名称：');
   if (!name) return;
   
@@ -2860,6 +3007,8 @@ function initDragSort() {
 
 // 批量导出增强
 async function exportBatchPDF() {
+  await ensureEnhancements();
+  await ensureQRStyling();
   const items = history.slice(0, 50); // 最多50个
   if (!items.length) return toast('暂无记录');
   
@@ -2917,22 +3066,18 @@ async function exportBatchPDF() {
     });
     
     setupFormAutoSave();
+    setupQRPreviewListeners();
     setupMarketingSummaryListeners();
     setTimeout(startOnboarding, 450);
     
-    if (window.QRBorderStyles) {
-      const borderSelect = document.getElementById('qrBorderStyle');
-      if (borderSelect) borderSelect.value = QRBorderStyles.current;
-    }
-    if (window.DynamicBackground) {
-      const bgSelect = document.getElementById('bgEffect');
-      if (bgSelect) bgSelect.value = DynamicBackground.current;
-    }
+    bindBannedWordsLazyInit();
+    bindQRStylingWarmup();
     
-    requestIdleCallback ? requestIdleCallback(() => initSidebarAdQR()) : setTimeout(initSidebarAdQR, 200);
+    requestIdleCallback ? requestIdleCallback(() => initSidebarAdQR(), { timeout: 4000 }) : setTimeout(initSidebarAdQR, 800);
     
-    scheduleBannedWordsInit();
-    
+    window.generateSingle = generateSingle;
+    window.generateBatch = generateBatch;
+    window.switchTab = switchTab;
     window.previewQRStyle = previewQRStyle;
     window.settings = settings;
   });
@@ -3053,6 +3198,23 @@ function setupFormAutoSave() {
   });
 }
 
+let qrPreviewBound = false;
+function setupQRPreviewListeners() {
+  if (qrPreviewBound) return;
+  qrPreviewBound = true;
+  const debouncedPreview = debounce(() => previewQRStyle(), 200);
+  [
+    'qrDotStyle', 'qrCornerStyle', 'qrColorMode', 'qrSize',
+    'qrColorDark', 'qrColorLight', 'qrGradient1', 'qrGradient2',
+    'qrGradientType', 'qrGradientBg'
+  ].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const eventName = el.type === 'color' ? 'input' : 'change';
+    el.addEventListener(eventName, debouncedPreview);
+  });
+}
+
 
 function refreshMarketingSummaries() {
   document.querySelectorAll('.marketing-settings').forEach(box => {
@@ -3113,9 +3275,14 @@ function initSidebarAdQR() {
   }
 }
 
-function generateSidebarAdQR() {
+async function generateSidebarAdQR() {
   const leftAdContainer = document.getElementById('leftAdQr');
   if (!leftAdContainer) return;
+  try {
+    await ensureQRStyling();
+  } catch {
+    return;
+  }
   
   const adUrl = 'https://dt.bd.cn/#/pages/login/register?invite_code=3617287&qd=self_team_android';
   
@@ -3161,7 +3328,7 @@ function copyWechatId() {
 }
 
 // 双击放大二维码
-function zoomQR(element, title) {
+async function zoomQR(element, title) {
   const modal = document.getElementById('qrZoomModal');
   const titleEl = document.getElementById('qrZoomTitle');
   const content = document.getElementById('qrZoomContent');
@@ -3174,6 +3341,11 @@ function zoomQR(element, title) {
   const img = element.querySelector('img');
   
   if (canvas) {
+    try {
+      await ensureQRStyling();
+    } catch {
+      return toast('二维码组件加载失败');
+    }
     // 对于 canvas 生成的二维码，重新生成一个更大的版本
     const adUrl = 'https://dt.bd.cn/#/pages/login/register?invite_code=3617287&qd=self_team_android';
     const largeQR = new QRCodeStyling({
@@ -3214,52 +3386,54 @@ function closeQRZoom() {
   document.getElementById('qrZoomModal').classList.remove('show');
 }
 
-function loadScript(localSrc, cdnSrc) {
-  return new Promise((resolve, reject) => {
-    const attach = (src, allowFallback) => {
-      const s = document.createElement('script');
-      s.src = src;
-      s.onload = resolve;
-      s.onerror = () => {
-        if (allowFallback && cdnSrc && src !== cdnSrc) attach(cdnSrc, false);
-        else reject(new Error('Script load failed: ' + src));
-      };
-      document.head.appendChild(s);
-    };
-    attach(localSrc, !!cdnSrc);
+async function ensurePosterCss() {
+  if (document.querySelector('link[href*="poster.css"][rel="stylesheet"]')) return;
+  await new Promise((resolve) => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/css/poster.css?v=23';
+    link.onload = resolve;
+    link.onerror = resolve;
+    document.head.appendChild(link);
   });
 }
-window._lazyLibs = {
-  html2canvas: null,
-  jszip: null,
-  xlsx: null
-};
-async function ensureLib(name) {
-  if (window._lazyLibs[name]) return;
-  const libs = {
-    html2canvas: {
-      local: '/vendor/html2canvas.min.js',
-      cdn: 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'
-    },
-    jszip: {
-      local: '/vendor/jszip.min.js',
-      cdn: 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js'
-    },
-    xlsx: {
-      local: '/vendor/xlsx.full.min.js',
-      cdn: 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
-    }
-  };
-  const lib = libs[name];
-  if (!lib) return;
-  await loadScript(lib.local, lib.cdn);
-  window._lazyLibs[name] = true;
+
+let _enhancementsPromise = null;
+function ensureEnhancements() {
+  if (window.TemplatePresets) return Promise.resolve();
+  if (_enhancementsPromise) return _enhancementsPromise;
+  _enhancementsPromise = loadScript('/js/enhancements.js', null).then(() => new Promise((resolve) => {
+    const ready = () => {
+      if (window.TemplatePresets) resolve();
+      else requestAnimationFrame(ready);
+    };
+    ready();
+  }));
+  return _enhancementsPromise;
 }
+window.ensureEnhancements = ensureEnhancements;
+
+function syncEnhancementControls() {
+  if (window.QRBorderStyles) {
+    const borderSelect = document.getElementById('qrBorderStyle');
+    if (borderSelect) borderSelect.value = QRBorderStyles.current;
+  }
+  if (window.DynamicBackground) {
+    const bgSelect = document.getElementById('bgEffect');
+    if (bgSelect) bgSelect.value = DynamicBackground.current;
+  }
+}
+
+function applyBgEffect(effect) {
+  ensureEnhancements().then(() => DynamicBackground.apply(effect));
+}
+window.applyBgEffect = applyBgEffect;
 
 document.addEventListener('DOMContentLoaded', () => {
   const _origExportAllQR = window.exportAllQR;
   window.exportAllQR = async function() {
     await ensureLib('jszip');
+    await ensureQRStyling();
     if (typeof _origExportAllQR === 'function') return _origExportAllQR();
   };
   const _origHandleFileUpload = window.handleFileUpload;
@@ -3274,6 +3448,8 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   const _origShowPosterModal = window.showPosterModal;
   window.showPosterModal = async function() {
+    await ensurePosterCss();
+    await ensureQRStyling();
     await ensureLib('html2canvas');
     if (typeof _origShowPosterModal === 'function') return _origShowPosterModal();
   };
@@ -3285,6 +3461,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const _origExportHistoryQR = window.exportHistoryQR;
   window.exportHistoryQR = async function() {
     await ensureLib('jszip');
+    await ensureQRStyling();
     if (typeof _origExportHistoryQR === 'function') return _origExportHistoryQR();
   };
 });

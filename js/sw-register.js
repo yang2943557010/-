@@ -23,10 +23,10 @@
   }
 
   if ('requestIdleCallback' in window) {
-    requestIdleCallback(registerSW, { timeout: 5000 });
+    requestIdleCallback(registerSW, { timeout: 8000 });
   } else {
     window.addEventListener('load', function () {
-      setTimeout(registerSW, 1500);
+      setTimeout(registerSW, 2500);
     }, { once: true });
   }
 

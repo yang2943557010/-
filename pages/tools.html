@@ -24,7 +24,7 @@
     .page-title { font-size:24px; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
     .page-desc { color:var(--text2); font-size:14px; margin-bottom:24px; }
     
-    .tools-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:20px; }
+    .tools-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:20px; content-visibility:auto; contain-intrinsic-size:auto 480px; }
     
     .tool-card { background:var(--card); border-radius:16px; padding:24px; box-shadow:0 2px 12px rgba(0,0,0,0.04); border:1px solid var(--border); transition:all .2s; }
     .tool-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.08); border-color:var(--primary); }
@@ -60,6 +60,7 @@
     
     .disclaimer { margin-top:40px; padding:16px 20px; background:var(--bg); border:1px solid var(--border); border-radius:12px; font-size:11px; color:var(--text3); line-height:1.8; }
     .disclaimer strong { color:var(--text2); }
+    .disclaimer-slot { min-height:72px; }
     
     .top-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
     .top-bar .back-link { margin-bottom:0; }
@@ -444,11 +445,12 @@
       </div>
     </div></div>
     
-    <div class="disclaimer">
+    <template id="pageDisclaimer">
       <strong>⚠️ 免责声明</strong><br>
       本页面提供的工具均来自第三方开发者，本站仅提供下载链接汇总，不对工具的安全性、稳定性负责。<br>
       请在下载前自行判断风险，建议从官方渠道获取最新版本。如有侵权，请联系我们删除。
-    </div>
+    </template>
+    <div id="disclaimerSlot" class="disclaimer-slot" data-class="disclaimer" aria-hidden="true"></div>
   </div>
   
   <script>
@@ -456,7 +458,7 @@
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
   </script>
-  <script src="/js/site-prefetch.js" defer></script>
-  <script src="/js/sw-register.js" defer></script>
+  <script src="/js/defer-disclaimer.js" defer></script>
+  <script src="/js/defer-aux-scripts.js" defer></script>
 </body>
 </html>

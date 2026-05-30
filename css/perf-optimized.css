@@ -848,8 +848,12 @@
 
 /* 视口外延后绘制，减轻首屏主线程压力（引导图是 LCP 元素，不可延迟绘制） */
 .wx-article-panel,
-.top-promo,
-.disclaimer {
+.top-promo {
   content-visibility: auto;
-  contain-intrinsic-size: auto 320px;
+  contain-intrinsic-size: auto 120px;
+}
+
+.disclaimer,
+.disclaimer-slot {
+  contain: layout style;
 }

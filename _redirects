@@ -23,6 +23,7 @@
 /enhancements.js /js/enhancements.js 301
 /banned-words.js /js/banned-words.js 301
 /banned-words-worker.js /js/banned-words-worker.js 301
+/defer-disclaimer.js /js/defer-disclaimer.js 301
 /sw-register.js /js/sw-register.js 301
 
 /perf-optimized.css /css/perf-optimized.css 301

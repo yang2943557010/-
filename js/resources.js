@@ -144,7 +144,14 @@
       };
       searchFrame.loading = 'lazy';
       searchFrame.removeAttribute('src');
-      searchFrame.src = url;
+      const applyFrameSrc = () => {
+        if (searchFrame.getAttribute('src') !== url) searchFrame.src = url;
+      };
+      if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(applyFrameSrc, { timeout: 700 });
+      } else {
+        setTimeout(applyFrameSrc, 0);
+      }
       embedLoadTimer = setTimeout(() => {
         setEmbedLoading(false);
         showEmbedFallback(true);
@@ -252,6 +259,7 @@
         searchEmbed.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {
         renderEmbedEngineBar(kw);
+        setSearchStatus(`已填入「${raw}」· 点击「搜索全网」或选择引擎加载结果`, false);
       }
     }
 
@@ -595,4 +603,4 @@
       activeDisk = initialDisk;
       document.querySelectorAll('#diskTabs .disk-tab').forEach(t => t.classList.toggle('active', t.dataset.disk === initialDisk));
     }
-    if (initialQuery) searchGlobalPan(initialQuery);
+    if (initialQuery) searchGlobalPan(initialQuery, false);

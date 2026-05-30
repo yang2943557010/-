@@ -141,6 +141,12 @@
       line-height: 1.14;
       margin-bottom: 14px;
       letter-spacing: 0;
+      min-height: 2.4em;
+    }
+
+    .section {
+      content-visibility: auto;
+      contain-intrinsic-size: auto 380px;
     }
 
     .lead {
@@ -578,7 +584,6 @@
     renderTools();
     renderTips();
   </script>
-  <script src="/js/site-prefetch.js" defer></script>
-  <script src="/js/sw-register.js" defer></script>
+  <script src="/js/defer-aux-scripts.js" defer></script>
 </body>
 </html>

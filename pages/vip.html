@@ -20,7 +20,7 @@
     .card { background:rgba(255,255,255,.9); border:1px solid rgba(148,163,184,.2); border-radius:20px; box-shadow:0 18px 50px rgba(15,23,42,.06); }
     .hero-main { padding:34px; }
     .eyebrow { display:inline-flex; padding:6px 12px; border-radius:999px; background:#fff7ed; color:#ea580c; font-size:12px; font-weight:800; margin-bottom:16px; }
-    h1 { font-size:34px; line-height:1.18; margin-bottom:12px; }
+    h1 { font-size:34px; line-height:1.18; margin-bottom:12px; min-height:2.4em; }
     .lead { color:var(--text2); font-size:15px; line-height:1.8; }
     .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:22px; }
     .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:42px; padding:0 18px; border-radius:12px; text-decoration:none; font-size:14px; font-weight:800; border:1px solid transparent; }
@@ -59,6 +59,7 @@
     .is-hidden { display:none !important; }
     .empty { display:none; text-align:center; padding:28px; color:var(--text3); border:1px dashed var(--border); border-radius:16px; background:#fff; }
     .empty.show { display:block; }
+    .grid, .panel, .benefit-grid, .notice { content-visibility:auto; contain-intrinsic-size:auto 320px; }
     @media (max-width:900px) { body { padding:16px; } .hero, .grid, .benefit-grid { grid-template-columns:1fr; } h1 { font-size:28px; } .nav { align-items:flex-start; flex-direction:column; } .actions .btn { flex:1 1 auto; } }
     @media (max-width:560px) {
       body {
@@ -149,7 +150,6 @@
     <div class="notice">说明：本页仅适合发布官方活动、公开试用和合规福利信息，不建议提供多人共用账号或任何可能违反平台规则的内容。</div>
   </div>
   <script src="/js/vip.js" defer></script>
-  <script src="/js/site-prefetch.js" defer></script>
-  <script src="/js/sw-register.js" defer></script>
+  <script src="/js/defer-aux-scripts.js" defer></script>
 </body>
 </html>

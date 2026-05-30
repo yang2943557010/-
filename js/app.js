@@ -230,16 +230,16 @@ const DISK_CONFIG = {
   baidu: {
     name: '百度网盘',
     keywords: ['pan.baidu.com', 'yun.baidu.com'],
-    logo: '/assets/logos/baidu.png',
-    guide: '/assets/images/guides/baidu-guide.png',
+    logo: '/assets/logos/baidu.webp',
+    guide: '/assets/images/guides/baidu-guide.webp',
     appName: '百度网盘APP',
     color: '#06a7ff'
   },
   quark: {
     name: '夸克网盘',
     keywords: ['pan.quark.cn', 'quark.cn'],
-    logo: '/assets/logos/quark.png',
-    guide: '/assets/images/guides/quark-guide.png',
+    logo: '/assets/logos/quark.webp',
+    guide: '/assets/images/guides/quark-guide.webp',
     appName: '夸克APP',
     color: '#1890ff'
   },
@@ -375,7 +375,7 @@ const DISK_CONFIG = {
   onedrive: {
     name: 'OneDrive',
     keywords: ['onedrive.live.com', '1drv.ms', 'sharepoint.com'],
-    logo: '/assets/logos/onedrive.png',
+    logo: '/assets/logos/onedrive.webp',
     guide: '/assets/images/guides/onedrive-guide.svg',
     appName: 'OneDrive APP',
     color: '#0078d4'
@@ -383,7 +383,7 @@ const DISK_CONFIG = {
   googledrive: {
     name: 'Google Drive',
     keywords: ['drive.google.com', 'docs.google.com', 'photos.google.com'],
-    logo: '/assets/logos/googledrive.png',
+    logo: '/assets/logos/googledrive.webp',
     guide: '/assets/images/guides/googledrive-guide.svg',
     appName: 'Google Drive APP',
     color: '#4285f4'
@@ -684,8 +684,25 @@ const QRCodeGenerator = {
 
 // ==================== 页面渲染模块 ====================
 
+function preferWebpLogo(url) {
+  if (!url || !/\.png(\?|$)/i.test(url)) return url || '';
+  return url.replace(/\.png(\?|$)/i, '.webp$1');
+}
+
+function bindLogoFallback(img, fallbackUrl) {
+  if (!img || !fallbackUrl) return;
+  img.addEventListener('error', function onLogoError() {
+    if (/\.webp(\?|$)/i.test(img.src) && /\.png(\?|$)/i.test(fallbackUrl)) {
+      img.src = fallbackUrl;
+      return;
+    }
+    img.style.visibility = 'hidden';
+    img.removeAttribute('src');
+  }, { once: true });
+}
+
 const PageRenderer = {
-  renderQRPage(params) {
+  renderQRPage(params, options = {}) {
     const { targetUrl, resourceName, extractCode } = params;
     const diskConfig = detectDiskType(targetUrl);
     
@@ -694,11 +711,12 @@ const PageRenderer = {
     const siteLogo = document.getElementById('siteLogo');
     const siteName = document.getElementById('siteName');
     if (diskConfig.logo) {
-      siteLogo.onerror = () => {
-        siteLogo.style.visibility = 'hidden';
-        siteLogo.removeAttribute('src');
-      };
-      siteLogo.src = diskConfig.logo;
+      const logoUrl = preferWebpLogo(diskConfig.logo);
+      bindLogoFallback(siteLogo, diskConfig.logo.replace(/\.webp(\?|$)/i, '.png$1'));
+      siteLogo.loading = 'lazy';
+      siteLogo.fetchPriority = 'low';
+      siteLogo.decoding = 'async';
+      siteLogo.src = logoUrl;
       siteLogo.style.display = 'inline-block';
       siteLogo.style.visibility = 'visible';
     } else {
@@ -724,35 +742,47 @@ const PageRenderer = {
     
     const guideRight = document.getElementById('guideRight');
     if (diskConfig.guide) {
+      guideRight.hidden = false;
       guideRight.style.display = 'flex';
       guideRight.removeAttribute('aria-hidden');
-      let guideImg = guideRight.querySelector('.guide-img');
-      if (!guideImg || guideImg.getAttribute('src') !== diskConfig.guide) {
+      let guideImg = document.getElementById('earlyGuideImg') || guideRight.querySelector('.guide-img');
+      const guideSrc = diskConfig.guide;
+      if (!guideImg) {
         guideImg = document.createElement('img');
-        guideImg.src = diskConfig.guide;
-        guideImg.alt = '引导图';
+        guideImg.id = 'earlyGuideImg';
         guideImg.className = 'guide-img';
-        guideImg.loading = 'eager';
-        guideImg.fetchPriority = 'high';
-        guideImg.decoding = 'async';
+        guideImg.alt = '引导图';
         guideImg.width = 420;
         guideImg.height = 640;
         guideRight.replaceChildren(guideImg);
       }
+      if (guideImg.getAttribute('src') !== guideSrc) {
+        guideImg.loading = 'eager';
+        guideImg.fetchPriority = 'high';
+        guideImg.decoding = 'sync';
+        guideImg.src = guideSrc;
+      }
+      guideImg.hidden = false;
+      bindGuideImgFallback(guideImg);
     } else {
       guideRight.replaceChildren();
+      guideRight.hidden = true;
       guideRight.style.display = 'none';
     }
 
     const qrContainer = document.getElementById('qrContainer');
-    QRCodeGenerator.generate(targetUrl, qrContainer);
+    if (options.skipQR) {
+      qrContainer.setAttribute('aria-busy', 'true');
+    } else {
+      QRCodeGenerator.generate(targetUrl, qrContainer);
+    }
 
     if (params.wxArticleId) {
       const runWx = () => loadWxArticles(params.wxArticleId);
       if (typeof requestIdleCallback === 'function') {
-        requestIdleCallback(runWx, { timeout: 2500 });
+        requestIdleCallback(runWx, { timeout: 4500 });
       } else {
-        setTimeout(runWx, 400);
+        setTimeout(runWx, 600);
       }
     }
     
@@ -762,7 +792,11 @@ const PageRenderer = {
   
   renderErrorPage(message = '链接无效') {
     document.getElementById('qrCard').style.display = 'none';
-    document.getElementById('guideRight').style.display = 'none';
+    const guideRight = document.getElementById('guideRight');
+    if (guideRight) {
+      guideRight.hidden = true;
+      guideRight.style.display = 'none';
+    }
     document.getElementById('errorContainer').style.display = 'block';
     document.querySelector('.error-container h2').textContent = message;
   },
@@ -776,6 +810,45 @@ const PageRenderer = {
 
 function init() {
   processInit();
+}
+
+function bindGuideImgFallback(img) {
+  if (!img || img.dataset.fallbackBound) return;
+  img.dataset.fallbackBound = '1';
+  img.addEventListener('error', function onGuideError() {
+    if (/\.webp(?:\?|$)/i.test(img.src)) {
+      img.src = img.src.replace(/\.webp(\?|$)/i, '.png$1');
+    }
+  }, { once: true });
+}
+
+function whenGuideReady(callback) {
+  if (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) {
+    callback();
+    return;
+  }
+  const img = document.getElementById('earlyGuideImg');
+  if (!img || !img.getAttribute('src')) {
+    callback();
+    return;
+  }
+  if (img.complete) {
+    if (typeof img.decode === 'function') {
+      img.decode().then(callback).catch(callback);
+    } else {
+      callback();
+    }
+    return;
+  }
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    callback();
+  };
+  img.addEventListener('load', finish, { once: true });
+  img.addEventListener('error', finish, { once: true });
+  setTimeout(finish, 1800);
 }
 
 function processInit() {
@@ -792,9 +865,6 @@ function processInit() {
   const isMobile = previewDevice === 'mobile'
     ? true
     : (previewDevice === 'desktop' ? false : DeviceDetector.isMobile());
-  if (!isMobile) {
-    QRCodeGenerator.loadLibrary();
-  }
   if (isMobile) {
     // 检查是否有广告设置
     if (params.adText) {
@@ -806,7 +876,19 @@ function processInit() {
       PageRenderer.redirect(params.targetUrl);
     }
   } else {
-    PageRenderer.renderQRPage(params);
+    PageRenderer.renderQRPage(params, { skipQR: true });
+    whenGuideReady(() => {
+      const drawQR = () => {
+        QRCodeGenerator.loadLibrary()
+          .then(() => QRCodeGenerator.generate(params.targetUrl, document.getElementById('qrContainer')))
+          .catch(() => QRCodeGenerator.generate(params.targetUrl, document.getElementById('qrContainer')));
+      };
+      if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(drawQR, { timeout: 1200 });
+      } else {
+        setTimeout(drawQR, 80);
+      }
+    });
   }
 }
 
@@ -865,11 +947,10 @@ function showAdAndRedirect(targetUrl, adText, duration, params = {}) {
   const diskConfig = detectDiskType(targetUrl);
   if (diskLogo) {
     if (diskConfig.logo) {
-      diskLogo.onerror = () => {
-        diskLogo.style.display = 'none';
-        diskLogo.removeAttribute('src');
-      };
-      diskLogo.src = diskConfig.logo;
+      bindLogoFallback(diskLogo, diskConfig.logo.replace(/\.webp(\?|$)/i, '.png$1'));
+      diskLogo.loading = 'lazy';
+      diskLogo.decoding = 'async';
+      diskLogo.src = preferWebpLogo(diskConfig.logo);
       diskLogo.style.display = 'inline';
     } else {
       diskLogo.style.display = 'none';

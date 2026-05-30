@@ -8,21 +8,47 @@
   <meta name="robots" content="index, follow">
   <!-- 静态资源走 Cloudflare 边缘缓存，jsDelivr 仅作敏感词库/降级备用 -->
   <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-  <link rel="preload" href="/js/app.js" as="script">
-  <link rel="preload" href="/vendor/qrcode.min.js" as="script">
-  <!-- QR 库预加载（LCP 关键路径） -->
+  <!-- LCP 引导图优先于脚本预加载（由 head 内联脚本动态插入 preload） -->
   <script>
     (function(){
       if (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) return;
       var guideMap = {
-        B: 'baidu-guide.png', Q: 'quark-guide.png', A: 'aliyun-guide.svg', X: 'xunlei-guide.svg',
+        B: 'baidu-guide.webp', Q: 'quark-guide.webp', A: 'aliyun-guide.svg', X: 'xunlei-guide.svg',
         E: '115-guide.svg', L: 'lanzou-guide.svg', T: 'tianyi-guide.svg', W: 'weiyun-guide.svg',
         J: 'jianguoyun-guide.svg', M: 'caiyun-guide.svg', U: 'wocloud-guide.svg', C: 'uc-guide.svg',
         P: 'pikpak-guide.svg', N: '123pan-guide.svg', O: 'onedrive-guide.svg', G: 'googledrive-guide.svg',
         D: 'dropbox-guide.svg', Z: 'mega-guide.svg'
       };
+      var diskMetaMap = {
+        B: { name: '百度网盘', app: '百度网盘APP' },
+        Q: { name: '夸克网盘', app: '夸克APP' },
+        A: { name: '阿里云盘', app: '阿里云盘APP' },
+        X: { name: '迅雷云盘', app: '迅雷APP' },
+        E: { name: '115网盘', app: '115APP' },
+        L: { name: '蓝奏云', app: '手机浏览器' },
+        T: { name: '天翼云盘', app: '天翼云盘APP' },
+        W: { name: '微云', app: '腾讯微云APP' },
+        J: { name: '坚果云', app: '坚果云APP' },
+        M: { name: '和彩云', app: '和彩云APP' },
+        U: { name: '联通云盘', app: '联通云盘APP' },
+        C: { name: 'UC网盘', app: 'UC浏览器' },
+        P: { name: 'PikPak', app: 'PikPak APP' },
+        N: { name: '123云盘', app: '123云盘APP' },
+        O: { name: 'OneDrive', app: 'OneDrive APP' },
+        G: { name: 'Google Drive', app: 'Google Drive APP' },
+        D: { name: 'Dropbox', app: 'Dropbox APP' },
+        Z: { name: 'MEGA', app: 'MEGA APP' }
+      };
+      var domainMetaMap = [
+        ['pan.baidu.com', diskMetaMap.B], ['pan.quark.cn', diskMetaMap.Q], ['alipan.com', diskMetaMap.A],
+        ['pan.xunlei.com', diskMetaMap.X], ['115.com', diskMetaMap.E], ['lanzou', diskMetaMap.L],
+        ['cloud.189.cn', diskMetaMap.T], ['weiyun.com', diskMetaMap.W], ['jianguoyun.com', diskMetaMap.J],
+        ['caiyun.139.com', diskMetaMap.M], ['pan.wo.cn', diskMetaMap.U], ['drive.uc.cn', diskMetaMap.C],
+        ['mypikpak.com', diskMetaMap.P], ['123pan.com', diskMetaMap.N], ['1drv.ms', diskMetaMap.O],
+        ['drive.google.com', diskMetaMap.G], ['dropbox.com', diskMetaMap.D], ['mega.nz', diskMetaMap.Z]
+      ];
       var domainMap = [
-        ['pan.baidu.com','baidu-guide.png'], ['pan.quark.cn','quark-guide.png'], ['alipan.com','aliyun-guide.svg'],
+        ['pan.baidu.com','baidu-guide.webp'], ['pan.quark.cn','quark-guide.webp'], ['alipan.com','aliyun-guide.svg'],
         ['pan.xunlei.com','xunlei-guide.svg'], ['115.com','115-guide.svg'], ['lanzou','lanzou-guide.svg'],
         ['cloud.189.cn','tianyi-guide.svg'], ['weiyun.com','weiyun-guide.svg'], ['jianguoyun.com','jianguoyun-guide.svg'],
         ['caiyun.139.com','caiyun-guide.svg'], ['pan.wo.cn','wocloud-guide.svg'], ['drive.uc.cn','uc-guide.svg'],
@@ -48,19 +74,40 @@
         }
         return '';
       }
+      function metaFromUrl(url) {
+        var lower = String(url || '').toLowerCase();
+        for (var i = 0; i < domainMetaMap.length; i++) {
+          if (lower.indexOf(domainMetaMap[i][0]) !== -1) return domainMetaMap[i][1];
+        }
+        return null;
+      }
+      function metaFromDecoded(decoded) {
+        if (!decoded) return null;
+        if (/^https?:\/\//i.test(decoded)) return metaFromUrl(decoded);
+        var code = decoded.charAt(0);
+        return diskMetaMap[code] || null;
+      }
+      function applyEarlyDiskMeta(meta) {
+        if (!meta) return;
+        document.title = meta.name;
+        window.__earlyDiskMeta = meta;
+      }
       function preloadGuide(file) {
         if (!file) return;
+        var href = '/assets/images/guides/' + file;
         var link = document.createElement('link');
         link.rel = 'preload';
         link.as = 'image';
-        link.href = '/assets/images/guides/' + file;
+        link.href = href;
+        if (/\.webp$/i.test(href)) link.type = 'image/webp';
         link.fetchPriority = 'high';
-        document.head.appendChild(link);
+        document.head.insertBefore(link, document.head.firstChild);
       }
       var params = new URLSearchParams(location.search);
       var raw = params.get('d') || '';
       var shortId = params.get('s') || '';
       var file = '';
+      var decoded = '';
       if (shortId) {
         try {
           var shortLinks = JSON.parse(localStorage.getItem('shortLinks') || '{}');
@@ -68,10 +115,13 @@
         } catch (e) {}
       }
       if (raw) {
-        var decoded = decodeBase64Url(raw).split('|')[0] || raw;
+        decoded = decodeBase64Url(raw).split('|')[0] || raw;
         file = guideMap[decoded.charAt(0)] || guideFromUrl(decoded);
+        applyEarlyDiskMeta(metaFromDecoded(decoded));
       } else if (params.get('u')) {
-        file = guideFromUrl(decodeBase64Url(params.get('u')));
+        decoded = decodeBase64Url(params.get('u'));
+        file = guideFromUrl(decoded);
+        applyEarlyDiskMeta(metaFromUrl(decoded));
       }
       preloadGuide(file);
       window.__earlyGuideFile = file || '';
@@ -288,14 +338,13 @@
       width: 176px;
       height: 176px;
       margin: 18px auto;
-      background: #f8fafc;
+      background: #fff;
       border-radius: 18px;
       box-shadow: 0 12px 32px rgba(15, 23, 42, 0.09);
       border: 1px solid #eef2f7;
       display: flex;
       align-items: center;
       justify-content: center;
-      /* 占位防止跳动 */
       flex-shrink: 0;
     }
     .qr canvas, .qr img {
@@ -331,6 +380,7 @@
       line-height: 1.35;
       margin-bottom: 14px;
       font-weight: 700;
+      min-height: 56px;
     }
 
     .home-link-wrap {
@@ -395,28 +445,6 @@
       font-weight: 700;
     }
 
-    /* 二维码 */
-    .qr {
-      width: 176px;
-      height: 176px;
-      margin: 18px auto;
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.09);
-      border: 1px solid #eef2f7;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .qr canvas,
-    .qr img {
-      width: 160px !important;
-      height: 160px !important;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-
     .hint {
       text-align: center;
       margin-top: 18px;
@@ -473,7 +501,15 @@
     .card-promo { min-height: 54px; margin-top: 22px; padding-top: 18px; border-top: 1px solid #eef2f7; text-align: center; }
     /* 底部推广条预留，防止 CLS */
     .page-promo { position: fixed; bottom: 0; left: 0; right: 0; min-height: 56px; }
-    .disclaimer { min-height: 86px; contain: layout paint; }
+    /* 首屏外内容延迟绘制，避免 disclaimer 成为 LCP */
+    .wx-article-panel,
+    .top-promo,
+    .page-promo,
+    .ad-overlay {
+      content-visibility: auto;
+      contain-intrinsic-size: auto 120px;
+    }
+    .disclaimer-slot { min-height: 72px; }
 
     /* 错误页面 */
     .error-container {
@@ -793,27 +829,36 @@
       </div>
     </div>
 
-    <!-- 引导图 -->
-    <div class="guide-right" id="guideRight" aria-hidden="true"></div>
+    <!-- 引导图：img 提前进 DOM，便于浏览器尽早发现 LCP 资源 -->
+    <div class="guide-right" id="guideRight" aria-hidden="true" hidden>
+      <img id="earlyGuideImg" class="guide-img" alt="引导图" width="420" height="640" decoding="sync" fetchpriority="high" hidden>
+    </div>
     <script>
       (function () {
+        var meta = window.__earlyDiskMeta;
+        if (meta) {
+          var siteName = document.getElementById('siteName');
+          if (siteName) siteName.textContent = meta.name;
+          var scanTip = document.getElementById('scanTip');
+          if (scanTip) scanTip.innerHTML = '打开 <span class="app-name">' + meta.app + '</span> - 点击搜索框相机 - 扫码';
+          var bottomApp = document.getElementById('bottomAppName');
+          if (bottomApp) bottomApp.textContent = meta.app;
+        }
         if (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) return;
         var file = window.__earlyGuideFile;
         if (!file) return;
-        var el = document.getElementById('guideRight');
-        if (!el || el.querySelector('.guide-img')) return;
-        el.style.display = 'flex';
-        el.removeAttribute('aria-hidden');
-        var img = document.createElement('img');
-        img.className = 'guide-img';
+        var wrap = document.getElementById('guideRight');
+        var img = document.getElementById('earlyGuideImg');
+        if (!wrap || !img) return;
         img.src = '/assets/images/guides/' + file;
-        img.alt = '引导图';
-        img.width = 420;
-        img.height = 640;
         img.loading = 'eager';
-        img.fetchPriority = 'high';
-        img.decoding = 'async';
-        el.appendChild(img);
+        img.hidden = false;
+        img.onerror = function () {
+          if (/\.webp(?:\?|$)/i.test(img.src)) img.src = img.src.replace(/\.webp(\?|$)/i, '.png$1');
+        };
+        wrap.hidden = false;
+        wrap.style.display = 'flex';
+        wrap.removeAttribute('aria-hidden');
       })();
     </script>
 
@@ -850,15 +895,29 @@
     </a>
   </div>
 
-  <!-- 免责声明 -->
-  <div class="disclaimer" style="max-width:1200px;margin:20px auto 80px;padding:16px 20px;background:rgba(0,0,0,0.02);border-radius:12px;font-size:11px;color:#9ca3af;line-height:1.8;text-align:center;">
-    <strong style="color:#6b7280;">⚠️ 免责声明</strong><br>
-    本页面仅提供链接跳转服务，不存储任何资源文件。所有资源均由第三方网盘托管，本站不对资源内容的合法性、准确性、安全性负责。<br>
-    用户应自行判断资源的合法性，因使用本服务产生的任何法律责任由用户自行承担。如有侵权，请联系资源分享者删除。
-  </div>
+  <!-- 免责声明：空闲时挂载 -->
+  <div class="disclaimer-slot" id="disclaimerSlot" aria-hidden="true"></div>
+  <script>
+    (function () {
+      var html = '<strong style="color:#6b7280;">⚠️ 免责声明</strong><br>本页面仅提供链接跳转服务，不存储任何资源文件。所有资源均由第三方网盘托管，本站不对资源内容的合法性、准确性、安全性负责。<br>用户应自行判断资源的合法性，因使用本服务产生的任何法律责任由用户自行承担。如有侵权，请联系资源分享者删除。';
+      function mountDisclaimer() {
+        var slot = document.getElementById('disclaimerSlot');
+        if (!slot || slot.dataset.mounted) return;
+        slot.dataset.mounted = '1';
+        slot.className = 'disclaimer';
+        slot.removeAttribute('aria-hidden');
+        slot.style.cssText = 'max-width:1200px;margin:20px auto 80px;padding:16px 20px;background:rgba(0,0,0,0.02);border-radius:12px;font-size:11px;color:#9ca3af;line-height:1.8;text-align:center;';
+        slot.innerHTML = html;
+      }
+      if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(mountDisclaimer, { timeout: 5000 });
+      } else {
+        window.addEventListener('load', mountDisclaimer, { once: true });
+      }
+    })();
+  </script>
 
   <script src="/js/app.js" defer></script>
-  <script src="/js/site-prefetch.js" defer></script>
-  <script src="/js/sw-register.js" defer></script>
+  <script src="/js/defer-aux-scripts.js" defer></script>
 </body>
 </html>

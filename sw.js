@@ -1,13 +1,19 @@
 // Cloudflare Pages：HTML 网络优先；静态资源 stale-while-revalidate / cache-first
-const CACHE_VERSION = 'netdisk-cf-v10';
+const CACHE_VERSION = 'netdisk-cf-v18';
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const PRECACHE = [
   './js/sw-register.js',
   './js/site-prefetch.js',
+  './js/defer-aux-scripts.js',
+  './js/defer-disclaimer.js',
   './css/perf-optimized.css',
+  './css/resources.css',
   './js/app.js',
-  './vendor/qrcode.min.js'
+  './assets/images/guides/baidu-guide.webp',
+  './assets/images/guides/quark-guide.webp',
+  './assets/logos/baidu.webp',
+  './assets/logos/quark.webp'
 ];
 
 const SKIP_PATH_PREFIXES = ['/scripts/', '/extras/'];
