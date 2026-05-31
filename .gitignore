@@ -23,3 +23,9 @@ dist/
 
 # 若从网页误下载了 HTML 伪装成 .ico，可取消下行注释后删除坏文件再提交
 # assets/logos/*.ico
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
