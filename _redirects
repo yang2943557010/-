@@ -11,12 +11,7 @@
 /vip /pages/vip 301
 /tools /pages/tools 301
 
-# 无 .html 路径用 200 重写，避免与 CF「去 .html」规则形成 301 死循环
-/pages/generator /pages/generator.html 200
-/pages/resources /pages/resources.html 200
-/pages/speed /pages/speed.html 200
-/pages/vip /pages/vip.html 200
-/pages/tools /pages/tools.html 200
+# 勿对 /pages/* 做 200 重写到 .html：CF Pages 会自动 307 去掉 .html，二者叠加会 ERR_TOO_MANY_REDIRECTS
 
 /app.js /js/app.js 301
 /generator.js /js/generator.js 301
@@ -47,6 +42,6 @@
 /generator-deferred.css /css/generator-deferred.css 301
 /resources.css /css/resources.css 301
 
-# 若出现 ERR_TOO_MANY_REDIRECTS：/pages/* 必须用 200 重写，勿对无 .html 路径用 301 到 .html
-# 若仍循环：检查 CF 页面规则是否「去掉 .html」与 _redirects 冲突
+# 若出现 ERR_TOO_MANY_REDIRECTS：勿对 /pages/* 做 200→.html 重写（与 CF 自动去 .html 冲突）
+# 无 .html 路径由 CF 直接映射 pages/*.html 文件，无需额外规则
 # SSL 建议「完全」或「完全(严格)」
