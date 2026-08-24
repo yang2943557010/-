@@ -8,6 +8,14 @@
   Link: </js/disk-data.js>; rel=preload; as=script, </js/index-early.js>; rel=preload; as=script, </css/index-critical.css>; rel=preload; as=style, </css/perf-optimized.css>; rel=preload; as=style
   Cache-Control: public, max-age=300, s-maxage=3600, stale-while-revalidate=86400
 
+/baidu_verify_codeva-2S6kzuBJrR.html
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Robots-Tag: noindex
+
+/baidu_verify_codeva-2S6kzuBJrR
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Robots-Tag: noindex
+
 /pages/resources.html
   Link: </css/resources-critical.css>; rel=preload; as=style, </css/resources.css>; rel=preload; as=style, </js/resources.js>; rel=preload; as=script
 
