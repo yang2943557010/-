@@ -19,6 +19,7 @@ dist/
 # 环境与密钥
 .env
 .env.*
+.env.baidu
 *.pem
 
 # 若从网页误下载了 HTML 伪装成 .ico，可取消下行注释后删除坏文件再提交
