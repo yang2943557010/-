@@ -1,5 +1,5 @@
 // Cloudflare Pages：HTML 网络优先；静态资源 stale-while-revalidate / cache-first
-const CACHE_VERSION = 'netdisk-cf-v25';
+const CACHE_VERSION = 'netdisk-cf-v27';
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const PRECACHE = [
@@ -25,7 +25,9 @@ const PRECACHE = [
   './assets/images/guides/quark-guide.webp',
   './assets/images/guides/quark-guide.png',
   './assets/logos/baidu.webp',
-  './assets/logos/quark.webp'
+  './assets/logos/quark.webp',
+  './favicon.ico',
+  './assets/apple-touch-icon.png'
 ];
 
 const SKIP_PATH_PREFIXES = ['/scripts/', '/extras/'];
