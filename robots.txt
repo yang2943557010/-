@@ -1,7 +1,79 @@
-User-agent: Baiduspider
-Allow: /
+# 251800.xyz — 只收录网页，不爬转链参数页 / API / 内部路径
+# Sitemap 仅含静态页面，不含 ?d= 分享落地页
 
+# ---------- 正规搜索引擎：放行网页，禁爬转链与内部路径 ----------
+User-agent: Googlebot
+User-agent: Googlebot-Image
+User-agent: Googlebot-News
+User-agent: Bingbot
+User-agent: msnbot
+User-agent: Baiduspider
+User-agent: Baiduspider-image
+User-agent: Baiduspider-video
+User-agent: Sogou web spider
+User-agent: Sogou inst spider
+User-agent: 360Spider
+User-agent: YisouSpider
+Allow: /
+Disallow: /*?d=
+Disallow: /*?*d=
+Disallow: /index.html?d=
+Disallow: /extras/
+Disallow: /scripts/
+Disallow: /functions/
+Disallow: /vendor/
+Disallow: /baidu_verify
+Disallow: /baidu_verify_codeva-2S6kzuBJrR
+Disallow: /baidu_verify_codeva-2S6kzuBJrR.html
+Disallow: /sw.js
+Disallow: /*.map$
+
+# ---------- AI / 训练爬虫：一律禁止 ----------
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: OAI-SearchBot
+User-agent: ClaudeBot
+User-agent: anthropic-ai
+User-agent: Claude-Web
+User-agent: Bytespider
+User-agent: ByteSpider
+User-agent: PetalBot
+User-agent: Amazonbot
+User-agent: CCBot
+User-agent: Diffbot
+User-agent: ImagesiftBot
+User-agent: Omgilibot
+User-agent: FacebookBot
+User-agent: meta-externalagent
+User-agent: Meta-ExternalAgent
+User-agent: Meta-ExternalFetcher
+User-agent: Applebot-Extended
+User-agent: Google-Extended
+User-agent: GoogleOther
+User-agent: PerplexityBot
+User-agent: YouBot
+User-agent: cohere-ai
+User-agent: DataForSeoBot
+User-agent: magpie-crawler
+User-agent: TurnitinBot
+User-agent: ia_archiver
+User-agent: archive.org_bot
+Disallow: /
+
+# ---------- 其余爬虫：默认可爬网页，禁转链与内部路径 ----------
 User-agent: *
 Allow: /
+Disallow: /*?d=
+Disallow: /*?*d=
+Disallow: /index.html?d=
+Disallow: /extras/
+Disallow: /scripts/
+Disallow: /functions/
+Disallow: /vendor/
+Disallow: /baidu_verify
+Disallow: /baidu_verify_codeva-2S6kzuBJrR
+Disallow: /baidu_verify_codeva-2S6kzuBJrR.html
+Disallow: /sw.js
+Disallow: /*.map$
 
 Sitemap: https://251800.xyz/sitemap.xml

@@ -1,0 +1,142 @@
+# Cloudflare 区域：251800.xyz
+# 路径：安全性 → WAF → 自定义规则（Custom rules）
+# 说明：规则在边缘执行，不计入 Workers 请求；robots.txt 只是“礼貌”，WAF 才是硬拦截。
+# 建议顺序：先「放行搜索引擎」→ 再「拦截 AI/扫描」→ 可选「拦截空 UA / 明显脚本」
+
+# =============================================================================
+# 规则 1：放行正规搜索引擎（跳过后续规则）
+# 名称：allow-search-engine-bots
+# 操作：Skip（跳过其余自定义规则）  或  允许（Allow）
+# 表达式：
+# =============================================================================
+(cf.client.bot)
+and
+(
+  http.user_agent contains "Googlebot"
+  or http.user_agent contains "AdsBot-Google"
+  or http.user_agent contains "Mediapartners-Google"
+  or http.user_agent contains "bingbot"
+  or http.user_agent contains "BingPreview"
+  or http.user_agent contains "Baiduspider"
+  or http.user_agent contains "Sogou"
+  or http.user_agent contains "360Spider"
+  or http.user_agent contains "YisouSpider"
+)
+
+# =============================================================================
+# 规则 2：拦截 AI 爬虫 + 字节爬虫（硬拦截）
+# 名称：block-ai-and-bytedance-bots
+# 操作：阻止（Block）
+# 表达式：
+# =============================================================================
+(
+  http.user_agent contains "Bytespider"
+  or http.user_agent contains "ByteSpider"
+  or http.user_agent contains "PetalBot"
+  or http.user_agent contains "GPTBot"
+  or http.user_agent contains "ChatGPT-User"
+  or http.user_agent contains "OAI-SearchBot"
+  or http.user_agent contains "ClaudeBot"
+  or http.user_agent contains "anthropic-ai"
+  or http.user_agent contains "Claude-Web"
+  or http.user_agent contains "Amazonbot"
+  or http.user_agent contains "CCBot"
+  or http.user_agent contains "Diffbot"
+  or http.user_agent contains "ImagesiftBot"
+  or http.user_agent contains "Omgilibot"
+  or http.user_agent contains "FacebookBot"
+  or http.user_agent contains "meta-externalagent"
+  or http.user_agent contains "Meta-ExternalAgent"
+  or http.user_agent contains "Meta-ExternalFetcher"
+  or http.user_agent contains "Applebot-Extended"
+  or http.user_agent contains "Google-Extended"
+  or http.user_agent contains "PerplexityBot"
+  or http.user_agent contains "YouBot"
+  or http.user_agent contains "cohere-ai"
+  or http.user_agent contains "DataForSeoBot"
+  or http.user_agent contains "magpie-crawler"
+  or http.user_agent contains "TurnitinBot"
+  or http.user_agent contains "ia_archiver"
+  or http.user_agent contains "archive.org_bot"
+)
+
+# =============================================================================
+# 规则 3：拦截漏洞扫描 / 批量脚本常见 UA
+# 名称：block-scanners-and-scripts
+# 操作：阻止（Block）
+# 表达式：
+# =============================================================================
+(
+  http.user_agent contains "sqlmap"
+  or http.user_agent contains "nikto"
+  or http.user_agent contains "nmap"
+  or http.user_agent contains "masscan"
+  or http.user_agent contains "zgrab"
+  or http.user_agent contains "nuclei"
+  or http.user_agent contains "dirbuster"
+  or http.user_agent contains "gobuster"
+  or http.user_agent contains "wfuzz"
+  or http.user_agent contains "ffuf"
+  or http.user_agent contains "OpenVAS"
+  or http.user_agent contains "Nessus"
+  or http.user_agent contains "Acunetix"
+  or http.user_agent contains "libwww-perl"
+  or http.user_agent contains "python-requests"
+  or http.user_agent contains "python-urllib"
+  or http.user_agent contains "aiohttp"
+  or http.user_agent contains "Go-http-client"
+  or http.user_agent contains "Java/"
+  or http.user_agent contains "Scrapy"
+  or http.user_agent contains "HttpClient"
+  or http.user_agent contains "curl/"
+  or http.user_agent contains "wget/"
+  or http.user_agent eq ""
+  or not len(http.user_agent) > 0
+)
+
+# =============================================================================
+# 规则 4（可选）：转链落地页仅允许浏览器，减少无效打到 Pages/Worker
+# 名称：challenge-share-landing-non-browser
+# 操作：托管挑战（Managed Challenge）— 比直接 Block 更稳，避免误伤真实手机用户
+# 说明：分享链接形如 /?d=xxx 或 /index.html?d=xxx；正规搜索引擎已被规则 1 Skip
+# 表达式：
+# =============================================================================
+(
+  http.request.uri.query contains "d="
+)
+and
+(
+  not cf.client.bot
+)
+
+# =============================================================================
+# 规则 5（可选，针对 Worker API 子域，如 wx.251800.xyz / digital-store-api）
+# 若 API 绑在独立 hostname，对该主机单独建规则，或把 URI 改成你的 API 路径
+# 名称：block-api-from-bots
+# 操作：阻止（Block）
+# 表达式示例（按实际路径改）：
+# =============================================================================
+(
+  http.host eq "wx.251800.xyz"
+  or starts_with(http.request.uri.path, "/api/")
+)
+and
+(
+  cf.client.bot
+  or http.user_agent contains "bot"
+  or http.user_agent contains "spider"
+  or http.user_agent contains "crawler"
+  or http.user_agent contains "Bytespider"
+  or http.user_agent contains "python-requests"
+  or http.user_agent contains "curl/"
+  or http.user_agent eq ""
+)
+
+# =============================================================================
+# 仪表盘额外建议（免费计划也可用）
+# =============================================================================
+# 1. 安全性 → 机器人 → 开启「Bot Fight Mode」（免费）
+# 2. 不要对 Googlebot/Baiduspider/bingbot 开「JS 挑战」全局规则
+# 3. digital-store-api.yourenjia521.workers.dev 若被扫：在该 Worker 入口加 UA/路径校验，
+#    或绑自定义域后用上述 WAF；workers.dev 裸域名更容易被全网扫描
+# 4. 配置后看：分析 → 流量 → 按「机器人」筛选，确认百度/Google 仍为「已验证机器人」

@@ -21,7 +21,7 @@
   Content-Type: application/xml; charset=utf-8
 
 /robots.txt
-  Cache-Control: public, max-age=3600, s-maxage=86400
+  Cache-Control: public, max-age=300, s-maxage=3600, must-revalidate
 
 /pages/resources.html
   Link: </css/resources-critical.css>; rel=preload; as=style, </css/resources.css>; rel=preload; as=style, </js/resources.js>; rel=preload; as=script
