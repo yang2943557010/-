@@ -23,6 +23,10 @@
 /robots.txt
   Cache-Control: public, max-age=300, s-maxage=3600, must-revalidate
 
+/ads.txt
+  Cache-Control: public, max-age=300, s-maxage=3600, must-revalidate
+  Content-Type: text/plain; charset=utf-8
+
 /pages/resources.html
   Link: </css/resources-critical.css>; rel=preload; as=style, </css/resources.css>; rel=preload; as=style, </js/resources.js>; rel=preload; as=script
 
