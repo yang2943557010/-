@@ -1,5 +1,5 @@
 // Cloudflare Pages：HTML 网络优先；静态资源 stale-while-revalidate / cache-first
-const CACHE_VERSION = 'netdisk-cf-v27';
+const CACHE_VERSION = 'netdisk-cf-v28';
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const PRECACHE = [

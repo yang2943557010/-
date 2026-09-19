@@ -281,8 +281,18 @@
           </div>
         </details>
       </div>
+      <div class="lianwu-sync-row">
+        <div>
+          <div class="lianwu-sync-title">同步到链坞</div>
+          <div class="lianwu-sync-desc">默认开启。生成链接时会把资源名称、原链接、提取码和备注上传到链坞。关闭后只在本地生成。</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" data-lianwu-upload checked onchange="setLianwuUploadEnabled(this.checked)">
+          <span class="slider"></span>
+        </label>
+      </div>
       <div class="btn-group">
-        <button class="btn btn-primary" onclick="generateSingle()">✨ 生成链接</button>
+        <button class="btn btn-primary" id="generateSingleBtn" onclick="generateSingle()">✨ 生成链接</button>
         <button class="btn btn-secondary" onclick="previewResult()">👁️ 预览效果</button>
       </div>
       <div id="singleResult" style="margin-top:20px;"></div>
@@ -357,8 +367,18 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         </div>
       </details>
 
+      <div class="lianwu-sync-row">
+        <div>
+          <div class="lianwu-sync-title">同步到链坞</div>
+          <div class="lianwu-sync-desc">默认开启。批量生成成功的资源会一并上传。已在链坞的链接会跳过，不会覆盖。</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" data-lianwu-upload checked onchange="setLianwuUploadEnabled(this.checked)">
+          <span class="slider"></span>
+        </label>
+      </div>
       <div class="btn-group">
-        <button class="btn btn-primary" onclick="generateBatch()">批量生成</button>
+        <button class="btn btn-primary" id="generateBatchBtn" onclick="generateBatch()">批量生成</button>
         <button class="btn btn-success" onclick="exportAllQR()">📦 导出全部二维码</button>
         <button class="btn btn-secondary" onclick="clearBatch()">清空</button>
       </div>
@@ -578,6 +598,20 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         <div id="groupList" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;"></div>
       </div>
       
+      <div style="padding-top:20px;margin-top:20px;border-top:1px solid var(--border);">
+        <h3 style="font-size:14px;font-weight:600;margin-bottom:16px;">链坞同步</h3>
+        <div class="lianwu-sync-row" style="margin-bottom:0;">
+          <div>
+            <div class="lianwu-sync-title">生成时上传到链坞</div>
+            <div class="lianwu-sync-desc">作用于单个生成和批量生成。默认开启，关闭后立即生效，刷新页面也会记住。</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" data-lianwu-upload checked onchange="setLianwuUploadEnabled(this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
       <div style="padding-top:20px;margin-top:20px;border-top:1px solid var(--border);">
         <h3 style="font-size:14px;font-weight:600;margin-bottom:16px;">🛡️ 敏感词过滤</h3>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">

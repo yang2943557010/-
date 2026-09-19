@@ -39,6 +39,9 @@
 /pages/speed.html
   Link: </css/speed-critical.css>; rel=preload; as=style, </css/generator.css>; rel=preload; as=style
 
+/api/*
+  Cache-Control: no-store
+
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate
   Service-Worker-Allowed: /

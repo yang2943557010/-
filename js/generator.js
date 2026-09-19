@@ -1262,8 +1262,80 @@ function switchTab(tab) {
   if (tab === 'presets') ensureEnhancements().then(() => renderPresets());
 }
 
+// ==================== 链坞同步 ====================
+const LIANWU_UPLOAD_KEY = 'lianwuUploadEnabled';
+
+function isLianwuUploadEnabled() {
+  return localStorage.getItem(LIANWU_UPLOAD_KEY) !== 'false';
+}
+
+function syncLianwuUploadControls() {
+  const enabled = isLianwuUploadEnabled();
+  document.querySelectorAll('[data-lianwu-upload]').forEach((input) => {
+    input.checked = enabled;
+  });
+}
+
+function setLianwuUploadEnabled(enabled) {
+  localStorage.setItem(LIANWU_UPLOAD_KEY, enabled ? 'true' : 'false');
+  syncLianwuUploadControls();
+  toast(enabled ? '已开启链坞同步' : '已关闭链坞同步，之后只生成链接');
+}
+
+async function uploadResourcesToLianwu(items) {
+  const summary = { created: 0, skipped: 0, errors: [] };
+  const chunkSize = 80;
+  for (let i = 0; i < items.length; i += chunkSize) {
+    const chunk = items.slice(i, i + chunkSize);
+    const response = await fetch('/api/lianwu', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ items: chunk }),
+    });
+    let data = null;
+    try { data = await response.json(); } catch (_) { data = null; }
+    if (!data || typeof data.code !== 'number') {
+      throw new Error(response.status === 404 ? '同步接口未部署' : '同步接口返回异常');
+    }
+    if (data.code === 401 || data.code === 403) {
+      throw new Error(data.message || '链坞登录失败');
+    }
+    if (data.code !== 0) {
+      summary.errors.push({ title: '', error: data.message || '同步失败' });
+      continue;
+    }
+    summary.created += Number(data.data?.created) || 0;
+    summary.skipped += Number(data.data?.skipped) || 0;
+    if (Array.isArray(data.data?.errors)) summary.errors.push(...data.data.errors);
+  }
+  return summary;
+}
+
+function formatLianwuSummary(summary, single) {
+  const errors = Array.isArray(summary?.errors) ? summary.errors : [];
+  const duplicates = errors.filter((item) => /已存在/.test(item?.error || ''));
+  const failures = errors.filter((item) => item?.error && !/已存在/.test(item.error));
+  const created = Number(summary?.created) || 0;
+  if (single) {
+    if (created > 0 && !failures.length) return '已同步到链坞';
+    if (duplicates.length && !failures.length) return '链坞已有该链接，已跳过';
+    if (failures.length) return '链坞同步失败：' + failures[0].error;
+    return '链坞没有写入这条资源';
+  }
+  if (!created && failures.length === 1 && !failures[0].title && !duplicates.length) {
+    return '链坞同步失败：' + failures[0].error;
+  }
+  const parts = [];
+  if (created) parts.push(`新建 ${created} 条`);
+  if (duplicates.length) parts.push(`已存在 ${duplicates.length} 条`);
+  if (failures.length) parts.push(`失败 ${failures.length} 条`);
+  return parts.length ? `链坞同步：${parts.join('，')}` : '链坞没有写入新资源';
+}
+
 // ==================== 单个生成 ====================
-function generateSingle() {
+async function generateSingle() {
+  const generateBtn = document.getElementById('generateSingleBtn');
+  if (generateBtn?.disabled) return;
   try {
     startBannedWordsInit();
     let raw = document.getElementById('targetUrl')?.value?.trim();
@@ -1301,6 +1373,8 @@ function generateSingle() {
       if (adEnabled) document.getElementById('adText').value = adText;
       toast('已自动过滤违禁内容');
     }
+
+    if (generateBtn) generateBtn.disabled = true;
     
     const link = generateLink(url, name, code, remark);
     if (!link || link.includes('?d=null')) {
@@ -1332,6 +1406,7 @@ function generateSingle() {
         <div class="name">${escapeHtml(name)} <span class="tag" style="background:${disk.color}">${escapeHtml(disk.name)}</span></div>
         <div class="link">${safeLink}</div>
         ${remark ? `<div class="remark">📝 ${escapeHtml(remark)}</div>` : ''}
+        ${isLianwuUploadEnabled() ? '<div class="lianwu-status" id="lianwuSingleStatus">正在同步到链坞…</div>' : ''}
       </div>
       <div class="actions">
         <button class="btn btn-primary btn-sm" onclick="showQRModal()">查看</button>
@@ -1342,18 +1417,43 @@ function generateSingle() {
     
     enqueueQRRender(qrId, url, 56);
     try { saveToHistory(currentData); } catch (e) { console.warn('历史记录保存失败:', e); }
-    toast(sanitized.hasFiltered ? '生成成功（已过滤违禁内容）' : '生成成功！');
+
+    let lianwuNote = '';
+    if (isLianwuUploadEnabled()) {
+      try {
+        const summary = await uploadResourcesToLianwu([{
+          title: name || '资源',
+          description: remark,
+          url,
+          pwd: code,
+          tag: group,
+        }]);
+        lianwuNote = formatLianwuSummary(summary, true);
+      } catch (err) {
+        lianwuNote = '链坞同步失败：' + (err?.message || '未知错误');
+      }
+      const statusEl = document.getElementById('lianwuSingleStatus');
+      if (statusEl) statusEl.textContent = lianwuNote;
+    }
+
+    const baseToast = sanitized.hasFiltered ? '生成成功（已过滤违禁内容）' : '生成成功！';
+    toast(lianwuNote ? `${baseToast} ${lianwuNote}` : baseToast, lianwuNote ? 3200 : 2000);
   } catch (err) {
     console.error('generateSingle failed:', err);
     toast('生成失败：' + (err?.message || '未知错误'));
+  } finally {
+    if (generateBtn) generateBtn.disabled = false;
   }
 }
 
 // ==================== 批量生成 ====================
 function generateBatch() {
+  const generateBtn = document.getElementById('generateBatchBtn');
+  if (generateBtn?.disabled) return;
   startBannedWordsInit();
   const input = document.getElementById('batchInput').value.trim();
   if (!input) return toast('请输入链接');
+  if (generateBtn) generateBtn.disabled = true;
   
   // 获取批量广告设置
   const batchAdEnabled = document.getElementById('batchAdEnabled')?.checked || false;
@@ -1399,12 +1499,30 @@ function generateBatch() {
     if (progressBarElement) progressBarElement.style.width = batchTotalCount ? (Math.min(100, (batchIndex / batchTotalCount) * 100) + '%') : '0%';
   };
 
-  const finalizeBatch = () => {
+  const finalizeBatch = async () => {
     flushHistory();
+
+    let lianwuNote = '';
+    if (isLianwuUploadEnabled() && batchGeneratedResults.length) {
+      const uploadingHint = document.getElementById('batchProgressHint');
+      if (uploadingHint) uploadingHint.textContent = '正在同步到链坞…';
+      try {
+        const summary = await uploadResourcesToLianwu(batchGeneratedResults.map((item) => ({
+          title: item.name || '资源',
+          description: item.remark || '',
+          url: item.url,
+          pwd: item.code || '',
+          tag: item.group || '',
+        })));
+        lianwuNote = formatLianwuSummary(summary, false);
+      } catch (err) {
+        lianwuNote = '链坞同步失败：' + (err?.message || '未知错误');
+      }
+    }
 
     const hintElement = document.getElementById('batchProgressHint');
     if (hintElement) {
-      hintElement.textContent = `完成：成功 ${successCount} 条，失败 ${errorCount} 条${filteredCount > 0 ? `，已过滤 ${filteredCount} 条` : ''}`;
+      hintElement.textContent = `完成：成功 ${successCount} 条，失败 ${errorCount} 条${filteredCount > 0 ? `，已过滤 ${filteredCount} 条` : ''}${lianwuNote ? `。${lianwuNote}` : ''}`;
     }
 
     if (batchGeneratedResults.length) {
@@ -1435,15 +1553,24 @@ function generateBatch() {
     let msg = `已生成 ${successCount} 条链接`;
     if (filteredCount > 0) msg += `（${filteredCount} 条已过滤违禁内容）`;
     if (errorCount > 0) msg = `成功 ${successCount} 条，失败 ${errorCount} 条`;
+    if (lianwuNote) msg += `。${lianwuNote}`;
     toast(msg, 3000);
     if (errors.length) console.warn('批量生成错误:', errors);
+    if (generateBtn) generateBtn.disabled = false;
   };
 
   const scheduleNextChunk = () => {
+    const run = () => {
+      Promise.resolve(processChunk()).catch((err) => {
+        console.error('generateBatch failed:', err);
+        toast('批量处理失败：' + (err?.message || '未知错误'));
+        if (generateBtn) generateBtn.disabled = false;
+      });
+    };
     if ('requestIdleCallback' in window) {
-      requestIdleCallback(processChunk, { timeout: 200 });
+      requestIdleCallback(run, { timeout: 200 });
     } else {
-      setTimeout(processChunk, 0);
+      setTimeout(run, 0);
     }
   };
 
@@ -1918,6 +2045,7 @@ function loadSettings() {
   
   toggleGradient();
   renderGroups();
+  syncLianwuUploadControls();
   previewQRStyle();
   
   // 更新词库数量显示
@@ -3026,6 +3154,7 @@ async function exportBatchPDF() {
     
     loadFormSettings();
     renderGroups();
+    syncLianwuUploadControls();
     
     const filterDisk = document.getElementById('filterDisk');
     filterDisk.innerHTML = '<option value="">全部网盘</option>' + 
