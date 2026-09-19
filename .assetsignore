@@ -1,0 +1,14 @@
+.git
+**/.git/**
+node_modules
+**/node_modules/**
+functions
+functions/**
+worker
+worker/**
+scripts
+scripts/**
+text.text
+**/.env
+**/.env.*
+*.pem
