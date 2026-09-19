@@ -137,12 +137,12 @@ async function handleUpload(request, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname !== '/api/lianwu') {
-      return jsonResponse({ code: 404, message: 'not found', data: null }, 404);
+    if (url.pathname === '/api/lianwu') {
+      if (request.method !== 'POST') {
+        return jsonResponse({ code: 405, message: '只接受 POST', data: null }, 405);
+      }
+      return handleUpload(request, env);
     }
-    if (request.method !== 'POST') {
-      return jsonResponse({ code: 405, message: '只接受 POST', data: null }, 405);
-    }
-    return handleUpload(request, env);
+    return env.ASSETS.fetch(request);
   },
 };
