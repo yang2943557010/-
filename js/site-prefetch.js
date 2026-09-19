@@ -31,7 +31,6 @@
     if (!shouldWarmPages()) return;
     var path = location.pathname || '';
     if (path.indexOf('generator') === -1) prefetchUrl(location.origin + '/pages/generator.html');
-    if (path.indexOf('resources') === -1) prefetchUrl(location.origin + '/pages/resources.html');
     if (path === '/' || path.endsWith('/index.html')) return;
     prefetchUrl(location.origin + '/index.html');
   }

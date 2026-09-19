@@ -1,12 +1,14 @@
 # Cloudflare Pages 静态站点
 # 旧根路径 → 新目录（保持书签与外链可用）
 /generator.html /pages/generator 301
-/resources.html /pages/resources 301
+/resources.html https://yourenjia.top/ 301
 /speed.html /pages/speed 301
 /vip.html /pages/vip 301
 /tools.html /pages/tools 301
 /generator /pages/generator 301
-/resources /pages/resources 301
+/resources https://yourenjia.top/ 301
+/pages/resources.html https://yourenjia.top/ 301
+/pages/resources https://yourenjia.top/ 301
 /speed /pages/speed 301
 /vip /pages/vip 301
 /tools /pages/tools 301
