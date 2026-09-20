@@ -29,19 +29,6 @@ function isAllowedRequest(request) {
   return false;
 }
 
-function readSession(response) {
-  const cookies = typeof response.headers.getSetCookie === 'function'
-    ? response.headers.getSetCookie()
-    : [];
-  for (const cookie of cookies) {
-    const matched = /(?:^|;\s*)lw_session=([^;]+)/.exec(cookie);
-    if (matched) return matched[1];
-  }
-  const raw = response.headers.get('set-cookie') || '';
-  const matched = /lw_session=([^;]+)/.exec(raw);
-  return matched ? matched[1] : '';
-}
-
 function buildRawText(url, pwd) {
   const link = String(url || '').trim();
   const code = String(pwd || '').trim();
@@ -52,34 +39,32 @@ function buildRawText(url, pwd) {
   return `${link} 提取码: ${code}`;
 }
 
-async function loginLianwu(env) {
-  const username = env?.LIANWU_USERNAME || 'admin';
-  const password = env?.LIANWU_PASSWORD || '';
-  if (!password) {
-    return { ok: false, session: '', message: '链坞密码未配置' };
-  }
-  const response = await fetch(`${LIANWU_ORIGIN}/api/admin/login`, {
+function uploadKey(env) {
+  return String(env?.LIANWU_UPLOAD_KEY || 'N--sP50uX9E1TElYWY69gcFTd8JKdhsP').trim();
+}
+
+async function uploadOne(resource, key) {
+  const response = await fetch(`${LIANWU_ORIGIN}/api/upload`, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
       accept: 'application/json',
+      'X-Upload-Key': key,
     },
-    body: JSON.stringify({ username, password, remember: true }),
+    body: JSON.stringify(resource),
   });
   const data = await response.json().catch(() => null);
-  const session = readSession(response);
-  if (!data || data.code !== 0) {
-    return { ok: false, session: '', message: (data && data.message) || '链坞登录失败' };
-  }
-  if (!session) {
-    return { ok: false, session: '', message: '链坞登录成功但没有拿到会话' };
-  }
-  return { ok: true, session, message: data.message || 'ok' };
+  return { httpStatus: response.status, data };
 }
 
 async function handleUpload(request, env) {
   if (!isAllowedRequest(request)) {
     return jsonResponse({ code: 403, message: '来源不被允许', data: null }, 403);
+  }
+
+  const key = uploadKey(env);
+  if (!key) {
+    return jsonResponse({ code: 500, message: '链坞上传密钥未配置', data: null }, 500);
   }
 
   let body;
@@ -93,16 +78,12 @@ async function handleUpload(request, env) {
   const resources = [];
   for (const item of items) {
     const title = String(item?.title || '').trim().slice(0, 120);
-    const url = String(item?.url || '').trim();
-    const rawText = buildRawText(url, item?.pwd);
+    const rawText = buildRawText(item?.url, item?.pwd).slice(0, 5000);
     if (!title || !rawText) continue;
-    const resource = {
-      title,
-      description: String(item?.description || '').trim().slice(0, 500),
-      raw_text: rawText.slice(0, 5000),
-      status: 'published',
-    };
+    const resource = { title, raw_text: rawText };
+    const description = String(item?.description || '').trim().slice(0, 500);
     const tag = String(item?.tag || '').trim().slice(0, 32);
+    if (description) resource.description = description;
     if (tag) resource.tags = [tag];
     resources.push(resource);
   }
@@ -111,27 +92,44 @@ async function handleUpload(request, env) {
     return jsonResponse({ code: 400, message: '没有可上传的资源', data: null }, 400);
   }
 
-  const auth = await loginLianwu(env);
-  if (!auth.ok) {
-    const status = auth.message === '链坞密码未配置' ? 500 : 401;
-    return jsonResponse({ code: status, message: auth.message, data: null }, status);
+  const summary = { created: 0, skipped: 0, errors: [] };
+  let rateLimited = false;
+  for (const resource of resources) {
+    const result = await uploadOne(resource, key);
+    const data = result.data;
+    const code = data && typeof data.code === 'number' ? data.code : result.httpStatus;
+    const message = (data && data.message) || '链坞没有返回结果';
+    if (code === 401 || result.httpStatus === 401) {
+      return jsonResponse({ code: 401, message, data: null }, 401);
+    }
+    if (code === 404 && /未开启/.test(message)) {
+      return jsonResponse({ code: 404, message, data: null }, 404);
+    }
+    if (code === 429 || result.httpStatus === 429) {
+      rateLimited = true;
+      summary.errors.push({ title: resource.title, error: message });
+      break;
+    }
+    if (!data || typeof data.code !== 'number') {
+      summary.errors.push({ title: resource.title, error: message });
+      continue;
+    }
+    if (data.code === 0 && data.data && data.data.id) {
+      summary.created += 1;
+      continue;
+    }
+    if (data.code === 409 || /已存在/.test(message)) {
+      summary.skipped += 1;
+      summary.errors.push({ title: resource.title, error: message });
+      continue;
+    }
+    summary.errors.push({ title: resource.title, error: message });
   }
 
-  const upstream = await fetch(`${LIANWU_ORIGIN}/api/admin/import-json`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      accept: 'application/json',
-      cookie: `lw_session=${auth.session}`,
-    },
-    body: JSON.stringify({ resources }),
-  });
-  const data = await upstream.json().catch(() => null);
-  if (!data || typeof data.code !== 'number') {
-    return jsonResponse({ code: 502, message: '链坞没有返回结果', data: null }, 502);
+  if (rateLimited && summary.created === 0 && summary.skipped === 0) {
+    return jsonResponse({ code: 429, message: '超过每小时限速', data: summary }, 429);
   }
-  const status = data.code === 0 ? 200 : (upstream.status || data.code || 500);
-  return jsonResponse(data, status >= 200 && status < 600 ? status : 500);
+  return jsonResponse({ code: 0, message: 'ok', data: summary }, 200);
 }
 
 export default {

@@ -1284,7 +1284,7 @@ function setLianwuUploadEnabled(enabled) {
 
 async function uploadResourcesToLianwu(items) {
   const summary = { created: 0, skipped: 0, errors: [] };
-  const chunkSize = 80;
+  const chunkSize = 20;
   for (let i = 0; i < items.length; i += chunkSize) {
     const chunk = items.slice(i, i + chunkSize);
     const response = await fetch('/api/lianwu', {
@@ -1297,8 +1297,12 @@ async function uploadResourcesToLianwu(items) {
     if (!data || typeof data.code !== 'number') {
       throw new Error(response.status === 404 ? '同步接口未部署' : '同步接口返回异常');
     }
-    if (data.code === 401 || data.code === 403) {
-      throw new Error(data.message || '链坞登录失败');
+    if (data.code === 401 || data.code === 403 || data.code === 404) {
+      throw new Error(data.message || '链坞上传失败');
+    }
+    if (data.code === 429) {
+      summary.errors.push({ title: '', error: data.message || '超过每小时限速' });
+      break;
     }
     if (data.code !== 0) {
       summary.errors.push({ title: '', error: data.message || '同步失败' });
