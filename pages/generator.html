@@ -281,16 +281,6 @@
           </div>
         </details>
       </div>
-      <div class="lianwu-sync-row">
-        <div>
-          <div class="lianwu-sync-title">同步到链坞</div>
-          <div class="lianwu-sync-desc">默认开启。生成链接时会把资源名称、原链接、提取码和备注上传到链坞。关闭后只在本地生成。</div>
-        </div>
-        <label class="switch">
-          <input type="checkbox" data-lianwu-upload checked onchange="setLianwuUploadEnabled(this.checked)">
-          <span class="slider"></span>
-        </label>
-      </div>
       <div class="btn-group">
         <button class="btn btn-primary" id="generateSingleBtn" onclick="generateSingle()">✨ 生成链接</button>
         <button class="btn btn-secondary" onclick="previewResult()">👁️ 预览效果</button>
@@ -367,16 +357,6 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         </div>
       </details>
 
-      <div class="lianwu-sync-row">
-        <div>
-          <div class="lianwu-sync-title">同步到链坞</div>
-          <div class="lianwu-sync-desc">默认开启。批量生成成功的资源会一并上传。已在链坞的链接会跳过，不会覆盖。</div>
-        </div>
-        <label class="switch">
-          <input type="checkbox" data-lianwu-upload checked onchange="setLianwuUploadEnabled(this.checked)">
-          <span class="slider"></span>
-        </label>
-      </div>
       <div class="btn-group">
         <button class="btn btn-primary" id="generateBatchBtn" onclick="generateBatch()">批量生成</button>
         <button class="btn btn-success" onclick="exportAllQR()">📦 导出全部二维码</button>
@@ -598,15 +578,25 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
         <div id="groupList" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;"></div>
       </div>
       
-      <div style="padding-top:20px;margin-top:20px;border-top:1px solid var(--border);">
-        <h3 style="font-size:14px;font-weight:600;margin-bottom:16px;">链坞同步</h3>
-        <div class="lianwu-sync-row" style="margin-bottom:0;">
+      <div class="lianwu-settings-panel">
+        <div class="lianwu-settings-head">
           <div>
-            <div class="lianwu-sync-title">生成时上传到链坞</div>
-            <div class="lianwu-sync-desc">作用于单个生成和批量生成。默认开启，关闭后立即生效，刷新页面也会记住。</div>
+            <h3 class="lianwu-settings-heading">链坞同步</h3>
+            <p class="lianwu-settings-sub">控制单个生成和批量生成是否把资源上传到链坞。密钥只保存在服务器，不会出现在页面里。</p>
           </div>
-          <label class="switch">
-            <input type="checkbox" data-lianwu-upload checked onchange="setLianwuUploadEnabled(this.checked)">
+          <span class="lianwu-settings-badge" id="lianwuSyncBadge">默认开启</span>
+        </div>
+        <div class="lianwu-settings-card">
+          <div class="lianwu-settings-copy">
+            <div class="lianwu-settings-icon" aria-hidden="true">☁</div>
+            <div>
+              <div class="lianwu-sync-title">生成时上传到链坞</div>
+              <div class="lianwu-sync-desc">开启后会同步资源名称、原链接、提取码和备注。已存在的链接会跳过，不会覆盖。关闭后只在本地生成分享链接。</div>
+              <div class="lianwu-settings-state" id="lianwuSyncState">当前：已开启</div>
+            </div>
+          </div>
+          <label class="switch switch-lg" title="开关链坞同步">
+            <input type="checkbox" id="lianwuUploadToggle" data-lianwu-upload checked onchange="setLianwuUploadEnabled(this.checked)">
             <span class="slider"></span>
           </label>
         </div>
@@ -788,7 +778,7 @@ https://pan.baidu.com/s/yyy|学习资料|5678|学习|PDF格式"></textarea>
     <div id="disclaimerSlot" class="disclaimer-slot" data-class="disclaimer" data-style="max-width:1200px;margin:40px auto 20px;padding:20px 24px;background:var(--bg);border:1px solid var(--border);border-radius:12px;font-size:11px;color:var(--text3);line-height:1.8;text-align:center;" aria-hidden="true"></div>
     
   <script src="/js/defer-disclaimer.js" defer></script>
-  <script src="/js/generator.js" defer></script>
+  <script src="/js/generator.js?v=30" defer></script>
   <script src="/js/defer-aux-scripts.js" defer></script>
 </body>
 </html>

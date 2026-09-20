@@ -1274,12 +1274,30 @@ function syncLianwuUploadControls() {
   document.querySelectorAll('[data-lianwu-upload]').forEach((input) => {
     input.checked = enabled;
   });
+  const stateEl = document.getElementById('lianwuSyncState');
+  if (stateEl) {
+    stateEl.textContent = enabled ? '当前：已开启' : '当前：已关闭';
+    stateEl.classList.toggle('is-off', !enabled);
+  }
+  const badgeEl = document.getElementById('lianwuSyncBadge');
+  if (badgeEl) {
+    badgeEl.textContent = enabled ? '默认开启' : '已关闭';
+    badgeEl.classList.toggle('is-off', !enabled);
+  }
 }
 
 function setLianwuUploadEnabled(enabled) {
   localStorage.setItem(LIANWU_UPLOAD_KEY, enabled ? 'true' : 'false');
   syncLianwuUploadControls();
   toast(enabled ? '已开启链坞同步' : '已关闭链坞同步，之后只生成链接');
+}
+
+function lianwuStatusClass(note) {
+  if (!note) return '';
+  if (/失败|异常|限速|未部署|未开启|无效/.test(note)) return 'is-err';
+  if (/已有|跳过|没有写入/.test(note)) return 'is-warn';
+  if (/已同步|新建/.test(note)) return 'is-ok';
+  return '';
 }
 
 async function uploadResourcesToLianwu(items) {
@@ -1289,13 +1307,17 @@ async function uploadResourcesToLianwu(items) {
     const chunk = items.slice(i, i + chunkSize);
     const response = await fetch('/api/lianwu', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: {
+        'content-type': 'application/json',
+        accept: 'application/json',
+      },
       body: JSON.stringify({ items: chunk }),
+      credentials: 'same-origin',
     });
     let data = null;
     try { data = await response.json(); } catch (_) { data = null; }
     if (!data || typeof data.code !== 'number') {
-      throw new Error(response.status === 404 ? '同步接口未部署' : '同步接口返回异常');
+      throw new Error(response.status === 404 ? '同步接口未部署' : ('同步接口返回异常' + (response.status ? '（' + response.status + '）' : '')));
     }
     if (data.code === 401 || data.code === 403 || data.code === 404) {
       throw new Error(data.message || '链坞上传失败');
@@ -1435,9 +1457,13 @@ async function generateSingle() {
         lianwuNote = formatLianwuSummary(summary, true);
       } catch (err) {
         lianwuNote = '链坞同步失败：' + (err?.message || '未知错误');
+        console.error('lianwu upload failed:', err);
       }
       const statusEl = document.getElementById('lianwuSingleStatus');
-      if (statusEl) statusEl.textContent = lianwuNote;
+      if (statusEl) {
+        statusEl.textContent = lianwuNote;
+        statusEl.className = 'lianwu-status ' + lianwuStatusClass(lianwuNote);
+      }
     }
 
     const baseToast = sanitized.hasFiltered ? '生成成功（已过滤违禁内容）' : '生成成功！';

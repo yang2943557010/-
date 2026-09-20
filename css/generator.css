@@ -324,10 +324,26 @@
 .btn-danger { background:#ef4444; color:#fff; }
 .btn-sm { padding:6px 12px; font-size:12px; }
 .btn:disabled { opacity:.65; cursor:not-allowed; transform:none; box-shadow:none; }
-.lianwu-sync-row { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 14px; padding:12px 14px; border:1px solid var(--border); border-radius:12px; background:var(--bg); }
-.lianwu-sync-title { font-size:13px; font-weight:600; }
-.lianwu-sync-desc { font-size:11px; color:var(--text3); margin-top:4px; line-height:1.5; }
-.lianwu-status { font-size:12px; color:var(--text2); margin-top:6px; }
+.lianwu-settings-panel { margin-top:20px; padding-top:20px; border-top:1px solid var(--border); }
+.lianwu-settings-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.lianwu-settings-heading { font-size:14px; font-weight:600; margin:0 0 6px; }
+.lianwu-settings-sub { margin:0; font-size:12px; color:var(--text2); line-height:1.6; max-width:42em; }
+.lianwu-settings-badge { flex-shrink:0; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:600; color:#0f766e; background:rgba(16,185,129,.12); border:1px solid rgba(16,185,129,.22); }
+.lianwu-settings-badge.is-off { color:#64748b; background:rgba(100,116,139,.12); border-color:rgba(100,116,139,.2); }
+.lianwu-settings-card { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 18px; border:1px solid var(--border); border-radius:16px; background:linear-gradient(145deg, rgba(99,102,241,.06), rgba(16,185,129,.05)); box-shadow:0 8px 24px rgba(15,23,42,.04); }
+.lianwu-settings-copy { display:flex; align-items:flex-start; gap:12px; min-width:0; }
+.lianwu-settings-icon { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#fff; border:1px solid var(--border); color:var(--primary); font-size:18px; flex-shrink:0; }
+.lianwu-sync-title { font-size:14px; font-weight:600; }
+.lianwu-sync-desc { font-size:12px; color:var(--text3); margin-top:4px; line-height:1.6; }
+.lianwu-settings-state { margin-top:8px; font-size:12px; font-weight:600; color:#0f766e; }
+.lianwu-settings-state.is-off { color:#64748b; }
+.lianwu-status { font-size:12px; margin-top:8px; padding:8px 10px; border-radius:10px; background:rgba(99,102,241,.08); color:var(--text2); }
+.lianwu-status.is-ok { background:rgba(16,185,129,.12); color:#0f766e; }
+.lianwu-status.is-warn { background:rgba(245,158,11,.14); color:#b45309; }
+.lianwu-status.is-err { background:rgba(239,68,68,.12); color:#b91c1c; }
+.switch-lg { width:52px; height:30px; flex-shrink:0; }
+.switch-lg .slider:before { height:22px; width:22px; left:4px; bottom:4px; }
+.switch-lg input:checked + .slider:before { transform:translateX(22px); }
 
 .btn-group { display:flex; gap:10px; margin-top:20px; }
 

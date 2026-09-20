@@ -1,5 +1,5 @@
 // Cloudflare Pages：HTML 网络优先；静态资源 stale-while-revalidate / cache-first
-const CACHE_VERSION = 'netdisk-cf-v29';
+const CACHE_VERSION = 'netdisk-cf-v30';
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const PRECACHE = [
@@ -121,6 +121,12 @@ self.addEventListener('fetch', (event) => {
   if (shouldSkipPath(url.pathname)) return;
 
   if (isHtmlRequest(event.request, url)) {
+    event.respondWith(networkFirst(event.request));
+    return;
+  }
+
+  // 生成器主脚本改动频繁，避免旧缓存导致上传逻辑丢失
+  if (url.pathname === '/js/generator.js' || url.pathname === '/css/generator.css') {
     event.respondWith(networkFirst(event.request));
     return;
   }

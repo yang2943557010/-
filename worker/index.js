@@ -20,12 +20,25 @@ function isAllowedHost(hostname) {
 }
 
 function isAllowedRequest(request) {
+  const site = (request.headers.get('Sec-Fetch-Site') || '').toLowerCase();
+  if (site === 'same-origin' || site === 'same-site') return true;
+
   const origin = request.headers.get('Origin') || '';
   const referer = request.headers.get('Referer') || '';
   try {
     if (origin) return isAllowedHost(new URL(origin).hostname);
     if (referer) return isAllowedHost(new URL(referer).hostname);
   } catch (_) {}
+
+  // 部分浏览器同源 POST 可能不带 Origin/Referer，只靠 Host 判断不安全，
+  // 但配合 Sec-Fetch-Mode 可再放宽一层。
+  const mode = (request.headers.get('Sec-Fetch-Mode') || '').toLowerCase();
+  const dest = (request.headers.get('Sec-Fetch-Dest') || '').toLowerCase();
+  if ((mode === 'cors' || mode === 'same-origin') && (dest === 'empty' || dest === '')) {
+    try {
+      return isAllowedHost(new URL(request.url).hostname);
+    } catch (_) {}
+  }
   return false;
 }
 
